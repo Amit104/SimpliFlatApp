@@ -11,6 +11,7 @@ import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'activity/flat_activity.dart';
+import 'dashboard.dart';
 import 'lists/shopping_list.dart';
 
 class Home extends StatefulWidget {
@@ -25,8 +26,14 @@ class Home extends StatefulWidget {
 }
 
 class _Home extends State<Home> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
+
+  //profile details
   final flatId;
+  String flatName = "Hey!";
+  String displayId = "";
+  String userName = "";
+  String userPhone = "";
 
   _Home(this.flatId);
 
@@ -49,6 +56,7 @@ class _Home extends State<Home> {
     }
   }
 
+  // Initialise Firestore notifications
   @override
   void initState() {
     super.initState();
@@ -72,6 +80,8 @@ class _Home extends State<Home> {
         .listen((IosNotificationSettings setting) {
       print("IOS Setting resgistered");
     });
+
+    // notification token check.
     Utility.getToken().then((token) {
       if (token == null || token == "") {
         firebaseMessaging.getToken().then((token) async {
@@ -97,18 +107,29 @@ class _Home extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    _updateUserDetails();
+    fetchFlatName(context);
     return WillPopScope(
         onWillPop: () {
           moveToLastScreen();
           return null;
         },
         child: Scaffold(
+//          body: Center(
+//            child: _selectedIndex == 0
+//                ? Profile()
+//                : (_selectedIndex == 1
+//                    ? TaskList(flatId)
+//                    : (_selectedIndex == 2 ? ShoppingLists(flatId) : FlatActivity(flatId))),
+//          ),
           body: Center(
             child: _selectedIndex == 0
-                ? Profile()
+                ? Dashboard(flatId)
                 : (_selectedIndex == 1
                     ? TaskList(flatId)
-                    : (_selectedIndex == 2 ? ShoppingLists(flatId) : FlatActivity(flatId))),
+                    : (_selectedIndex == 2
+                        ? ShoppingLists(flatId)
+                        : FlatActivity(flatId))),
           ),
           bottomNavigationBar: new BottomNavigationBar(
             items: <BottomNavigationBarItem>[
@@ -122,25 +143,73 @@ class _Home extends State<Home> {
                   icon: Icon(Icons.done_all), title: Text('Activity')),
             ],
             currentIndex: _selectedIndex,
-            unselectedItemColor: Colors.black,
-            fixedColor: Colors.indigo[900],
+            unselectedItemColor: Colors.indigo[900],
+            fixedColor: Colors.red[900],
             onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed ,
+            type: BottomNavigationBarType.fixed,
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          drawer: new Drawer(
+            key: GlobalKey(),
+            child: ListView(
+              children: <Widget>[
+                UserAccountsDrawerHeader(
+                  accountEmail: Text(userPhone),
+                  accountName: Text(userName),
+                  margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0,),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      userName==""?"A":userName[0].toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 40.0,
+                        fontFamily: 'Roboto',
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.payment, color: Colors.green,),
+                  title: Text("Payments"),
+                  trailing: Icon(Icons.arrow_forward_ios,),
+                  onTap: () {
+                    //Navigator.of(context).pop();
+                    //Navigator.of(context).push(MaterialPageRoute(
+                    //    builder: (BuildContext context) => NewPage("Page two")));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.shopping_cart, color: Colors.blue,),
+                  trailing: Icon(Icons.arrow_forward_ios,),
+                  title: Text("Orders"),
+                  onTap: () {
+                    //Navigator.of(context).pop();
+                    //Navigator.of(context).push(MaterialPageRoute(
+                    //    builder: (BuildContext context) => NewPage("Page two")));
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
           floatingActionButton: new FloatingActionButton(
             onPressed: () async {
-              var _flatId = await Utility.getFlatId();
+              var _flatId = flatId;
+              if (flatId == null || flatId == "")
+                _flatId = await Utility.getFlatId();
               List<Map<String, dynamic>> offlineDocuments = await _query();
               navigateToNotice(_flatId, offlineDocuments);
             },
             tooltip: 'Noticeboard',
-            backgroundColor: Colors.indigo[900],
+            backgroundColor: Colors.red[900],
             child: new Icon(Icons.arrow_drop_up),
           ),
         ));
   }
 
+  // get offline notices
   Future<List<Map<String, dynamic>>> _query() async {
     final allRows = await dbHelper.queryRows(globals.noticeBoard);
     return allRows;
@@ -152,6 +221,7 @@ class _Home extends State<Home> {
     Navigator.push(context, _createRoute(flatId, _userId, offlineDocuments));
   }
 
+  //animated transition to noticeboard
   Route _createRoute(flatId, userId, offlineDocuments) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
@@ -170,9 +240,71 @@ class _Home extends State<Home> {
     );
   }
 
+  // Navigation for bottom navigation buttons
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  //update user info if missing in shared preferences
+  void _updateUserDetails() async {
+    var _userId = await Utility.getUserId();
+    var _userName = await Utility.getUserName();
+    var _userPhone = await Utility.getUserPhone();
+    if (_userName == null ||
+        _userName == "" ||
+        _userPhone == null ||
+        _userPhone == "") {
+      Firestore.instance.collection(globals.user).document(_userId).get().then(
+          (snapshot) {
+        if (snapshot.exists) {
+          setState(() {
+            userName = snapshot.data['name'];
+            userPhone = snapshot.data['phone'];
+          });
+          Utility.addToSharedPref(userName: userName);
+          Utility.addToSharedPref(userPhone: userPhone);
+        }
+      }, onError: (e) {});
+    } else {
+      userName = await Utility.getUserName();
+      userPhone = await Utility.getUserPhone();
+    }
+  }
+
+  // update flat info if missing in shared preferences
+  void fetchFlatName(context) async {
+    Utility.getFlatName().then((name) {
+      if (flatName == null ||
+          flatName == "" ||
+          displayId == "" ||
+          displayId == null) {
+        Firestore.instance
+            .collection(globals.flat)
+            .document(flatId)
+            .get()
+            .then((flat) {
+          if (flat != null) {
+            Utility.addToSharedPref(flatName: flat['name'].toString());
+            Utility.addToSharedPref(displayId: flat['display_id'].toString());
+            setState(() {
+              displayId = flat['display_id'].toString();
+              flatName = flat['name'].toString().trim();
+              if (flatName == null || flatName == "") flatName = "Hey!";
+            });
+          }
+        });
+      }
+      if (name != null) {
+        setState(() {
+          flatName = name;
+        });
+      } else {
+        setState(() {
+          flatName = "Hey there!";
+        });
+      }
     });
   }
 

@@ -79,6 +79,9 @@ flutter:
     - family: IconsCustom
       fonts:
         - asset: fonts/IconsCustom.ttf
+    - family: Satisfy
+      fonts:
+          - asset: fonts/Satisfy-Regular.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.io/custom-fonts/#from-packages

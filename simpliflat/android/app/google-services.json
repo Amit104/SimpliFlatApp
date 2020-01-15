@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "215251342923",
+    "firebase_url": "https://simpliflat-ba82b.firebaseio.com",
+    "project_id": "simpliflat-ba82b",
+    "storage_bucket": "simpliflat-ba82b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215251342923:android:066c5329e43b90ae",
+        "android_client_info": {
+          "package_name": "com.example.simpliflat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "215251342923-18luoch9aan64evut7rai168behhmo8v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "fd5631b4075667ffcb3a9a1e63f362924807e34a"
+          }
+        },
+        {
+          "client_id": "215251342923-iu4230qfj4dulv4a5ek099ahntbus6se.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "7e9c133ee5e8e5303f2d16d5334456cf37aef0fc"
+          }
+        },
+        {
+          "client_id": "215251342923-q4gtoeinb8t9gkhc3ileu35f3r9gm368.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "a1e8de34b3e6a4f5876b51db627ace4d25646d22"
+          }
+        },
+        {
+          "client_id": "215251342923-q09ae1hndkh9ulgr4lbj2llotin5sn1c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgPRwT6xjO93hZncE2E5OwJzGP0mXGEDU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "215251342923-q09ae1hndkh9ulgr4lbj2llotin5sn1c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:simpliflat/icons/icons_custom_icons.dart';
 import 'package:simpliflat/screens/profile/profile.dart';
+import 'package:simpliflat/screens/profile/user_profile.dart';
 import 'package:simpliflat/screens/tasks/task_list.dart';
 import 'package:simpliflat/screens/utility.dart';
 import 'package:simpliflat/screens/noticeboard.dart';
@@ -129,18 +130,18 @@ class _Home extends State<Home> {
                     ? TaskList(flatId)
                     : (_selectedIndex == 2
                         ? ShoppingLists(flatId)
-                        : FlatActivity(flatId))),
+                        : UserProfile())),
           ),
           bottomNavigationBar: new BottomNavigationBar(
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                  icon: Icon(Icons.home), title: Text('My Flat')),
+                  icon: Icon(Icons.dashboard), title: Text('Dashboard')),
               BottomNavigationBarItem(
                   icon: Icon(IconsCustom.tasks_1), title: Text('Tasks')),
               BottomNavigationBarItem(
                   icon: Icon(Icons.list), title: Text('Lists')),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.done_all), title: Text('Activity')),
+                  icon: Icon(Icons.home), title: Text('My Flat')),
             ],
             currentIndex: _selectedIndex,
             unselectedItemColor: Colors.indigo[900],

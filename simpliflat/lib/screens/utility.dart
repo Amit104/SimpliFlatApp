@@ -78,5 +78,10 @@ class Utility {
   static double getAdjustedHeight(double height, BuildContext context) {
     return height * MediaQuery.of(context).size.height / 640.0;
   }
+
+  static Color userIdColor(userId) {
+    var color = userId.toString().trim().hashCode;
+    return Colors.primaries[color % Colors.primaries.length];
+  }
 }
 

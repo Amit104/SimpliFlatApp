@@ -543,7 +543,7 @@ class _CreateTask extends State<CreateTask> {
           snapshot.documents.sort(
               (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
           var responseArray = snapshot.documents
-              .map((m) => new FlatUsersResponse.fromJson(m.data))
+              .map((m) => new FlatUsersResponse.fromJson(m.data, m.documentID))
               .toList();
           this._usersCount = responseArray.length;
           this.existingUsers = responseArray;

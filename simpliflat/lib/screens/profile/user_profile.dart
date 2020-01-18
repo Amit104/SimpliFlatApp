@@ -12,14 +12,14 @@ import 'package:simpliflat/screens/widgets/loading_container.dart';
 import 'package:simpliflat/screens/profile/profile_options.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Profile extends StatefulWidget {
+class UserProfile extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _Profile();
+    return _UserProfile();
   }
 }
 
-class _Profile extends State<Profile> {
+class _UserProfile extends State<UserProfile> {
   var _navigatorContext;
   var _minimumPadding = 5.0;
   var _flatId;
@@ -98,6 +98,7 @@ class _Profile extends State<Profile> {
     return WillPopScope(
       onWillPop: () {
         moveToLastScreen();
+        return null;
       },
       child: Scaffold(
           appBar: AppBar(
@@ -115,114 +116,6 @@ class _Profile extends State<Profile> {
                         right: _minimumPadding * 2),
                     child: ListView(
                       children: <Widget>[
-                        // top card to settings
-                        SizedBox(
-                          height: 100.0,
-                          width: deviceSize.width * 0.85,
-                          child: new Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            elevation: 2.0,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                // Box decoration takes a gradient
-                                gradient: LinearGradient(
-                                  // Where the linear gradient begins and ends
-                                  begin: Alignment.topRight,
-                                  end: Alignment.bottomLeft,
-                                  // Add one stop for each color. Stops should increase from 0 to 1
-                                  stops: [0.1, 0.5, 0.7, 0.9],
-                                  colors: [
-                                    // Colors are easy thanks to Flutter's Colors class.
-                                    Colors.indigo[800],
-                                    Colors.indigo[700],
-                                    Colors.indigo[600],
-                                    Colors.indigo[400],
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: DefaultTextStyle(
-                                      softWrap: false,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: descriptionStyle,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          // three line description
-                                          Expanded(
-                                            flex: 3,
-                                            child: Container(),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Text(
-                                              flatName,
-                                              style: descriptionStyle.copyWith(
-                                                  color: Colors.white,
-                                                  fontSize: 20.0),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 1,
-                                            child: Container(),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Text(
-                                              "Welcome to your e-abode",
-                                              style: descriptionStyle.copyWith(
-                                                  color: Colors.white70,
-                                                  fontSize: 14.0),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Container(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: SizedBox(
-                                      height: 80.0,
-                                      child: Stack(
-                                        children: <Widget>[
-                                          Positioned.fill(
-                                            child: GestureDetector(
-                                              child: Icon(Icons.more_horiz,
-                                                  color: Colors.white),
-                                              onTap: () {
-                                                navigateToProfileOptions();
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.all(8.0),
-                        ),
-
                         // Flat members
                         Row(
                           children: <Widget>[
@@ -244,7 +137,7 @@ class _Profile extends State<Profile> {
                                 child: RaisedButton(
                                     shape: new RoundedRectangleBorder(
                                       borderRadius:
-                                      new BorderRadius.circular(40.0),
+                                          new BorderRadius.circular(40.0),
                                       side: BorderSide(
                                         width: 0.5,
                                         color: Colors.indigo[900],
@@ -252,7 +145,7 @@ class _Profile extends State<Profile> {
                                     ),
                                     color: Colors.white,
                                     textColor:
-                                    Theme.of(context).primaryColorDark,
+                                        Theme.of(context).primaryColorDark,
                                     child: Icon(Icons.group_add,
                                         color: Colors.black),
                                     onPressed: () {
@@ -266,10 +159,10 @@ class _Profile extends State<Profile> {
                                               key: _formKey1,
                                               child: AlertDialog(
                                                   shape:
-                                                  new RoundedRectangleBorder(
+                                                      new RoundedRectangleBorder(
                                                     borderRadius:
-                                                    new BorderRadius
-                                                        .circular(10.0),
+                                                        new BorderRadius
+                                                            .circular(10.0),
                                                     side: BorderSide(
                                                       width: 1.0,
                                                       color: Colors.indigo[900],
@@ -280,34 +173,34 @@ class _Profile extends State<Profile> {
                                                       style: TextStyle(
                                                           color: Colors.black,
                                                           fontFamily:
-                                                          'Montserrat',
+                                                              'Montserrat',
                                                           fontSize: 16.0)),
                                                   content: Container(
                                                     width: double.maxFinite,
                                                     height:
-                                                    MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                        3,
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            3,
                                                     child: Column(
                                                       children: <Widget>[
                                                         Padding(
                                                             padding: EdgeInsets.only(
                                                                 top:
-                                                                _minimumPadding,
+                                                                    _minimumPadding,
                                                                 bottom:
-                                                                _minimumPadding),
+                                                                    _minimumPadding),
                                                             child:
-                                                            TextFormField(
+                                                                TextFormField(
                                                               autofocus: true,
                                                               keyboardType:
-                                                              TextInputType
-                                                                  .number,
+                                                                  TextInputType
+                                                                      .number,
                                                               style: textStyle,
                                                               controller:
-                                                              addUserForm,
+                                                                  addUserForm,
                                                               validator: (String
-                                                              value) {
+                                                                  value) {
                                                                 if (value
                                                                     .isEmpty)
                                                                   return "Please enter Phone number ";
@@ -315,68 +208,68 @@ class _Profile extends State<Profile> {
                                                               },
                                                               decoration: InputDecoration(
                                                                   labelText:
-                                                                  "Phone Number",
+                                                                      "Phone Number",
                                                                   labelStyle: TextStyle(
                                                                       color: Colors
                                                                           .black,
                                                                       fontSize:
-                                                                      16.0,
+                                                                          16.0,
                                                                       fontFamily:
-                                                                      'Montserrat',
+                                                                          'Montserrat',
                                                                       fontWeight:
-                                                                      FontWeight
-                                                                          .w700),
+                                                                          FontWeight
+                                                                              .w700),
                                                                   hintText:
-                                                                  "9005489765",
+                                                                      "9005489765",
                                                                   hintStyle:
-                                                                  TextStyle(
-                                                                      color: Colors
-                                                                          .grey),
+                                                                      TextStyle(
+                                                                          color: Colors
+                                                                              .grey),
                                                                   errorStyle: TextStyle(
                                                                       color: Colors
                                                                           .red,
                                                                       fontSize:
-                                                                      12.0,
+                                                                          12.0,
                                                                       fontFamily:
-                                                                      'Montserrat',
+                                                                          'Montserrat',
                                                                       fontWeight:
-                                                                      FontWeight
-                                                                          .w700),
+                                                                          FontWeight
+                                                                              .w700),
                                                                   border:
-                                                                  InputBorder
-                                                                      .none),
+                                                                      InputBorder
+                                                                          .none),
                                                             )),
                                                         Padding(
                                                             padding: EdgeInsets.only(
                                                                 top:
-                                                                _minimumPadding,
+                                                                    _minimumPadding,
                                                                 bottom:
-                                                                _minimumPadding),
+                                                                    _minimumPadding),
                                                             child: Row(
                                                                 mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
                                                                 children: <
                                                                     Widget>[
                                                                   OutlineButton(
                                                                       shape:
-                                                                      new RoundedRectangleBorder(
+                                                                          new RoundedRectangleBorder(
                                                                         borderRadius:
-                                                                        new BorderRadius.circular(10.0),
+                                                                            new BorderRadius.circular(10.0),
                                                                         side:
-                                                                        BorderSide(
+                                                                            BorderSide(
                                                                           width:
-                                                                          1.0,
+                                                                              1.0,
                                                                           color:
-                                                                          Colors.indigo[900],
+                                                                              Colors.indigo[900],
                                                                         ),
                                                                       ),
                                                                       padding:
-                                                                      const EdgeInsets.all(
-                                                                          8.0),
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
                                                                       textColor:
-                                                                      Colors
-                                                                          .black,
+                                                                          Colors
+                                                                              .black,
                                                                       child: Text(
                                                                           'Add',
                                                                           style: TextStyle(
@@ -389,9 +282,9 @@ class _Profile extends State<Profile> {
                                                                             _isButtonDisabled ==
                                                                                 false) {
                                                                           setState(
-                                                                                  () {
-                                                                                debugPrint("STARTING API CALL");
-                                                                              });
+                                                                              () {
+                                                                            debugPrint("STARTING API CALL");
+                                                                          });
                                                                           _addUserToFlat(
                                                                               addUserForm.text);
                                                                           addUserForm
@@ -402,23 +295,23 @@ class _Profile extends State<Profile> {
                                                                       }),
                                                                   OutlineButton(
                                                                       shape:
-                                                                      new RoundedRectangleBorder(
+                                                                          new RoundedRectangleBorder(
                                                                         borderRadius:
-                                                                        new BorderRadius.circular(10.0),
+                                                                            new BorderRadius.circular(10.0),
                                                                         side:
-                                                                        BorderSide(
+                                                                            BorderSide(
                                                                           width:
-                                                                          1.0,
+                                                                              1.0,
                                                                           color:
-                                                                          Colors.indigo[900],
+                                                                              Colors.indigo[900],
                                                                         ),
                                                                       ),
                                                                       padding:
-                                                                      const EdgeInsets.all(
-                                                                          8.0),
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
                                                                       textColor:
-                                                                      Colors
-                                                                          .black,
+                                                                          Colors
+                                                                              .black,
                                                                       child: Text(
                                                                           'Cancel',
                                                                           style: TextStyle(
@@ -428,7 +321,7 @@ class _Profile extends State<Profile> {
                                                                               fontWeight: FontWeight.w700)),
                                                                       onPressed: () {
                                                                         Navigator.of(context,
-                                                                            rootNavigator: true)
+                                                                                rootNavigator: true)
                                                                             .pop();
                                                                       })
                                                                 ]))
@@ -446,42 +339,42 @@ class _Profile extends State<Profile> {
                           height: 118.0,
                           color: Colors.white,
                           child: (existingUsers == null ||
-                              existingUsers.length == 0)
+                                  existingUsers.length == 0)
                               ? LoadingContainerHorizontal(
-                              MediaQuery.of(context).size.height / 10 -
-                                  10.0)
+                                  MediaQuery.of(context).size.height / 10 -
+                                      10.0)
                               : _getExistingUsers(),
                         ),
 
                         //Incoming requests
                         Row(
                           children: (incomingRequests == null ||
-                              incomingRequests.length == 0)
+                                  incomingRequests.length == 0)
                               ? <Widget>[Container(margin: EdgeInsets.all(0.0))]
                               : <Widget>[
-                            Expanded(child: Container()),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10.0, bottom: 6.0),
-                              child: Text("Incoming Requests",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontFamily: 'Montserrat',
-                                      color: Colors.black)),
-                            ),
-                            Expanded(flex: 15, child: Container()),
-                          ],
+                                  Expanded(child: Container()),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 10.0, bottom: 6.0),
+                                    child: Text("Incoming Requests",
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                            fontSize: 18.0,
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.black)),
+                                  ),
+                                  Expanded(flex: 15, child: Container()),
+                                ],
                         ),
                         Container(
                           padding: EdgeInsets.only(top: 7.0, bottom: 7.0),
                           height: (incomingRequests == null ||
-                              incomingRequests.length == 0)
+                                  incomingRequests.length == 0)
                               ? 5.0
                               : 118.0,
                           color: Colors.white,
                           child: (incomingRequests == null ||
-                              incomingRequests.length == 0)
+                                  incomingRequests.length == 0)
                               ? null
                               : _getIncomingRequestsHorizontal(),
                         ),
@@ -489,37 +382,85 @@ class _Profile extends State<Profile> {
                         //Your Requests
                         Row(
                           children: (addUsersRequests == null ||
-                              addUsersRequests.length == 0)
+                                  addUsersRequests.length == 0)
                               ? <Widget>[Container(margin: EdgeInsets.all(0.0))]
                               : <Widget>[
-                            Expanded(child: Container()),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10.0, bottom: 6.0),
-                              child: Text("Your Requests",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontFamily: 'Montserrat',
-                                      color: Colors.black)),
-                            ),
-                            Expanded(flex: 15, child: Container()),
-                          ],
+                                  Expanded(child: Container()),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 10.0, bottom: 6.0),
+                                    child: Text("Your Requests",
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                            fontSize: 18.0,
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.black)),
+                                  ),
+                                  Expanded(flex: 15, child: Container()),
+                                ],
                         ),
                         Container(
                           padding: EdgeInsets.only(top: 7.0),
                           height: (addUsersRequests == null ||
-                              addUsersRequests.length == 0)
+                                  addUsersRequests.length == 0)
                               ? 0.0
                               : 118.0,
                           color: Colors.white,
                           child: (addUsersRequests == null ||
-                              addUsersRequests.length == 0)
+                                  addUsersRequests.length == 0)
                               ? null
                               : _getExistingAddUserRequests(),
                         ),
 
-                        //Flat contacts
+                        // options list
+                        SizedBox(
+                          height: 15.0,
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Card(
+                              child: ListTile(
+                                leading: Icon(
+                                  Icons.person,
+                                  color: Colors.redAccent,
+                                ),
+                                title: Text('Profile'),
+                                onTap: () {
+                                  navigateToProfileOptions();
+                                },
+                              ),
+                              color: Colors.white,
+                              elevation: 2.0,
+                            ),
+                            Card(
+                              child: ListTile(
+                                leading: Icon(
+                                  Icons.credit_card,
+                                  color: Colors.green,
+                                ),
+                                title: Text('Transaction History'),
+                              ),
+                              color: Colors.white,
+                              elevation: 2.0,
+                            ),
+                            Card(
+                              child: ListTile(
+                                leading: Icon(
+                                  Icons.info,
+                                  color: Colors.indigo,
+                                ),
+                                title: Text('About'),
+                              ),
+                              color: Colors.white,
+                              elevation: 2.0,
+                            ),
+                          ],
+                        ),
+
+                        // Contacts List
+                        SizedBox(
+                          height: 25.0,
+                        ),
                         Row(
                           children: <Widget>[
                             Expanded(flex: 1, child: Container()),
@@ -540,7 +481,7 @@ class _Profile extends State<Profile> {
                                 child: RaisedButton(
                                     shape: new RoundedRectangleBorder(
                                       borderRadius:
-                                      new BorderRadius.circular(40.0),
+                                          new BorderRadius.circular(40.0),
                                       side: BorderSide(
                                         width: 0.5,
                                         color: Colors.indigo[900],
@@ -548,7 +489,7 @@ class _Profile extends State<Profile> {
                                     ),
                                     color: Colors.white,
                                     textColor:
-                                    Theme.of(context).primaryColorDark,
+                                        Theme.of(context).primaryColorDark,
                                     child: Icon(Icons.person_add,
                                         color: Colors.black),
                                     onPressed: () {
@@ -562,10 +503,10 @@ class _Profile extends State<Profile> {
                                               key: _formKey1,
                                               child: AlertDialog(
                                                 shape:
-                                                new RoundedRectangleBorder(
+                                                    new RoundedRectangleBorder(
                                                   borderRadius:
-                                                  new BorderRadius.circular(
-                                                      10.0),
+                                                      new BorderRadius.circular(
+                                                          10.0),
                                                   side: BorderSide(
                                                     width: 1.0,
                                                     color: Colors.indigo[900],
@@ -575,25 +516,25 @@ class _Profile extends State<Profile> {
                                                     style: TextStyle(
                                                         color: Colors.black,
                                                         fontFamily:
-                                                        'Montserrat',
+                                                            'Montserrat',
                                                         fontSize: 16.0)),
                                                 content: Container(
                                                     width: double.maxFinite,
                                                     height:
-                                                    MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                        2.5,
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            2.5,
                                                     child: ListView(
                                                       children: <Widget>[
                                                         TextFormField(
                                                           autofocus: true,
                                                           keyboardType:
-                                                          TextInputType
-                                                              .text,
+                                                              TextInputType
+                                                                  .text,
                                                           style: textStyle,
                                                           controller:
-                                                          contactName,
+                                                              contactName,
                                                           validator:
                                                               (String value) {
                                                             if (value.isEmpty)
@@ -605,17 +546,17 @@ class _Profile extends State<Profile> {
                                                           },
                                                           decoration: InputDecoration(
                                                               labelText:
-                                                              "Contact Name",
+                                                                  "Contact Name",
                                                               labelStyle: TextStyle(
                                                                   color: Colors
                                                                       .black,
                                                                   fontSize:
-                                                                  13.0,
+                                                                      13.0,
                                                                   fontFamily:
-                                                                  'Montserrat',
+                                                                      'Montserrat',
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .w700),
+                                                                      FontWeight
+                                                                          .w700),
                                                               hintText: "Maid",
                                                               hintStyle: TextStyle(
                                                                   color: Colors
@@ -624,101 +565,101 @@ class _Profile extends State<Profile> {
                                                                   color: Colors
                                                                       .red,
                                                                   fontSize:
-                                                                  12.0,
+                                                                      12.0,
                                                                   fontFamily:
-                                                                  'Montserrat',
+                                                                      'Montserrat',
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .w700),
+                                                                      FontWeight
+                                                                          .w700),
                                                               border:
-                                                              InputBorder
-                                                                  .none),
+                                                                  InputBorder
+                                                                      .none),
                                                         ),
                                                         Padding(
                                                             padding:
-                                                            EdgeInsets.only(
-                                                                top: 10.0,
-                                                                bottom:
-                                                                10.0),
+                                                                EdgeInsets.only(
+                                                                    top: 10.0,
+                                                                    bottom:
+                                                                        10.0),
                                                             child:
-                                                            TextFormField(
+                                                                TextFormField(
                                                               keyboardType:
-                                                              TextInputType
-                                                                  .number,
+                                                                  TextInputType
+                                                                      .number,
                                                               style: textStyle,
                                                               controller: phone,
                                                               validator: (String
-                                                              value) {
+                                                                  value) {
                                                                 if (value
                                                                     .isEmpty)
                                                                   return "Please enter Phone Number";
                                                                 if (value
-                                                                    .length !=
+                                                                        .length !=
                                                                     10)
                                                                   return "Please enter valid 10 digit number";
                                                                 return null;
                                                               },
                                                               decoration: InputDecoration(
                                                                   labelText:
-                                                                  "Phone Number",
+                                                                      "Phone Number",
                                                                   labelStyle: TextStyle(
                                                                       color: Colors
                                                                           .black,
                                                                       fontSize:
-                                                                      13.0,
+                                                                          13.0,
                                                                       fontFamily:
-                                                                      'Montserrat',
+                                                                          'Montserrat',
                                                                       fontWeight:
-                                                                      FontWeight
-                                                                          .w700),
+                                                                          FontWeight
+                                                                              .w700),
                                                                   hintText:
-                                                                  "9005489765",
+                                                                      "9005489765",
                                                                   hintStyle:
-                                                                  TextStyle(
-                                                                      color: Colors
-                                                                          .grey),
+                                                                      TextStyle(
+                                                                          color: Colors
+                                                                              .grey),
                                                                   errorStyle: TextStyle(
                                                                       color: Colors
                                                                           .red,
                                                                       fontSize:
-                                                                      12.0,
+                                                                          12.0,
                                                                       fontFamily:
-                                                                      'Montserrat',
+                                                                          'Montserrat',
                                                                       fontWeight:
-                                                                      FontWeight
-                                                                          .w700),
+                                                                          FontWeight
+                                                                              .w700),
                                                                   border:
-                                                                  InputBorder
-                                                                      .none),
+                                                                      InputBorder
+                                                                          .none),
                                                             )),
                                                         Padding(
                                                             padding: EdgeInsets.only(
                                                                 top:
-                                                                _minimumPadding,
+                                                                    _minimumPadding,
                                                                 bottom:
-                                                                _minimumPadding),
+                                                                    _minimumPadding),
                                                             child: Row(
                                                                 mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
                                                                 children: <
                                                                     Widget>[
                                                                   OutlineButton(
                                                                       shape:
-                                                                      new RoundedRectangleBorder(
-                                                                          borderRadius: new BorderRadius.circular(
-                                                                              10.0),
-                                                                          side:
-                                                                          BorderSide(
-                                                                            width: 1.0,
-                                                                            color: Colors.indigo[900],
-                                                                          )),
+                                                                          new RoundedRectangleBorder(
+                                                                              borderRadius: new BorderRadius.circular(
+                                                                                  10.0),
+                                                                              side:
+                                                                                  BorderSide(
+                                                                                width: 1.0,
+                                                                                color: Colors.indigo[900],
+                                                                              )),
                                                                       padding:
-                                                                      const EdgeInsets.all(
-                                                                          8.0),
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
                                                                       textColor:
-                                                                      Colors
-                                                                          .blue,
+                                                                          Colors
+                                                                              .blue,
                                                                       child: Text(
                                                                           'Save',
                                                                           style: TextStyle(
@@ -731,7 +672,7 @@ class _Profile extends State<Profile> {
                                                                             .currentState
                                                                             .validate()) {
                                                                           setState(
-                                                                                  () {});
+                                                                              () {});
                                                                           _addOrUpdateFlatContact(
                                                                               _navigatorContext,
                                                                               1); //1 is add
@@ -741,23 +682,23 @@ class _Profile extends State<Profile> {
                                                                       }),
                                                                   OutlineButton(
                                                                       shape:
-                                                                      new RoundedRectangleBorder(
+                                                                          new RoundedRectangleBorder(
                                                                         borderRadius:
-                                                                        new BorderRadius.circular(10.0),
+                                                                            new BorderRadius.circular(10.0),
                                                                         side:
-                                                                        BorderSide(
+                                                                            BorderSide(
                                                                           width:
-                                                                          1.0,
+                                                                              1.0,
                                                                           color:
-                                                                          Colors.indigo[900],
+                                                                              Colors.indigo[900],
                                                                         ),
                                                                       ),
                                                                       padding:
-                                                                      const EdgeInsets.all(
-                                                                          8.0),
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
                                                                       textColor:
-                                                                      Colors
-                                                                          .black,
+                                                                          Colors
+                                                                              .black,
                                                                       child: Text(
                                                                           'Cancel',
                                                                           style: TextStyle(
@@ -767,7 +708,7 @@ class _Profile extends State<Profile> {
                                                                               fontWeight: FontWeight.w700)),
                                                                       onPressed: () {
                                                                         Navigator.of(context,
-                                                                            rootNavigator: true)
+                                                                                rootNavigator: true)
                                                                             .pop();
                                                                       })
                                                                 ]))
@@ -784,9 +725,6 @@ class _Profile extends State<Profile> {
                           color: Colors.white,
                           height: contactHeight,
                           child: getContacts(context),
-                        ),
-                        Container(
-                          margin: EdgeInsets.all(8.0),
                         ),
                       ],
                     )));
@@ -895,7 +833,7 @@ class _Profile extends State<Profile> {
           _enableButton();
           Utility.createErrorSnackBar(_navigatorContext,
               error:
-              "User already is in a flat. Ask the user to leave the other flat and try again!");
+                  "User already is in a flat. Ask the user to leave the other flat and try again!");
         } else {
           var timeNow = DateTime.now();
           var dataJson = {
@@ -934,23 +872,27 @@ class _Profile extends State<Profile> {
                     requestsFromFlat.documents.length == 0) {
                   debugPrint("USER REQUEST NULL ADD");
                   Firestore.instance.collection("joinflat").add(dataJson).then(
-                          (addedRequest) {
-                        var newUserRequest = FlatAddUsersResponse(
-                            userId: user.documents[0].documentID,
-                            name: data["name"],
-                            phone: phone,
-                            createdAt: timeNow,
-                            updatedAt: timeNow);
-                        setState(() {
-                          addUsersRequests.add(newUserRequest);
-                          addUsersRequests.sort(
-                                  (a, b) => b.getUpdatedAt.compareTo(a.getUpdatedAt));
-                          addUserRequestCount++;
-                        });
-                        _enableButton();
-                        Utility.createErrorSnackBar(_navigatorContext,
-                            error: "Success!");
-                      }, onError: (e) {
+                      (addedRequest) {
+                    var newUserRequest = FlatAddUsersResponse(
+                        userId: user.documents[0].documentID,
+                        name: data["name"],
+                        phone: phone,
+                        createdAt: timeNow,
+                        updatedAt: timeNow);
+                    setState(() {
+                      if (addUsersRequests == null) {
+                        addUsersRequests = new List();
+                        addUserRequestCount = 0;
+                      }
+                      addUsersRequests.add(newUserRequest);
+                      addUsersRequests.sort(
+                          (a, b) => b.getUpdatedAt.compareTo(a.getUpdatedAt));
+                      addUserRequestCount++;
+                    });
+                    _enableButton();
+                    Utility.createErrorSnackBar(_navigatorContext,
+                        error: "Success!");
+                  }, onError: (e) {
                     Utility.createErrorSnackBar(_navigatorContext);
                     _enableButton();
                   });
@@ -966,13 +908,13 @@ class _Profile extends State<Profile> {
                         name: data["name"],
                         phone: phone,
                         createdAt:
-                        requestsFromFlat.documents[0].data["created_at"],
+                            requestsFromFlat.documents[0].data["created_at"],
                         updatedAt: timeNow);
                     if (requestsFromFlat.documents[0].data["status"] != 0) {
                       setState(() {
                         addUsersRequests.add(newUserRequest);
                         addUsersRequests.sort(
-                                (a, b) => b.getUpdatedAt.compareTo(a.getUpdatedAt));
+                            (a, b) => b.getUpdatedAt.compareTo(a.getUpdatedAt));
                         addUserRequestCount++;
                       });
                     }
@@ -1002,7 +944,7 @@ class _Profile extends State<Profile> {
               Firestore.instance
                   .collection("joinflat")
                   .where("user_id",
-                  isEqualTo: userData.userId.toString().trim())
+                      isEqualTo: userData.userId.toString().trim())
                   .getDocuments()
                   .then((joinRequests) {
                 if (joinRequests == null ||
@@ -1044,6 +986,7 @@ class _Profile extends State<Profile> {
                           setState(() {
                             FlatUsersResponse newUser = new FlatUsersResponse(
                                 name: userData.name,
+                                userId: userData.userId,
                                 createdAt: data["created_at"],
                                 updatedAt: timeNow);
                             existingUsers.add(newUser);
@@ -1117,14 +1060,14 @@ class _Profile extends State<Profile> {
         var req = joinRequest.documents[0].documentID;
         if (joinRequest.documents[0].data["status"] == 0) {
           Firestore.instance.collection("joinflat").document(req).delete().then(
-                  (snapshot) {
-                setState(() {
-                  Utility.createErrorSnackBar(_navigatorContext, error: "Success!");
-                  addUsersRequests.remove(userData);
-                  addUserRequestCount--;
-                });
-                _enableButtonOnly();
-              }, onError: (e) {
+              (snapshot) {
+            setState(() {
+              Utility.createErrorSnackBar(_navigatorContext, error: "Success!");
+              addUsersRequests.remove(userData);
+              addUserRequestCount--;
+            });
+            _enableButtonOnly();
+          }, onError: (e) {
             Utility.createErrorSnackBar(_navigatorContext);
             _enableButtonOnly();
           });
@@ -1177,35 +1120,36 @@ class _Profile extends State<Profile> {
               toUpdateFlat
                   .updateData({"status": 1, "updated_at": timeNow}).then(
                       (snapshot) {
-                    Firestore.instance
-                        .collection("user")
-                        .document(userData.userId.toString().trim())
-                        .updateData({
-                      "flat_id": _flatId.toString().trim(),
-                      "updated_at": timeNow
-                    }).then((user) {
-                      debugPrint(userData.userId);
-                      setState(() {
-                        FlatUsersResponse newUser = new FlatUsersResponse(
-                            name: userData.name,
-                            createdAt: userData.createdAt,
-                            updatedAt: timeNow);
-                        existingUsers.add(newUser);
-                        existingUsers.sort(
-                                (a, b) => b.getUpdatedAt.compareTo(a.getUpdatedAt));
-                        usersCount++;
-                        incomingRequests.remove(userData);
-                        incomingRequestsCount--;
-                        Utility.createErrorSnackBar(_navigatorContext,
-                            error: "Success!");
-                      });
-                      _enableButtonOnly();
-                    }, onError: (e) {
-                      debugPrint("ERROR IN REQ ACEEPT");
-                      Utility.createErrorSnackBar(_navigatorContext);
-                      _enableButtonOnly();
-                    });
-                  }, onError: (e) {
+                Firestore.instance
+                    .collection("user")
+                    .document(userData.userId.toString().trim())
+                    .updateData({
+                  "flat_id": _flatId.toString().trim(),
+                  "updated_at": timeNow
+                }).then((user) {
+                  debugPrint(userData.userId);
+                  setState(() {
+                    FlatUsersResponse newUser = new FlatUsersResponse(
+                        name: userData.name,
+                        userId: userData.userId,
+                        createdAt: userData.createdAt,
+                        updatedAt: timeNow);
+                    existingUsers.add(newUser);
+                    existingUsers.sort(
+                        (a, b) => b.getUpdatedAt.compareTo(a.getUpdatedAt));
+                    usersCount++;
+                    incomingRequests.remove(userData);
+                    incomingRequestsCount--;
+                    Utility.createErrorSnackBar(_navigatorContext,
+                        error: "Success!");
+                  });
+                  _enableButtonOnly();
+                }, onError: (e) {
+                  debugPrint("ERROR IN REQ ACEEPT");
+                  Utility.createErrorSnackBar(_navigatorContext);
+                  _enableButtonOnly();
+                });
+              }, onError: (e) {
                 debugPrint("ERROR IN REQ ACEEPT");
                 Utility.createErrorSnackBar(_navigatorContext);
                 _enableButtonOnly();
@@ -1269,7 +1213,7 @@ class _Profile extends State<Profile> {
       } else {
         setState(() {
           snapshot.documents.sort(
-                  (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
+              (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
           var responseArray = snapshot.documents
               .map((m) => new FlatUsersResponse.fromJson(m.data, m.documentID))
               .toList();
@@ -1296,7 +1240,7 @@ class _Profile extends State<Profile> {
         //no requests
       } else {
         joinRequests.documents.sort(
-                (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
+            (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
         List<FlatIncomingResponse> usersToFetch = new List();
         for (int i = 0; i < joinRequests.documents.length; i++) {
           FlatIncomingResponse f = new FlatIncomingResponse();
@@ -1379,7 +1323,7 @@ class _Profile extends State<Profile> {
         //no requests
       } else {
         joinRequests.documents.sort(
-                (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
+            (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
         List<FlatAddUsersResponse> usersToFetch = new List();
         for (int i = 0; i < joinRequests.documents.length; i++) {
           FlatAddUsersResponse f = new FlatAddUsersResponse();
@@ -1458,16 +1402,16 @@ class _Profile extends State<Profile> {
         _userPhone == null ||
         _userPhone == "") {
       Firestore.instance.collection("user").document(_userId).get().then(
-              (snapshot) {
-            if (snapshot.exists) {
-              setState(() {
-                userName = snapshot.data['name'];
-                userPhone = snapshot.data['phone'];
-              });
-              Utility.addToSharedPref(userName: userName);
-              Utility.addToSharedPref(userPhone: userPhone);
-            }
-          }, onError: (e) {
+          (snapshot) {
+        if (snapshot.exists) {
+          setState(() {
+            userName = snapshot.data['name'];
+            userPhone = snapshot.data['phone'];
+          });
+          Utility.addToSharedPref(userName: userName);
+          Utility.addToSharedPref(userPhone: userPhone);
+        }
+      }, onError: (e) {
         Utility.createErrorSnackBar(_navigatorContext);
       });
     } else {
@@ -1491,14 +1435,53 @@ class _Profile extends State<Profile> {
             return emptyCard();
           }
           contactHeight = 80.0 * contactSnapshot.data.documents.length;
+
           return ListView.builder(
               itemCount: contactSnapshot.data.documents.length,
               scrollDirection: Axis.vertical,
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (BuildContext context, int position) {
+                var contactChar = contactSnapshot
+                    .data.documents[position]["name"]
+                    .toString()[0]
+                    .toUpperCase();
+
+                List alphabets = [
+                  'A',
+                  'B',
+                  'C',
+                  'D',
+                  'E',
+                  'F',
+                  'G',
+                  'H',
+                  'I',
+                  'J',
+                  'K',
+                  'L',
+                  'M',
+                  'N',
+                  'O',
+                  'P',
+                  'Q',
+                  'R',
+                  'S',
+                  'T',
+                  'U',
+                  'V',
+                  'W',
+                  'X',
+                  'Y',
+                  'Z'
+                ];
+
+                if (!alphabets.contains(contactChar)) {
+                  contactChar = "S";
+                }
+
                 return Padding(
                   padding:
-                  const EdgeInsets.only(top: 2.0, right: 8.0, left: 8.0),
+                      const EdgeInsets.only(top: 2.0, right: 8.0, left: 8.0),
                   child: SizedBox(
                     height: 70.0,
                     width: MediaQuery.of(context).size.width,
@@ -1539,7 +1522,7 @@ class _Profile extends State<Profile> {
                                   .document(_flatId)
                                   .collection(globals.flatContacts)
                                   .document(contactSnapshot
-                                  .data.documents[position].documentID)
+                                      .data.documents[position].documentID)
                                   .delete();
                             },
                           ),
@@ -1580,7 +1563,7 @@ class _Profile extends State<Profile> {
                                       .document(_flatId)
                                       .collection(globals.flatContacts)
                                       .document(contactSnapshot
-                                      .data.documents[position].documentID)
+                                          .data.documents[position].documentID)
                                       .delete();
                                   state.dismiss();
                                 }
@@ -1622,7 +1605,7 @@ class _Profile extends State<Profile> {
                                       .document(_flatId)
                                       .collection(globals.flatContacts)
                                       .document(contactSnapshot
-                                      .data.documents[position].documentID)
+                                          .data.documents[position].documentID)
                                       .delete();
                                   state.dismiss();
                                 }
@@ -1632,9 +1615,19 @@ class _Profile extends State<Profile> {
                           child: ListTile(
                             leading: GestureDetector(
                               child: CircleAvatar(
-                                child: Icon(
-                                  Icons.person,
-                                  color: Colors.white,
+                                child: CircleAvatar(
+                                  backgroundColor: Utility.userIdColor(
+                                      contactSnapshot
+                                          .data.documents[position]["name"]
+                                          .toString()),
+                                  child: Text(
+                                    contactChar,
+                                    style: TextStyle(
+                                      fontSize: 22.0,
+                                      fontFamily: 'Roboto',
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ),
                               onTap: () {
@@ -1654,7 +1647,7 @@ class _Profile extends State<Profile> {
                                         child: AlertDialog(
                                           shape: new RoundedRectangleBorder(
                                             borderRadius:
-                                            new BorderRadius.circular(10.0),
+                                                new BorderRadius.circular(10.0),
                                             side: BorderSide(
                                               width: 1.0,
                                               color: Colors.indigo[900],
@@ -1668,15 +1661,15 @@ class _Profile extends State<Profile> {
                                           content: Container(
                                               width: double.maxFinite,
                                               height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
+                                                      .size
+                                                      .height /
                                                   2.5,
                                               child: ListView(
                                                 children: <Widget>[
                                                   TextFormField(
                                                     autofocus: true,
                                                     keyboardType:
-                                                    TextInputType.text,
+                                                        TextInputType.text,
                                                     style: textStyle,
                                                     controller: contactName,
                                                     validator: (String value) {
@@ -1688,15 +1681,15 @@ class _Profile extends State<Profile> {
                                                     },
                                                     decoration: InputDecoration(
                                                         labelText:
-                                                        "Contact Name",
+                                                            "Contact Name",
                                                         labelStyle: TextStyle(
                                                             color: Colors.black,
                                                             fontSize: 13.0,
                                                             fontFamily:
-                                                            'Montserrat',
+                                                                'Montserrat',
                                                             fontWeight:
-                                                            FontWeight
-                                                                .w700),
+                                                                FontWeight
+                                                                    .w700),
                                                         hintText: "Maid",
                                                         hintStyle: TextStyle(
                                                             color: Colors.grey),
@@ -1704,12 +1697,12 @@ class _Profile extends State<Profile> {
                                                             color: Colors.red,
                                                             fontSize: 12.0,
                                                             fontFamily:
-                                                            'Montserrat',
+                                                                'Montserrat',
                                                             fontWeight:
-                                                            FontWeight
-                                                                .w700),
+                                                                FontWeight
+                                                                    .w700),
                                                         border:
-                                                        InputBorder.none),
+                                                            InputBorder.none),
                                                   ),
                                                   Padding(
                                                       padding: EdgeInsets.only(
@@ -1717,41 +1710,42 @@ class _Profile extends State<Profile> {
                                                           bottom: 10.0),
                                                       child: TextFormField(
                                                         keyboardType:
-                                                        TextInputType
-                                                            .number,
+                                                            TextInputType
+                                                                .number,
                                                         style: textStyle,
                                                         controller: phone,
                                                         validator:
                                                             (String value) {
                                                           if (value.isEmpty)
                                                             return "Please enter Phone Number";
+                                                          return null;
                                                         },
                                                         decoration: InputDecoration(
                                                             labelText:
-                                                            "Phone Number",
+                                                                "Phone Number",
                                                             labelStyle: TextStyle(
                                                                 color: Colors
                                                                     .black,
                                                                 fontSize: 13.0,
                                                                 fontFamily:
-                                                                'Montserrat',
+                                                                    'Montserrat',
                                                                 fontWeight:
-                                                                FontWeight
-                                                                    .w700),
+                                                                    FontWeight
+                                                                        .w700),
                                                             hintText:
-                                                            "9005489765",
+                                                                "9005489765",
                                                             hintStyle: TextStyle(
                                                                 color: Colors
                                                                     .grey),
                                                             errorStyle: TextStyle(
                                                                 color:
-                                                                Colors.red,
+                                                                    Colors.red,
                                                                 fontSize: 12.0,
                                                                 fontFamily:
-                                                                'Montserrat',
+                                                                    'Montserrat',
                                                                 fontWeight:
-                                                                FontWeight
-                                                                    .w700),
+                                                                    FontWeight
+                                                                        .w700),
                                                             border: InputBorder
                                                                 .none),
                                                       )),
@@ -1759,28 +1753,28 @@ class _Profile extends State<Profile> {
                                                       padding: EdgeInsets.only(
                                                           top: _minimumPadding,
                                                           bottom:
-                                                          _minimumPadding),
+                                                              _minimumPadding),
                                                       child: Row(
                                                           mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
                                                           children: <Widget>[
                                                             OutlineButton(
                                                                 shape:
-                                                                new RoundedRectangleBorder(
-                                                                    borderRadius: new BorderRadius.circular(
-                                                                        10.0),
-                                                                    side:
-                                                                    BorderSide(
-                                                                      width:
-                                                                      1.0,
-                                                                      color:
-                                                                      Colors.indigo[900],
-                                                                    )),
+                                                                    new RoundedRectangleBorder(
+                                                                        borderRadius: new BorderRadius.circular(
+                                                                            10.0),
+                                                                        side:
+                                                                            BorderSide(
+                                                                          width:
+                                                                              1.0,
+                                                                          color:
+                                                                              Colors.indigo[900],
+                                                                        )),
                                                                 padding:
-                                                                const EdgeInsets
-                                                                    .all(
-                                                                    8.0),
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
                                                                 textColor: Colors
                                                                     .blue,
                                                                 child: Text(
@@ -1789,17 +1783,17 @@ class _Profile extends State<Profile> {
                                                                         color: Colors
                                                                             .black,
                                                                         fontSize:
-                                                                        14.0,
+                                                                            14.0,
                                                                         fontFamily:
-                                                                        'Montserrat',
+                                                                            'Montserrat',
                                                                         fontWeight:
-                                                                        FontWeight.w700)),
+                                                                            FontWeight.w700)),
                                                                 onPressed: () {
                                                                   if (_formKey1
                                                                       .currentState
                                                                       .validate()) {
                                                                     setState(
-                                                                            () {});
+                                                                        () {});
                                                                     _addOrUpdateFlatContact(
                                                                         _navigatorContext,
                                                                         2,
@@ -1807,48 +1801,48 @@ class _Profile extends State<Profile> {
                                                                             .data
                                                                             .documents[position]["phone"]); //2 is update
                                                                     Navigator.of(
-                                                                        context,
-                                                                        rootNavigator:
-                                                                        true)
+                                                                            context,
+                                                                            rootNavigator:
+                                                                                true)
                                                                         .pop();
                                                                   }
                                                                 }),
                                                             OutlineButton(
                                                                 shape:
-                                                                new RoundedRectangleBorder(
+                                                                    new RoundedRectangleBorder(
                                                                   borderRadius:
-                                                                  new BorderRadius
-                                                                      .circular(
-                                                                      10.0),
+                                                                      new BorderRadius
+                                                                              .circular(
+                                                                          10.0),
                                                                   side:
-                                                                  BorderSide(
+                                                                      BorderSide(
                                                                     width: 1.0,
                                                                     color: Colors
-                                                                        .indigo[
-                                                                    900],
+                                                                            .indigo[
+                                                                        900],
                                                                   ),
                                                                 ),
                                                                 padding:
-                                                                const EdgeInsets.all(
-                                                                    8.0),
+                                                                    const EdgeInsets.all(
+                                                                        8.0),
                                                                 textColor:
-                                                                Colors.blue,
+                                                                    Colors.blue,
                                                                 child: Text(
                                                                     'Cancel',
                                                                     style: TextStyle(
                                                                         color: Colors
                                                                             .red,
                                                                         fontSize:
-                                                                        14.0,
+                                                                            14.0,
                                                                         fontFamily:
-                                                                        'Montserrat',
+                                                                            'Montserrat',
                                                                         fontWeight:
-                                                                        FontWeight.w700)),
+                                                                            FontWeight.w700)),
                                                                 onPressed: () {
                                                                   Navigator.of(
-                                                                      context,
-                                                                      rootNavigator:
-                                                                      true)
+                                                                          context,
+                                                                          rootNavigator:
+                                                                              true)
                                                                       .pop();
                                                                 })
                                                           ]))
@@ -1908,17 +1902,32 @@ class _Profile extends State<Profile> {
                 child: Column(
                   children: <Widget>[
                     CircleAvatar(
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.black87,
+                      backgroundColor: Utility.userIdColor(
+                          this.existingUsers[position].userId),
+                      child: Align(
+                        child: Text(
+                          userName == ""
+                              ? "S"
+                              : this
+                                  .existingUsers[position]
+                                  .name[0]
+                                  .toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 30.0,
+                            fontFamily: 'Satisfy',
+                            color: Colors.white,
+                          ),
+                        ),
+                        alignment: Alignment.center,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 7.5),
                       child: Text(
                         this.existingUsers[position].name,
-                        style: titleStyle,
-                        maxLines: 3,
+                        style:
+                            TextStyle(fontSize: 14.0, fontFamily: 'Montserrat'),
+                        maxLines: 2,
                       ),
                     ),
                   ],
@@ -1970,7 +1979,7 @@ class _Profile extends State<Profile> {
                         maxLines: 3,
                         style: TextStyle(
                           color: Colors.black54,
-                          fontSize: 11.0,
+                          fontSize: 12.0,
                           fontFamily: 'Montserrat',
                         ),
                       ),
@@ -1991,7 +2000,7 @@ class _Profile extends State<Profile> {
                                         elevation: 0.0,
                                         shape: new RoundedRectangleBorder(
                                           borderRadius:
-                                          new BorderRadius.circular(0.0),
+                                              new BorderRadius.circular(0.0),
                                           side: BorderSide(
                                             width: 0.5,
                                             color: Colors.black,
@@ -1999,7 +2008,7 @@ class _Profile extends State<Profile> {
                                         ),
                                         color: Colors.white,
                                         textColor:
-                                        Theme.of(context).primaryColorDark,
+                                            Theme.of(context).primaryColorDark,
                                         child: (_progressCircleState == 0)
                                             ? setUpButtonChild("Accept")
                                             : setUpButtonChild("Waiting"),
@@ -2014,7 +2023,7 @@ class _Profile extends State<Profile> {
 
                                             Utility.createErrorSnackBar(context,
                                                 error:
-                                                "Waiting for Request Call to Complete!");
+                                                    "Waiting for Request Call to Complete!");
                                           }
                                         })),
                                 ButtonTheme(
@@ -2024,7 +2033,7 @@ class _Profile extends State<Profile> {
                                         elevation: 0.0,
                                         shape: new RoundedRectangleBorder(
                                           borderRadius:
-                                          new BorderRadius.circular(0.0),
+                                              new BorderRadius.circular(0.0),
                                           side: BorderSide(
                                             width: 0.5,
                                             color: Colors.black,
@@ -2032,16 +2041,16 @@ class _Profile extends State<Profile> {
                                         ),
                                         color: Colors.white,
                                         textColor:
-                                        Theme.of(context).primaryColorDark,
+                                            Theme.of(context).primaryColorDark,
                                         child: (_progressCircleState == 0)
                                             ? setUpButtonChild("Accept",
-                                            color: Colors.red,
-                                            icon: Icons.delete)
+                                                color: Colors.red,
+                                                icon: Icons.delete)
                                             : setUpButtonChild("Waiting"),
                                         onPressed: () {
                                           if (_isButtonDisabled == false) {
                                             var request =
-                                            incomingRequests[index];
+                                                incomingRequests[index];
                                             setState(() {
                                               incomingRequests.removeAt(index);
                                               incomingRequestsCount--;
@@ -2050,7 +2059,7 @@ class _Profile extends State<Profile> {
                                           } else
                                             Utility.createErrorSnackBar(context,
                                                 error:
-                                                "Waiting for Request Call to Complete!");
+                                                    "Waiting for Request Call to Complete!");
                                         })),
                               ],
                             ))),
@@ -2086,7 +2095,7 @@ class _Profile extends State<Profile> {
                     Center(
                       child: Text(
                         addUsersRequests[index].name,
-                        maxLines: 3,
+                        maxLines: 1,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 15.0,
@@ -2100,16 +2109,16 @@ class _Profile extends State<Profile> {
                     Center(
                       child: Text(
                         addUsersRequests[index].phone,
-                        maxLines: 3,
+                        maxLines: 1,
                         style: TextStyle(
                           color: Colors.black54,
-                          fontSize: 11.0,
+                          fontSize: 12.0,
                           fontFamily: 'Montserrat',
                         ),
                       ),
                     ),
                     Container(
-                      height: 30.0,
+                      height: 25.0,
                     ),
                     new Expanded(
                       child: new Align(
@@ -2130,7 +2139,7 @@ class _Profile extends State<Profile> {
                                 textColor: Theme.of(context).primaryColorDark,
                                 child: (_progressCircleState == 0)
                                     ? setUpButtonChild("Accept",
-                                    color: Colors.red, icon: Icons.delete)
+                                        color: Colors.red, icon: Icons.delete)
                                     : setUpButtonChild("Waiting"),
                                 onPressed: () {
                                   if (_isButtonDisabled == false) {
@@ -2147,7 +2156,7 @@ class _Profile extends State<Profile> {
                                     Utility.createErrorSnackBar(
                                         _navigatorContext,
                                         error:
-                                        "Waiting for Request Call to Complete!");
+                                            "Waiting for Request Call to Complete!");
                                 })),
                       ),
                     ),
@@ -2225,9 +2234,9 @@ class _Profile extends State<Profile> {
                 child: Text(
                   "It's good to have some contacts handy here.",
                   style: Theme.of(context).textTheme.subhead.copyWith(
-                    color: Colors.black38,
-                    fontSize: 13.0,
-                  ),
+                        color: Colors.black38,
+                        fontSize: 13.0,
+                      ),
                 ),
               ),
             ),

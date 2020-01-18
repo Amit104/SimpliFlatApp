@@ -49,16 +49,18 @@ class FlatIncomingResponse {
 
 class FlatUsersResponse {
   final String name;
+  final String userId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   get getUpdatedAt => updatedAt;
 
-  FlatUsersResponse({this.name, this.createdAt, this.updatedAt});
+  FlatUsersResponse({this.name, this.userId, this.createdAt, this.updatedAt});
 
-  factory FlatUsersResponse.fromJson(Map<String, dynamic> json) {
+  factory FlatUsersResponse.fromJson(Map<String, dynamic> json, userId) {
     return FlatUsersResponse(
         name: json['name'],
+        userId: userId,
         createdAt: (json['created_at'] as Timestamp).toDate(),
         updatedAt: (json['updated_at'] as Timestamp).toDate());
   }

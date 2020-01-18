@@ -52,174 +52,175 @@ class _ProfileOptions extends State<ProfileOptions> {
               _scaffoldContext = scaffoldC;
               return new Center(
                   child: ListView(children: <Widget>[
-                    Card(
-                      color: Colors.white,
-                      elevation: 2.0,
-                      child: ListTile(
-                          title: Text(
-                            widget.flatName,
-                          ),
-                          leading: Icon(
-                            Icons.home,
+                Card(
+                  color: Colors.white,
+                  elevation: 2.0,
+                  child: ListTile(
+                      title: Text(
+                        widget.flatName,
+                      ),
+                      leading: Icon(
+                        Icons.home,
+                        color: Colors.redAccent,
+                      ),
+                      trailing: Text(
+                        "EDIT",
+                        style: TextStyle(
                             color: Colors.indigo[900],
-                          ),
-                          trailing: Text(
-                            "EDIT",
-                            style: TextStyle(
-                                color: Colors.indigo[900],
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Montserrat',
-                                fontSize: 14.0),
-                          ),
-                          onTap: () {}),
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Montserrat',
+                            fontSize: 14.0),
+                      ),
+                      onTap: () {}),
+                ),
+                Card(
+                  color: Colors.white,
+                  elevation: 2.0,
+                  child: ListTile(
+                      title: Text(
+                        widget.displayId,
+                      ),
+                      leading: GestureDetector(
+                        child: Icon(
+                          Icons.share,
+                          color: Colors.indigo[900],
+                        ),
+                        onTap: () {
+                          Share.share(
+                              'Check out Simpliflat. You can join my flat with using ID - ' +
+                                  widget.displayId,
+                              subject: 'Check out Simpliflat!');
+                        },
+                      ),
+                      onTap: () {}),
+                ),
+                Card(
+                  color: Colors.white,
+                  elevation: 2.0,
+                  child: ListTile(
+                    title: Text(
+                      widget.userName,
                     ),
-                    Card(
-                      color: Colors.white,
-                      elevation: 2.0,
-                      child: ListTile(
-                          title: Text(
-                            widget.displayId,
-                          ),
-                          leading: GestureDetector(
-                            child: Icon(
-                              Icons.share,
+                    leading: Icon(
+                      Icons.account_circle,
+                      color: Colors.orange,
+                    ),
+                    trailing: GestureDetector(
+                        child: Text(
+                          "EDIT",
+                          style: TextStyle(
                               color: Colors.indigo[900],
-                            ),
-                            onTap: () {
-                              Share.share(
-                                  'Check out Simpliflat. You can join my flat with using ID - ' +
-                                      widget.displayId,
-                                  subject: 'Check out Simpliflat!');
-                            },
-                          ),
-                          onTap: () {}),
-                    ),
-                    Card(
-                      color: Colors.white,
-                      elevation: 2.0,
-                      child: ListTile(
-                          title: Text(
-                            widget.userName,
-                          ),
-                          leading: Icon(
-                            Icons.account_circle,
-                            color: Colors.indigo[900],
-                          ),
-                          trailing: Text(
-                            "EDIT",
-                            style: TextStyle(
-                                color: Colors.indigo[900],
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Montserrat',
-                                fontSize: 14.0),
-                          ),
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (_) => _getEditPrompt(
-                                    textStyle,
-                                    "Name",
-                                    _changeUserName,
-                                    _userNameValidator,
-                                    TextInputType.text,
-                                    widget.userName));
-                          }),
-                    ),
-                    Card(
-                      color: Colors.white,
-                      elevation: 2.0,
-                      child: ListTile(
-                          title: Text(
-                            widget.userPhone,
-                          ),
-                          leading: Icon(
-                            Icons.phone,
-                            color: Colors.indigo[900],
-                          ),
-                          onTap: () {}),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                      child: RaisedButton(
-                        shape: new RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(40.0),
-                          side: BorderSide(
-                            width: 0.5,
-                            color: Colors.indigo[900],
-                          ),
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Montserrat',
+                              fontSize: 14.0),
                         ),
-                        color: Colors.white,
-                        textColor: Colors.indigo[900],
-                        onPressed: () {
-                          showDialog<bool>(
-                            context: context,
-                            builder: (context) {
-                              return new AlertDialog(
-                                title: new Text('Leave Flat'),
-                                content:
-                                new Text('Are you sure you want to leave this flat?'),
-                                actions: <Widget>[
-                                  new FlatButton(
-                                    child: new Text('Cancel'),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(false),
-                                  ),
-                                  new FlatButton(
-                                      child: new Text('Yes'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop(true);
-                                        _exitFlat();
-                                      }),
-                                ],
-                              );
-                            },
-                          );
-
-                        },
-                        child: Text('Exit Flat'),
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (_) => _getEditPrompt(
+                                  textStyle,
+                                  "Name",
+                                  _changeUserName,
+                                  _userNameValidator,
+                                  TextInputType.text,
+                                  widget.userName));
+                        }),
+                  ),
+                ),
+                Card(
+                  color: Colors.white,
+                  elevation: 2.0,
+                  child: ListTile(
+                      title: Text(
+                        widget.userPhone,
+                      ),
+                      leading: Icon(
+                        Icons.phone,
+                        color: Colors.blue,
+                      ),
+                      onTap: () {}),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                  child: RaisedButton(
+                    shape: new RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(40.0),
+                      side: BorderSide(
+                        width: 0.5,
+                        color: Colors.indigo[900],
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                      child: RaisedButton(
-                        shape: new RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(40.0),
-                          side: BorderSide(
-                            width: 0.5,
-                            color: Colors.indigo[900],
-                          ),
-                        ),
-                        color: Colors.white,
-                        textColor: Colors.indigo[900],
-                        onPressed: () {
-                          showDialog<bool>(
-                            context: context,
-                            builder: (context) {
-                              return new AlertDialog(
-                                title: new Text('Log out'),
-                                content:
+                    color: Colors.white,
+                    textColor: Colors.indigo[900],
+                    onPressed: () {
+                      showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return new AlertDialog(
+                            title: new Text('Leave Flat'),
+                            content: new Text(
+                                'Are you sure you want to leave this flat?'),
+                            actions: <Widget>[
+                              new FlatButton(
+                                child: new Text('Cancel'),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                              ),
+                              new FlatButton(
+                                  child: new Text('Yes'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop(true);
+                                    _exitFlat();
+                                  }),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Text('Exit Flat'),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                  child: RaisedButton(
+                    shape: new RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(40.0),
+                      side: BorderSide(
+                        width: 0.5,
+                        color: Colors.indigo[900],
+                      ),
+                    ),
+                    color: Colors.white,
+                    textColor: Colors.indigo[900],
+                    onPressed: () {
+                      showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return new AlertDialog(
+                            title: new Text('Log out'),
+                            content:
                                 new Text('Are you sure you want to log out?'),
-                                actions: <Widget>[
-                                  new FlatButton(
-                                    child: new Text('Cancel'),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(false),
-                                  ),
-                                  new FlatButton(
-                                      child: new Text('Yes'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop(true);
-                                        _signOut();
-                                      }),
-                                ],
-                              );
-                            },
+                            actions: <Widget>[
+                              new FlatButton(
+                                child: new Text('Cancel'),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                              ),
+                              new FlatButton(
+                                  child: new Text('Yes'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop(true);
+                                    _signOut();
+                                  }),
+                            ],
                           );
                         },
-                        child: Text('Logout'),
-                      ),
-                    ),
-                  ]));
+                      );
+                    },
+                    child: Text('Logout'),
+                  ),
+                ),
+              ]));
             })));
   }
 
@@ -277,7 +278,7 @@ class _ProfileOptions extends State<ProfileOptions> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (BuildContext context) => MyApp()),
-            (Route<dynamic> route) => false);
+        (Route<dynamic> route) => false);
   }
 
   Form _getEditPrompt(textStyle, fieldName, editHandler, validatorCallback,

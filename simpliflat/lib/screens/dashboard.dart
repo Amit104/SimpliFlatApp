@@ -387,12 +387,7 @@ class DashboardState extends State<Dashboard> {
     debugPrint(currentUserId + " + USERID");
     var datetime = (notice['updated_at'] as Timestamp).toDate();
     final f = new DateFormat.jm();
-    var datetimeString = datetime.day.toString() +
-        " " +
-        numToMonth[datetime.month.toInt()] +
-        " " +
-        datetime.year.toString() +
-        " - " +
+    var datetimeString =
         f.format(datetime);
 
     var userName = notice['user_name'] == null
@@ -440,7 +435,7 @@ class DashboardState extends State<Dashboard> {
               child: Text(datetimeString,
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    fontSize: 11.0,
+                    fontSize: 12.0,
                     fontFamily: 'Montserrat',
                     color: Colors.black45,
                   )),

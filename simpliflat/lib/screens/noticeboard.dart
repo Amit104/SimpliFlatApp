@@ -7,6 +7,7 @@ import 'package:simpliflat/screens/utility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:simpliflat/screens/widgets/loading_container.dart';
 import 'package:simpliflat/screens/models/DatabaseHelper.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 // TODO - show username with note
 class Notice extends StatefulWidget {
@@ -26,6 +27,7 @@ class NoticeBoard extends State<Notice> {
   final _flatId, currentUserId;
   var _navigatorContext;
   var _minimumPadding = 5.0;
+  var date = DateFormat("yyyy-MM-dd");
   var _formKey1 = GlobalKey<FormState>();
   var _formKey2 = GlobalKey<FormState>();
   TextEditingController note = TextEditingController();
@@ -50,11 +52,13 @@ class NoticeBoard extends State<Notice> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Notices"),
+        centerTitle: true,
         elevation: 0.0,
       ),
       body: Builder(
         builder: (BuildContext scaffoldC) {
           _navigatorContext = scaffoldC;
+
           return Column(
             children: <Widget>[
               Expanded(
@@ -72,14 +76,43 @@ class NoticeBoard extends State<Notice> {
                         (a, b) => b['updated_at'].compareTo(a['updated_at']));
                     return RefreshIndicator(
                       onRefresh: _handleRefresh,
-                      child: ListView.builder(
-                          itemCount: notesSnapshot.data.documents.length,
-                          key: UniqueKey(),
-                          itemBuilder: (BuildContext context, int position) {
-                            return _buildNoticeListItem(
-                                notesSnapshot.data.documents[position],
-                                position);
-                          }),
+                      child: GroupedListView<dynamic, String>(
+                        groupBy: (element) => date
+                            .format((element['updated_at'] as Timestamp)
+                                .toDate()
+                                .toLocal())
+                            .toString(),
+                        sort: false,
+                        elements: notesSnapshot.data.documents,
+                        groupSeparatorBuilder: (String value) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+//                          child: Center(
+//                              child: Text(
+//                            getDateValue(value),
+//                            style: TextStyle(
+//                                fontSize: 14, fontWeight: FontWeight.bold),
+//                          )),
+                          child: Center(
+                            child: Container(
+                              child: new Text(getDateValue(value),
+                                  style: new TextStyle(
+                                    color: Colors.red[900],
+                                    fontSize: 14.0,
+                                    fontFamily: 'Robato'
+                                  )),
+                              decoration: new BoxDecoration(
+                                  borderRadius: new BorderRadius.all(
+                                      new Radius.circular(6.0)),
+                                  color: Colors.red[100]),
+                              padding:
+                                  new EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 6.0),
+                            ),
+                          ),
+                        ),
+                        itemBuilder: (BuildContext context, element) {
+                          return _buildNoticeListItem(element);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -134,7 +167,7 @@ class NoticeBoard extends State<Notice> {
                       ),
                       ClipOval(
                         child: Material(
-                          color: Colors.indigo[900], // button color
+                          color: Colors.red[900], // button color
                           child: InkWell(
                             splashColor: Colors.indigo, // inkwell color
                             child: SizedBox(
@@ -156,17 +189,6 @@ class NoticeBoard extends State<Notice> {
                       Container(
                         margin: EdgeInsets.all(5.0),
                       ),
-                      /*IconButton(
-                        icon: Icon(
-                          Icons.add,
-                          color: Colors.indigo[900],
-                        ),
-                        onPressed: () async {
-                          if (_formKey1.currentState.validate()) {
-                            _addOrUpdateNote(_navigatorContext, 1); //1 is add
-                          }
-                        },
-                      ),*/
                     ],
                   ),
                 ),
@@ -178,7 +200,40 @@ class NoticeBoard extends State<Notice> {
     );
   }
 
-  Widget _buildNoticeListItem(DocumentSnapshot notice, index) {
+  String getDateValue(value) {
+    var numToMonth = {
+      1: 'JANUARY',
+      2: 'FEBRUARY',
+      3: 'MARCH',
+      4: 'APRIL',
+      5: 'MAY',
+      6: 'JUNE',
+      7: 'JULY',
+      8: 'AUGUST',
+      9: 'SEPTEMBER',
+      10: 'OCTOBER',
+      11: 'NOVEMBER',
+      12: 'DECEMBER'
+    };
+    DateTime separatorDate = DateTime.parse(value);
+    DateTime currentDate =
+        DateTime.parse(date.format(DateTime.now().toLocal()).toString());
+    String yesterday = date.format(
+        DateTime(currentDate.year, currentDate.month, currentDate.day - 1));
+    if (value == date.format(DateTime.now().toLocal()).toString()) {
+      return "TODAY";
+    } else if (value == yesterday) {
+      return "YESTERDAY";
+    } else {
+      return separatorDate.day.toString() +
+          " " +
+          numToMonth[separatorDate.month.toInt()] +
+          " " +
+          separatorDate.year.toString();
+    }
+  }
+
+  Widget _buildNoticeListItem(DocumentSnapshot notice) {
     TextStyle textStyle = Theme.of(context).textTheme.subhead;
     if (!isOffline(notice.documentID)) {
       Map<String, dynamic> row = {
@@ -188,29 +243,11 @@ class NoticeBoard extends State<Notice> {
       };
       _insertDB(row);
     }
-    var numToMonth = {
-      1: 'Jan',
-      2: 'Feb',
-      3: 'Mar',
-      4: 'Apr',
-      5: 'May',
-      6: 'Jun',
-      7: 'Jul',
-      8: 'Aug',
-      9: 'Sep',
-      10: 'Oct',
-      11: 'Nov',
-      12: 'Dec'
-    };
     var datetime = (notice['updated_at'] as Timestamp).toDate();
     final f = new DateFormat.jm();
-    var datetimeString = datetime.day.toString() +
-        " " +
-        numToMonth[datetime.month.toInt()] +
-        " " +
-        datetime.year.toString() +
-        " - " +
-        f.format(datetime);
+    //var datetimeString = datetime.day.toString() + " " + numToMonth[datetime.month.toInt()] + " " +
+    //    datetime.year.toString() + " - " + f.format(datetime);
+    var datetimeString = f.format(datetime);
 
     var userName = notice['user_name'] == null
         ? ""
@@ -229,7 +266,7 @@ class NoticeBoard extends State<Notice> {
               : Colors.white,
           elevation: 1.0,
           child: Slidable(
-            key: Key(index.toString()),
+            key: GlobalKey(),
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             enabled: currentUserId.toString().trim() ==
@@ -311,7 +348,8 @@ class NoticeBoard extends State<Notice> {
                         style: TextStyle(
                           fontSize: 12.0,
                           fontFamily: 'Montserrat',
-                          color: Colors.primaries[color % Colors.primaries.length],
+                          color:
+                              Colors.primaries[color % Colors.primaries.length],
                         )),
                     padding: EdgeInsets.only(bottom: 5.0),
                   ),

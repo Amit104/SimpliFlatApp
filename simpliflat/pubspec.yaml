@@ -30,6 +30,7 @@ dependencies:
   url_launcher: ^5.0.3
   share: ^0.6.3+4
   intl: ^0.16.0
+  grouped_list: ^1.2.1
 
 dev_dependencies:
   flutter_test:

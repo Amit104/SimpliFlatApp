@@ -56,7 +56,6 @@ class ShoppingListsState extends State<ShoppingLists> {
             .sort((a, b) => b['created_at'].compareTo(a['created_at']));
         return ListView.builder(
             itemCount: snapshot.data.documents.length,
-            key: UniqueKey(),
             itemBuilder: (BuildContext context, int position) {
               return _buildListItem(
                   snapshot.data.documents[position], position);
@@ -76,7 +75,7 @@ class ShoppingListsState extends State<ShoppingLists> {
           color: Colors.white,
           elevation: 1.0,
           child: Slidable(
-            key: Key(index.toString()),
+            key: new Key(index.toString()),
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             dismissal: SlidableDismissal(

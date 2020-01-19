@@ -241,7 +241,7 @@ class _MessageBoard extends State<MessageBoard> {
           color: Colors.white,
           elevation: 1.0,
           child: Slidable(
-            key: UniqueKey(),
+            key: new Key(notice.documentID.toString()),
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             enabled: currentUserId.toString().trim() ==

@@ -319,7 +319,6 @@ class TaskListState extends State<TaskList> {
           return new ListView.builder(
             itemCount: taskSnapshot.data.documents.length,
             scrollDirection: Axis.vertical,
-            key: UniqueKey(),
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int position) {

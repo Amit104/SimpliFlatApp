@@ -73,12 +73,12 @@ class NoticeBoard extends State<Notice> {
                     if (!notesSnapshot.hasData)
                       return LoadingContainerVertical(3);
                     notesSnapshot.data.documents.sort(
-                        (a, b) => b['updated_at'].compareTo(a['updated_at']));
+                        (a, b) => b['created_at'].compareTo(a['created_at']));
                     return RefreshIndicator(
                       onRefresh: _handleRefresh,
                       child: GroupedListView<dynamic, String>(
                         groupBy: (element) => date
-                            .format((element['updated_at'] as Timestamp)
+                            .format((element['created_at'] as Timestamp)
                                 .toDate()
                                 .toLocal())
                             .toString(),
@@ -243,7 +243,7 @@ class NoticeBoard extends State<Notice> {
       };
       _insertDB(row);
     }
-    var datetime = (notice['updated_at'] as Timestamp).toDate();
+    var datetime = (notice['created_at'] as Timestamp).toDate();
     final f = new DateFormat.jm();
     //var datetimeString = datetime.day.toString() + " " + numToMonth[datetime.month.toInt()] + " " +
     //    datetime.year.toString() + " - " + f.format(datetime);

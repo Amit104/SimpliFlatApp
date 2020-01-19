@@ -1441,43 +1441,10 @@ class _UserProfile extends State<UserProfile> {
               scrollDirection: Axis.vertical,
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (BuildContext context, int position) {
-                var contactChar = contactSnapshot
+                var contactChar = getUserAvatarChar(contactSnapshot
                     .data.documents[position]["name"]
                     .toString()[0]
-                    .toUpperCase();
-
-                List alphabets = [
-                  'A',
-                  'B',
-                  'C',
-                  'D',
-                  'E',
-                  'F',
-                  'G',
-                  'H',
-                  'I',
-                  'J',
-                  'K',
-                  'L',
-                  'M',
-                  'N',
-                  'O',
-                  'P',
-                  'Q',
-                  'R',
-                  'S',
-                  'T',
-                  'U',
-                  'V',
-                  'W',
-                  'X',
-                  'Y',
-                  'Z'
-                ];
-
-                if (!alphabets.contains(contactChar)) {
-                  contactChar = "S";
-                }
+                    .toUpperCase());
 
                 return Padding(
                   padding:
@@ -1883,6 +1850,43 @@ class _UserProfile extends State<UserProfile> {
                 );
               });
         });
+  }
+
+  String getUserAvatarChar(name) {
+    List alphabets = [
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'J',
+      'K',
+      'L',
+      'M',
+      'N',
+      'O',
+      'P',
+      'Q',
+      'R',
+      'S',
+      'T',
+      'U',
+      'V',
+      'W',
+      'X',
+      'Y',
+      'Z'
+    ];
+
+    if (!alphabets.contains(name)) {
+      name = "S";
+    }
+
+    return name;
   }
 
   ListView _getExistingUsers() {

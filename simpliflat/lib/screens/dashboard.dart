@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:simpliflat/screens/tasks/view_task.dart';
+import 'package:simpliflat/screens/tenant_portal/tenant_portal.dart';
 import 'package:simpliflat/screens/utility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -92,12 +93,19 @@ class DashboardState extends State<Dashboard> {
                     color: Colors.black,
                   ),
                 ),
-
-                //Statistics
                 SizedBox(
                   height: 20.0,
                 ),
                 pointBoard(),
+                SizedBox(
+                  height: 25.0,
+                ),
+
+                // Navigation
+                SizedBox(
+                  height: 20.0,
+                ),
+                navigationLinks(),
                 SizedBox(
                   height: 25.0,
                 ),
@@ -129,6 +137,61 @@ class DashboardState extends State<Dashboard> {
           );
         }),
       ),
+    );
+  }
+
+  Widget navigationLinks() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: RaisedButton(
+            child: Text("Tenant Portal"),
+            shape: new RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(0.0),
+              side: BorderSide(
+                width: 0.5,
+                color: Colors.indigo[900],
+              ),
+            ),
+            color: Colors.white,
+            textColor: Colors.indigo[900],
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (BuildContext context) => TenantPortal(flatId)));
+            },
+          ),
+        ),
+        Expanded(
+          child: RaisedButton(
+            child: Text("Payments"),
+            shape: new RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(0.0),
+              side: BorderSide(
+                width: 0.5,
+                color: Colors.indigo[900],
+              ),
+            ),
+            color: Colors.white,
+            textColor: Colors.indigo[900],
+            onPressed: () {},
+          ),
+        ),
+        Expanded(
+          child: RaisedButton(
+            child: Text("Orders"),
+            shape: new RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(0.0),
+              side: BorderSide(
+                width: 0.5,
+                color: Colors.indigo[900],
+              ),
+            ),
+            color: Colors.white,
+            textColor: Colors.indigo[900],
+            onPressed: () {},
+          ),
+        ),
+      ],
     );
   }
 
@@ -387,8 +450,7 @@ class DashboardState extends State<Dashboard> {
     debugPrint(currentUserId + " + USERID");
     var datetime = (notice['updated_at'] as Timestamp).toDate();
     final f = new DateFormat.jm();
-    var datetimeString =
-        f.format(datetime);
+    var datetimeString = f.format(datetime);
 
     var userName = notice['user_name'] == null
         ? ""

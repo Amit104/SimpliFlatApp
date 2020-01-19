@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:simpliflat/icons/icons_custom_icons.dart';
-import 'package:simpliflat/screens/profile/profile.dart';
 import 'package:simpliflat/screens/profile/user_profile.dart';
 import 'package:simpliflat/screens/tasks/task_list.dart';
 import 'package:simpliflat/screens/utility.dart';
@@ -10,8 +9,6 @@ import 'package:simpliflat/screens/noticeboard.dart';
 import 'package:simpliflat/screens/models/DatabaseHelper.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:firebase_messaging/firebase_messaging.dart';
-
-import 'activity/flat_activity.dart';
 import 'dashboard.dart';
 import 'lists/shopping_list.dart';
 
@@ -149,7 +146,7 @@ class _Home extends State<Home> {
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed,
           ),
-          drawer: new Drawer(
+          /*drawer: new Drawer(
             key: GlobalKey(),
             child: ListView(
               children: <Widget>[
@@ -168,6 +165,17 @@ class _Home extends State<Home> {
                       ),
                     ),
                   ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.group, color: Colors.red[900],),
+                  title: Text("Tenant Portal"),
+                  trailing: Icon(Icons.arrow_forward_ios,),
+                  onTap: () {
+                    debugPrint('Navigating to tenant portal');
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => TenantPortal(flatId)));
+                  },
                 ),
                 ListTile(
                   leading: Icon(Icons.payment, color: Colors.green,),
@@ -192,7 +200,7 @@ class _Home extends State<Home> {
               ],
             ),
           ),
-
+          */
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           floatingActionButton: new FloatingActionButton(
@@ -289,22 +297,25 @@ class _Home extends State<Home> {
           if (flat != null) {
             Utility.addToSharedPref(flatName: flat['name'].toString());
             Utility.addToSharedPref(displayId: flat['display_id'].toString());
-            setState(() {
-              displayId = flat['display_id'].toString();
-              flatName = flat['name'].toString().trim();
-              if (flatName == null || flatName == "") flatName = "Hey!";
-            });
+            if(mounted)
+              setState(() {
+                displayId = flat['display_id'].toString();
+                flatName = flat['name'].toString().trim();
+                if (flatName == null || flatName == "") flatName = "Hey!";
+              });
           }
         });
       }
       if (name != null) {
-        setState(() {
-          flatName = name;
-        });
+        if(mounted)
+          setState(() {
+            flatName = name;
+          });
       } else {
-        setState(() {
-          flatName = "Hey there!";
-        });
+        if(mounted)
+          setState(() {
+            flatName = "Hey there!";
+          });
       }
     });
   }

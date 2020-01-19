@@ -22,5 +22,7 @@ String tasks = "tasks";
 String flatContacts = "flatContacts";
 String requests = "joinflat";
 
+String messageBoard = "messageboard";
+
 String lists="lists";
 String listItems="items";

@@ -209,7 +209,8 @@ class _DocumentManager extends State<DocumentManager> {
 
                   if (dismiss) {
                     _deleteList(_navigatorContext, list.reference);
-                    state.dismiss();
+                    if(state != null)
+                      state.dismiss();
                   }
                 },
               ),
@@ -229,7 +230,7 @@ class _DocumentManager extends State<DocumentManager> {
                         )),
                     padding: EdgeInsets.only(bottom: 5.0),
                   ),
-                  Text(list['file_name'].toString().trim(),
+                  Text(list['file_name'].toString().replaceAll("_" + list['file_name'].split("_").last, "").trim(),
                       style: TextStyle(
                         fontSize: 12.0,
                         fontFamily: 'Montserrat',
@@ -260,7 +261,6 @@ class _DocumentManager extends State<DocumentManager> {
     );
   }
 
-  /// TODO Delete actual file
   _deleteList(scaffoldContext, docReference) {
     Firestore.instance
         .collection(globals.flat)
@@ -272,16 +272,25 @@ class _DocumentManager extends State<DocumentManager> {
       if (freshDoc == null) {
         Utility.createErrorSnackBar(_navigatorContext);
       } else {
-        Firestore.instance
-            .collection(globals.flat)
-            .document(_flatId)
-            .collection(globals.documentManager)
-            .document(freshDoc.documentID)
-            .delete()
-            .then((deleted) {
-          if (mounted)
-            Utility.createErrorSnackBar(context, error: "Document Deleted");
-        }, onError: (e) {
+        String _fileName = freshDoc['file_name'];
+        debugPrint(_fileName);
+        StorageReference storageReference = FirebaseStorage.instance
+            .ref()
+            .child("TenantDocuments/" + _fileName);
+        storageReference.delete().then((deleted){
+          Firestore.instance
+              .collection(globals.flat)
+              .document(_flatId)
+              .collection(globals.documentManager)
+              .document(freshDoc.documentID)
+              .delete()
+              .then((deleted) {
+            if (mounted)
+              Utility.createErrorSnackBar(context, error: "Document Deleted");
+          }, onError: (e) {
+            if (mounted) Utility.createErrorSnackBar(_navigatorContext);
+          });
+        }, onError: (e){
           if (mounted) Utility.createErrorSnackBar(_navigatorContext);
         });
       }
@@ -365,7 +374,8 @@ class _DocumentManager extends State<DocumentManager> {
   }
 
   downloadFile(fileUrl, name) async {
-    String _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
+    String _localPath =
+        (await _findLocalPath()) + Platform.pathSeparator + 'Download';
     debugPrint(_localPath + " - Saved");
     final savedDir = Directory(_localPath);
     bool hasExisted = await savedDir.exists();
@@ -376,23 +386,24 @@ class _DocumentManager extends State<DocumentManager> {
     final taskId = await FlutterDownloader.enqueue(
       url: fileUrl,
       savedDir: _localPath,
-      fileName: name,
+      fileName: name.toString().replaceAll("_" + name.split("_").last, "").trim(),
       showNotification: true,
       openFileFromNotification: true,
     );
   }
 
   Future<String> _findLocalPath() async {
-    final directory = Theme.of(_navigatorContext).platform == TargetPlatform.android
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
+    final directory =
+        Theme.of(_navigatorContext).platform == TargetPlatform.android
+            ? await getExternalStorageDirectory()
+            : await getApplicationDocumentsDirectory();
     return directory.path;
   }
 
   addDocument(_fileName, fileUrl, fileLength) {
     var timeNow = DateTime.now();
     var data = {
-      'file_name': _fileName.replaceAll("_" + _fileName.split("_").last, ""),
+      'file_name': _fileName,
       'file_url': fileUrl,
       'file_size': fileLength,
       'is_created_by_tenant': 1,

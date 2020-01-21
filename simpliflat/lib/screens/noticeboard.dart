@@ -86,12 +86,6 @@ class NoticeBoard extends State<Notice> {
                         elements: notesSnapshot.data.documents,
                         groupSeparatorBuilder: (String value) => Padding(
                           padding: const EdgeInsets.all(8.0),
-//                          child: Center(
-//                              child: Text(
-//                            getDateValue(value),
-//                            style: TextStyle(
-//                                fontSize: 14, fontWeight: FontWeight.bold),
-//                          )),
                           child: Center(
                             child: Container(
                               child: new Text(getDateValue(value),

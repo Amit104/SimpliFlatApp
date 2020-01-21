@@ -23,6 +23,7 @@ String flatContacts = "flatContacts";
 String requests = "joinflat";
 
 String messageBoard = "messageboard";
+String documentManager = "documentmanager";
 
 String lists="lists";
 String listItems="items";

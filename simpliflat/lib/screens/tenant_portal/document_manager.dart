@@ -4,8 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:simpliflat/screens/widgets/common.dart';
 import 'package:simpliflat/screens/widgets/loading_container.dart';
 import '../utility.dart';
@@ -248,7 +250,7 @@ class _DocumentManager extends State<DocumentManager> {
               trailing: InkWell(
                 child: Icon(Icons.file_download),
                 onTap: () {
-                  
+                  downloadFile(list['file_url'], list['file_name']);
                 },
               ),
             ),
@@ -360,6 +362,31 @@ class _DocumentManager extends State<DocumentManager> {
         addDocument(_fileName, fileUrl, fileLength);
       }
     });
+  }
+
+  downloadFile(fileUrl, name) async {
+    String _localPath = (await _findLocalPath()) + Platform.pathSeparator + 'Download';
+    debugPrint(_localPath + " - Saved");
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+
+    final taskId = await FlutterDownloader.enqueue(
+      url: fileUrl,
+      savedDir: _localPath,
+      fileName: name,
+      showNotification: true,
+      openFileFromNotification: true,
+    );
+  }
+
+  Future<String> _findLocalPath() async {
+    final directory = Theme.of(_navigatorContext).platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    return directory.path;
   }
 
   addDocument(_fileName, fileUrl, fileLength) {

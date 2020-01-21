@@ -113,13 +113,6 @@ class _Home extends State<Home> {
           return null;
         },
         child: Scaffold(
-//          body: Center(
-//            child: _selectedIndex == 0
-//                ? Profile()
-//                : (_selectedIndex == 1
-//                    ? TaskList(flatId)
-//                    : (_selectedIndex == 2 ? ShoppingLists(flatId) : FlatActivity(flatId))),
-//          ),
           body: Center(
             child: _selectedIndex == 0
                 ? Dashboard(flatId)
@@ -146,61 +139,6 @@ class _Home extends State<Home> {
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed,
           ),
-          /*drawer: new Drawer(
-            key: GlobalKey(),
-            child: ListView(
-              children: <Widget>[
-                UserAccountsDrawerHeader(
-                  accountEmail: Text(userPhone),
-                  accountName: Text(userName),
-                  margin: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0,),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.red,
-                    child: Text(
-                      userName==""?"A":userName[0].toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 40.0,
-                        fontFamily: 'Roboto',
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(Icons.group, color: Colors.red[900],),
-                  title: Text("Tenant Portal"),
-                  trailing: Icon(Icons.arrow_forward_ios,),
-                  onTap: () {
-                    debugPrint('Navigating to tenant portal');
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => TenantPortal(flatId)));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.payment, color: Colors.green,),
-                  title: Text("Payments"),
-                  trailing: Icon(Icons.arrow_forward_ios,),
-                  onTap: () {
-                    //Navigator.of(context).pop();
-                    //Navigator.of(context).push(MaterialPageRoute(
-                    //    builder: (BuildContext context) => NewPage("Page two")));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.shopping_cart, color: Colors.blue,),
-                  trailing: Icon(Icons.arrow_forward_ios,),
-                  title: Text("Orders"),
-                  onTap: () {
-                    //Navigator.of(context).pop();
-                    //Navigator.of(context).push(MaterialPageRoute(
-                    //    builder: (BuildContext context) => NewPage("Page two")));
-                  },
-                ),
-              ],
-            ),
-          ),
-          */
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           floatingActionButton: new FloatingActionButton(
@@ -268,10 +206,11 @@ class _Home extends State<Home> {
       Firestore.instance.collection(globals.user).document(_userId).get().then(
           (snapshot) {
         if (snapshot.exists) {
-          setState(() {
-            userName = snapshot.data['name'];
-            userPhone = snapshot.data['phone'];
-          });
+          if(mounted)
+            setState(() {
+              userName = snapshot.data['name'];
+              userPhone = snapshot.data['phone'];
+            });
           Utility.addToSharedPref(userName: userName);
           Utility.addToSharedPref(userPhone: userPhone);
         }

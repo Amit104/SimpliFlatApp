@@ -416,7 +416,7 @@ class _ProfileOptions extends State<ProfileOptions> {
 /*zString _phoneNumberValidator(String number) {
     if (number.isEmpty) {
       return "Cannot be empty";
-    } else if ("+91" + number == widget.userPhone) {
+    } else if ("+1" + number == widget.userPhone) {
       return "Cannot be the same number";
     } else if (number.length != 10) {
       return "Please enter a valid 10 digit number";
@@ -429,7 +429,7 @@ class _ProfileOptions extends State<ProfileOptions> {
   }
 
   _changePhoneNumber(textField) async {
-    String phoneNumber = "+91" + textField.text.trim();
+    String phoneNumber = "+1" + textField.text.trim();
     Map results = await Navigator.push(
       context,
       new MaterialPageRoute(builder: (context) {

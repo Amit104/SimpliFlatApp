@@ -198,7 +198,7 @@ class _SignUpPhoneUser extends State<SignUpPhone> {
       Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) {
-          return SignUpOTP("+91" + phone.text.trim(), true);
+          return SignUpOTP("+1" + phone.text.trim(), true);
         }),
       ).whenComplete(() {
         setState(() {

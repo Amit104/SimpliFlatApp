@@ -734,7 +734,7 @@ class _UserProfile extends State<UserProfile> {
 
   _addOrUpdateFlatContact(scaffoldContext, addOrUpdate, {phoneExisting}) {
     var flatContactName = contactName.text;
-    var contactPhone = "+91" + phone.text.replaceFirst("+91", "");
+    var contactPhone = "+1" + phone.text.replaceFirst("+1", "");
     var timeNow = DateTime.now();
     if (_flatId == null || _flatId == "") _getFromSharedPref();
     if (addOrUpdate == 1) {
@@ -816,7 +816,7 @@ class _UserProfile extends State<UserProfile> {
       _progressCircleState = 1;
     });
 
-    var phone = "+91" + phonenum.replaceFirst("+91", "");
+    var phone = "+1" + phonenum.replaceFirst("+1", "");
 
     Firestore.instance
         .collection("user")

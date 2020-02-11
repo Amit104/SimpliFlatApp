@@ -17,7 +17,7 @@ class Utility {
   }
 
   static void addToSharedPref(
-      {userName: 'null', userPhone: '',userId: 'null', flatId: 'null', displayId: 'null', notificationToken: 'null', flatName: 'null'}) async {
+      {userName: 'null', userPhone: '',userId: 'null', flatId: 'null', displayId: 'null', notificationToken: 'null', flatName: 'null', landlordId: 'null'}) async {
     final prefs = await SharedPreferences.getInstance();
     if (userName != 'null')
       await prefs.setString(globals.userName, userName.toString());
@@ -33,6 +33,8 @@ class Utility {
       await prefs.setString(globals.notificationToken, notificationToken);
     if (flatName != 'null')
       await prefs.setString(globals.flatName, flatName);
+    if (landlordId != 'null')
+      await prefs.setString(globals.landlordId, landlordId);
   }
 
   static Future<String> getUserName() async {
@@ -74,6 +76,19 @@ class Utility {
     // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.flatName);
   }
+
+  static Future<String> getLandlordId() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Try reading data from the counter key. If it does not exist, return 0.
+    return await prefs.get(globals.landlordId);
+  }
+
+  static removeLandlordId() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Try reading data from the counter key. If it does not exist, return 0.
+    await prefs.remove(globals.landlordId);
+  }
+
 
   static double getAdjustedHeight(double height, BuildContext context) {
     return height * MediaQuery.of(context).size.height / 640.0;

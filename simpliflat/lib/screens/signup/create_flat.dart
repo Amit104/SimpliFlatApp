@@ -160,6 +160,7 @@ class _CreateUserFlat extends State<CreateFlat> {
                                               if (value.isEmpty)
                                                 return "Please enter Flat " +
                                                     displayText;
+                                              return null;
                                             },
                                             onFieldSubmitted: (v) {
                                               _submit(scaffoldContext);
@@ -271,6 +272,7 @@ class _CreateUserFlat extends State<CreateFlat> {
       'display_id': displayId.toString().toLowerCase(),
       "updated_at": timeNow,
       "created_at": timeNow,
+      "landlord_id": null
     };
 
     //not providing document id here will generate a new id

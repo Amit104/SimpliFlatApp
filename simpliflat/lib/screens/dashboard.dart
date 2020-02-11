@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:simpliflat/screens/tasks/view_task.dart';
+import 'package:simpliflat/screens/tenant_portal/add_landlord.dart';
 import 'package:simpliflat/screens/tenant_portal/tenant_portal.dart';
 import 'package:simpliflat/screens/utility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -155,9 +156,16 @@ class DashboardState extends State<Dashboard> {
             ),
             color: Colors.white,
             textColor: Colors.indigo[900],
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (BuildContext context) => TenantPortal(flatId)));
+            onPressed: () async {
+              var landlordId = await Utility.getLandlordId();
+              if(landlordId == null || landlordId == "") {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => AddLandlord(flatId)));
+              } else {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => TenantPortal(flatId)));
+              }
+
             },
           ),
         ),

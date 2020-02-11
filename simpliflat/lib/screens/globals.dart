@@ -11,6 +11,7 @@ String flatId = 'flatId';
 String isSyncedNote = 'isSyncedNote';
 String notificationToken = "notificationToken";
 String flatName = "flatName";
+String landlordId = "landlordId";
 
 //collection names
 
@@ -21,6 +22,8 @@ String user = "user";
 String tasks = "tasks";
 String flatContacts = "flatContacts";
 String requests = "joinflat";
+String requestsLandlord = "joinflat_landlord";
+String landlord = "landlord";
 
 String messageBoard = "messageboard";
 String documentManager = "documentmanager";

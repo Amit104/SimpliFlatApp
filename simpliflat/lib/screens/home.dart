@@ -32,6 +32,7 @@ class _Home extends State<Home> {
   String displayId = "";
   String userName = "";
   String userPhone = "";
+  String landlordId;
 
   _Home(this.flatId);
 
@@ -58,6 +59,9 @@ class _Home extends State<Home> {
   @override
   void initState() {
     super.initState();
+    _updateUserDetails();
+    fetchFlatName(context);
+    _getLandlord();
     var notificationToken;
     firebaseMessaging.configure(onLaunch: (Map<String, dynamic> message) {
       debugPrint("lanuch called");
@@ -85,16 +89,15 @@ class _Home extends State<Home> {
         firebaseMessaging.getToken().then((token) async {
           debugPrint("TOKEN = " + token);
           notificationToken = token;
-          if (token == null) {
-          } else {
+          if (token == null) {} else {
             var userId = await Utility.getUserId();
             Firestore.instance
                 .collection(globals.user)
                 .document(userId)
                 .updateData({'notification_token': notificationToken}).then(
                     (updated) {
-              Utility.addToSharedPref(notificationToken: notificationToken);
-            });
+                  Utility.addToSharedPref(notificationToken: notificationToken);
+                });
           }
         });
       }
@@ -105,8 +108,6 @@ class _Home extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    _updateUserDetails();
-    fetchFlatName(context);
     return WillPopScope(
         onWillPop: () {
           moveToLastScreen();
@@ -117,10 +118,10 @@ class _Home extends State<Home> {
             child: _selectedIndex == 0
                 ? Dashboard(flatId)
                 : (_selectedIndex == 1
-                    ? TaskList(flatId)
-                    : (_selectedIndex == 2
-                        ? ShoppingLists(flatId)
-                        : UserProfile())),
+                ? TaskList(flatId)
+                : (_selectedIndex == 2
+                ? ShoppingLists(flatId)
+                : UserProfile())),
           ),
           bottomNavigationBar: new BottomNavigationBar(
             items: <BottomNavigationBarItem>[
@@ -140,7 +141,7 @@ class _Home extends State<Home> {
             type: BottomNavigationBarType.fixed,
           ),
           floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
+          FloatingActionButtonLocation.centerDocked,
           floatingActionButton: new FloatingActionButton(
             onPressed: () async {
               var _flatId = flatId;
@@ -162,8 +163,8 @@ class _Home extends State<Home> {
     return allRows;
   }
 
-  void navigateToNotice(
-      var flatId, List<Map<String, dynamic>> offlineDocuments) async {
+  void navigateToNotice(var flatId,
+      List<Map<String, dynamic>> offlineDocuments) async {
     var _userId = await Utility.getUserId();
     Navigator.push(context, _createRoute(flatId, _userId, offlineDocuments));
   }
@@ -204,17 +205,17 @@ class _Home extends State<Home> {
         _userPhone == null ||
         _userPhone == "") {
       Firestore.instance.collection(globals.user).document(_userId).get().then(
-          (snapshot) {
-        if (snapshot.exists) {
-          if(mounted)
-            setState(() {
-              userName = snapshot.data['name'];
-              userPhone = snapshot.data['phone'];
-            });
-          Utility.addToSharedPref(userName: userName);
-          Utility.addToSharedPref(userPhone: userPhone);
-        }
-      }, onError: (e) {});
+              (snapshot) {
+            if (snapshot.exists) {
+              if (mounted)
+                setState(() {
+                  userName = snapshot.data['name'];
+                  userPhone = snapshot.data['phone'];
+                });
+              Utility.addToSharedPref(userName: userName);
+              Utility.addToSharedPref(userPhone: userPhone);
+            }
+          }, onError: (e) {});
     } else {
       userName = await Utility.getUserName();
       userPhone = await Utility.getUserPhone();
@@ -236,7 +237,7 @@ class _Home extends State<Home> {
           if (flat != null) {
             Utility.addToSharedPref(flatName: flat['name'].toString());
             Utility.addToSharedPref(displayId: flat['display_id'].toString());
-            if(mounted)
+            if (mounted)
               setState(() {
                 displayId = flat['display_id'].toString();
                 flatName = flat['name'].toString().trim();
@@ -246,12 +247,12 @@ class _Home extends State<Home> {
         });
       }
       if (name != null) {
-        if(mounted)
+        if (mounted)
           setState(() {
             flatName = name;
           });
       } else {
-        if(mounted)
+        if (mounted)
           setState(() {
             flatName = "Hey there!";
           });
@@ -262,5 +263,30 @@ class _Home extends State<Home> {
   void moveToLastScreen() {
     debugPrint("EXIT");
     SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+  }
+
+  void _getLandlord() async {
+    landlordId = await Utility.getLandlordId();
+    if(landlordId!=null)
+      debugPrint("shared pref " + landlordId);
+    try {
+      await Firestore.instance.runTransaction((transaction) async {
+        var flat = await transaction.get(Firestore.instance
+            .collection(globals.flat)
+            .document(flatId));
+        if(flat!=null && flat['landlord_id']!=null) {
+          debugPrint("online landlord" + flat['landlord_id'].toString().trim());
+          Utility.addToSharedPref(
+              landlordId: flat['landlord_id'].toString().trim());
+          if (mounted)
+            setState(() {
+              landlordId = flat["landlord_id"].toString().trim();
+            });
+        } else if (flat!=null && (flat['landlord_id']==null || flat['landlord_id']=="" )) {
+          debugPrint("online empty landlord ");
+          Utility.removeLandlordId();
+        }
+      });
+    } catch (e) {}
   }
 }

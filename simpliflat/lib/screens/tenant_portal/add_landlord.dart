@@ -34,33 +34,39 @@ class _AddLandlord extends State<AddLandlord> {
   var _minimumPadding = 5.0;
   String lastRequest = "checking";
   Color ccard, ctext;
+  var _isButtonDisabled = false;
+  var _progressCircleState = 0;
+  List incomingRequests;
+  var _navigatorContext;
 
   _AddLandlord(this.flatId);
 
   @override
   Widget build(BuildContext context) {
-    if(lastRequest == "checking")
-      _checkJoinStatus();
-
-    return WillPopScope(onWillPop: () {
-      moveToLastScreen(context, -1);
-      return null;
-    }, child: Scaffold(
-        appBar: AppBar(
-          title: Text("Add Landlord"),
-          elevation: 0.0,
-          centerTitle: true,
-        ),
-        body: Builder(builder: (BuildContext scaffoldContext) {
-      return checkLandlord(scaffoldContext);
-    })));
+    if (lastRequest == "checking") _checkJoinStatus();
+    if (incomingRequests == null) getIncomingRequests();
+    return WillPopScope(
+        onWillPop: () {
+          moveToLastScreen(context, -1);
+          return null;
+        },
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text("Add Landlord"),
+              elevation: 0.0,
+              centerTitle: true,
+            ),
+            body: Builder(builder: (BuildContext scaffoldContext) {
+              _navigatorContext = scaffoldContext;
+              return checkLandlord(scaffoldContext);
+            })));
   }
 
   Widget checkLandlord(_navigatorContext) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
     var deviceSize = MediaQuery.of(context).size;
     if (lastRequest != "checking") {
-      return Column(
+      return ListView(
         children: <Widget>[
           Container(
             height: 50.0,
@@ -73,22 +79,22 @@ class _AddLandlord extends State<AddLandlord> {
                   padding: const EdgeInsets.all(15.0),
                   child: (ccard == Colors.white)
                       ? Text(lastRequest,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontFamily: 'Montserrat', color: ctext))
+                          textAlign: TextAlign.center,
+                          style:
+                              TextStyle(fontFamily: 'Montserrat', color: ctext))
                       : ListTile(
-                    leading: Icon(
-                      Icons.warning,
-                      color: ctext,
-                    ),
-                    title: Text(
-                      lastRequest,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        color: ctext,
-                      ),
-                    ),
-                  ),
+                          leading: Icon(
+                            Icons.warning,
+                            color: ctext,
+                          ),
+                          title: Text(
+                            lastRequest,
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              color: ctext,
+                            ),
+                          ),
+                        ),
                 )),
           ),
           Container(
@@ -265,13 +271,44 @@ class _AddLandlord extends State<AddLandlord> {
                           children: <Widget>[
                             textInCard("Add a landlord", FontWeight.w700, 24.0,
                                 28.0, 40.0),
-                            textInCard(
-                                "Search for your landlord", null, 14.0, 28.0, 20.0),
+                            textInCard("Search for your landlord", null, 14.0,
+                                28.0, 20.0),
                             textInCard(
                                 "and send a request.", null, 14.0, 28.0, 7.0),
                           ]),
                     )),
               )),
+          Container(
+            height: 35.0,
+          ),
+          Row(
+            children: (incomingRequests == null || incomingRequests.length == 0)
+                ? <Widget>[Container(margin: EdgeInsets.all(5.0))]
+                : <Widget>[
+                    Expanded(child: Container()),
+                    Text("Incoming Requests",
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            fontFamily: 'Montserrat',
+                            color: Colors.black)),
+                    Expanded(flex: 15, child: Container()),
+                  ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 15.0),
+            child: Container(
+              height: (incomingRequests == null || incomingRequests.length == 0)
+                  ? 5.0
+                  : MediaQuery.of(context).size.height / 2,
+              child: (incomingRequests == null || incomingRequests.length == 0)
+                  ? null
+                  : new ListView.builder(
+                      itemCount: incomingRequests.length,
+                      itemBuilder: (BuildContext context, int index) =>
+                          buildIncomingRequests(context, index)),
+            ),
+          ),
         ],
       );
     } else {
@@ -290,52 +327,54 @@ class _AddLandlord extends State<AddLandlord> {
         .then((requests) {
       debugPrint("AFTER JOIN REQ");
       if (requests.documents != null && requests.documents.length != 0) {
-        if(requests.documents[0]['status'] == 0) {
-          if(mounted)
+        if (requests.documents[0]['status'] == 0) {
+          if (mounted)
             setState(() {
-              lastRequest = "Your last request is pending. Wait or make a new one.";
+              lastRequest =
+                  "Your last request is pending. Wait or make a new one.";
               ccard = Colors.purple[100];
               ctext = Colors.purple[600];
             });
-
         }
-        if(requests.documents[0]['status'] == -1) {
-          if(mounted)
+        if (requests.documents[0]['status'] == -1) {
+          if (mounted)
             setState(() {
-              lastRequest = "Your last join request was denied by the landlord!";
+              lastRequest =
+                  "Your last join request was denied by the landlord!";
               ccard = Colors.red[100];
               ctext = Colors.red[600];
             });
         }
       } else {
         debugPrint("IN ELSE FLAT NULL");
-        if(mounted)
+        if (mounted)
           setState(() {
-            lastRequest = "Lets get started! You can only make one request at a time.";
+            lastRequest =
+                "Lets get started! You can only make one request at a time.";
             ccard = Colors.white;
             ctext = Colors.indigo[900];
           });
       }
     }, onError: (e) {
       debugPrint("CALL ERROR");
-      if(mounted)
+      if (mounted)
         setState(() {
-          lastRequest = "Lets get started! You can only make one request at a time.";
+          lastRequest =
+              "Lets get started! You can only make one request at a time.";
           ccard = Colors.white;
           ctext = Colors.indigo[900];
         });
-      if(mounted)
-        Utility.createErrorSnackBar(context);
+      if (mounted) Utility.createErrorSnackBar(context);
     }).catchError((e) {
       debugPrint("SERVER ERROR");
-      if(mounted)
+      if (mounted)
         setState(() {
-          lastRequest = "Lets get started! You can only make one request at a time.";
+          lastRequest =
+              "Lets get started! You can only make one request at a time.";
           ccard = Colors.white;
           ctext = Colors.indigo[900];
         });
-      if(mounted)
-        Utility.createErrorSnackBar(context);
+      if (mounted) Utility.createErrorSnackBar(context);
     });
   }
 
@@ -343,7 +382,6 @@ class _AddLandlord extends State<AddLandlord> {
     var uID = await Utility.getUserId();
     debugPrint("UserId is " + uID.toString());
     var phone = "+91" + phoneNumber.replaceFirst("+91", "");
-
     Firestore.instance
         .collection(globals.landlord)
         .where("phone", isEqualTo: phone)
@@ -353,7 +391,7 @@ class _AddLandlord extends State<AddLandlord> {
       if (landlordUser.documents != null &&
           landlordUser.documents.length != 0) {
         var landlordUserId = landlordUser.documents[0].documentID;
-        if(landlordUser.documents[0]['flat_id'] != null) {
+        if (landlordUser.documents[0]['flat_id'] != null) {
           _setErrorState(scaffoldContext, "Landlord already in a flat",
               textToSend: "Landlord already in a flat");
           return;
@@ -466,59 +504,61 @@ class _AddLandlord extends State<AddLandlord> {
                 .where("request_from_flat", isEqualTo: 1)
                 .getDocuments()
                 .then((oldRequests) {
-                  var batch = Firestore.instance.batch();
-                  if(oldRequests != null && oldRequests.documents.length != 0) {
-                    for(var doc in oldRequests.documents) {
-                      batch.updateData(doc.reference, {'status':-1});
-                    }
-                  }
+              var batch = Firestore.instance.batch();
+              if (oldRequests != null && oldRequests.documents.length != 0) {
+                for (var doc in oldRequests.documents) {
+                  batch.updateData(doc.reference, {'status': -1});
+                }
+              }
 
-                  Firestore.instance
+              Firestore.instance
+                  .collection(globals.requestsLandlord)
+                  .where("user_id", isEqualTo: landlordUserId)
+                  .where("request_from_flat", isEqualTo: 1)
+                  .limit(1)
+                  .getDocuments()
+                  .then((checker) {
+                debugPrint("CHECKING REQUEST EXISTS OR NOT");
+                if (checker.documents == null ||
+                    checker.documents.length == 0) {
+                  debugPrint("CREATING REQUEST");
+
+                  var reqRef = Firestore.instance
                       .collection(globals.requestsLandlord)
-                      .where("user_id", isEqualTo: landlordUserId)
-                      .where("request_from_flat", isEqualTo: 1)
-                      .limit(1)
-                      .getDocuments()
-                      .then((checker) {
-                    debugPrint("CHECKING REQUEST EXISTS OR NOT");
-                    if (checker.documents == null || checker.documents.length == 0) {
-                      debugPrint("CREATING REQUEST");
+                      .document();
+                  batch.setData(reqRef, newReq);
 
-                      var reqRef = Firestore.instance
-                          .collection(globals.requestsLandlord)
-                          .document();
-                      batch.setData(reqRef, newReq);
-
-                      batch.commit().then((res) async {
-                        debugPrint("Request Created");
-                        _setErrorState(scaffoldContext, "Request created!", textToSend: "Request created!");
-                      }, onError: (e) {
-                        _setErrorState(scaffoldContext, "CALL ERROR");
-                      }).catchError((e) {
-                        _setErrorState(scaffoldContext, "SERVER ERROR");
-                      });
-                    } else {
-                      debugPrint("UPDATING REQUEST");
-                      var reqRef = Firestore.instance
-                          .collection(globals.requestsLandlord)
-                          .document(checker.documents[0].documentID);
-                      batch.updateData(reqRef, updatedReq);
-                      batch.commit().then((res) async {
-                        debugPrint("Request Updated");
-                        _setErrorState(scaffoldContext, "Request created!", textToSend: "Request created!");
-                      }, onError: (e) {
-                        _setErrorState(scaffoldContext, "CALL ERROR");
-                      }).catchError((e) {
-                        _setErrorState(scaffoldContext, "SERVER ERROR");
-                      });
-                    }
+                  batch.commit().then((res) async {
+                    debugPrint("Request Created");
+                    _setErrorState(scaffoldContext, "Request created!",
+                        textToSend: "Request created!");
                   }, onError: (e) {
                     _setErrorState(scaffoldContext, "CALL ERROR");
                   }).catchError((e) {
                     _setErrorState(scaffoldContext, "SERVER ERROR");
                   });
+                } else {
+                  debugPrint("UPDATING REQUEST");
+                  var reqRef = Firestore.instance
+                      .collection(globals.requestsLandlord)
+                      .document(checker.documents[0].documentID);
+                  batch.updateData(reqRef, updatedReq);
+                  batch.commit().then((res) async {
+                    debugPrint("Request Updated");
+                    _setErrorState(scaffoldContext, "Request created!",
+                        textToSend: "Request created!");
+                  }, onError: (e) {
+                    _setErrorState(scaffoldContext, "CALL ERROR");
+                  }).catchError((e) {
+                    _setErrorState(scaffoldContext, "SERVER ERROR");
+                  });
+                }
+              }, onError: (e) {
+                _setErrorState(scaffoldContext, "CALL ERROR");
+              }).catchError((e) {
+                _setErrorState(scaffoldContext, "SERVER ERROR");
+              });
             });
-
           }
         }, onError: (e) {
           _setErrorState(scaffoldContext, "CALL ERROR");
@@ -533,6 +573,153 @@ class _AddLandlord extends State<AddLandlord> {
       _setErrorState(scaffoldContext, "CALL ERROR");
     }).catchError((e) {
       _setErrorState(scaffoldContext, "SERVER ERROR");
+    });
+  }
+
+  //build incoming requests list
+  Widget buildIncomingRequests(BuildContext context, int index) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.95,
+        child: Card(
+            color: Colors.white,
+            elevation: 1.0,
+            child: Dismissible(
+              key: ObjectKey(incomingRequests[index]),
+              background: swipeBackground(),
+              onDismissed: (direction) {
+                String request = incomingRequests[index];
+                setState(() {
+                  incomingRequests.removeAt(index);
+                });
+                // _respondToJoinRequest(context, request, -1);
+              },
+              child: ListTile(
+                title: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Text(
+                    incomingRequests[index]['name'],
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Text(
+                    incomingRequests[index]['phone'],
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 11.0,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ),
+                trailing: ButtonTheme(
+                    height: 25.0,
+                    minWidth: 30.0,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        shape: new RoundedRectangleBorder(
+                          borderRadius: new BorderRadius.circular(10.0),
+                          side: BorderSide(
+                            width: 1.0,
+                            color: Colors.black,
+                          ),
+                        ),
+                        color: Colors.white,
+                        textColor: Theme.of(context).primaryColorDark,
+                        child: (_progressCircleState == 0)
+                            ? setUpButtonChild("Accept")
+                            : setUpButtonChild("Waiting"),
+                        onPressed: () {
+                          if (_isButtonDisabled == false) {
+                          }
+                          // _respondToJoinRequest(
+                          //     _navigatorContext, incomingRequests[index], 1);
+                          else {
+                            setState(() {
+                              _progressCircleState = 1;
+                            });
+                            Utility.createErrorSnackBar(_navigatorContext,
+                                error: "Waiting for Request Call to Complete!");
+                          }
+                        })),
+              ),
+            )),
+      ),
+    );
+  }
+
+  void getIncomingRequests() {
+    Firestore.instance
+        .collection(globals.requestsLandlord)
+        .where("flat_id", isEqualTo: flatId)
+        .where("request_from_flat", isEqualTo: 0)
+        .getDocuments()
+        .then((requests) {
+      debugPrint("FETCHING INCOMING REQ");
+      if (requests.documents != null && requests.documents.length != 0) {
+        List<FlatIncomingReq> usersToGet = new List();
+        requests.documents.sort((a, b) =>
+            a.data['updated_at'].compareTo(b.data['updated_at']) > 0 ? 1 : -1);
+        for (int i = 0; i < requests.documents.length; i++) {
+          debugPrint("doc + " + requests.documents[i].documentID);
+          var data = requests.documents[i].data;
+          var reqStatus = data['status'];
+
+          if (reqStatus.toString() == "0")
+            usersToGet.add(FlatIncomingReq(
+                Firestore.instance
+                    .collection(globals.landlord)
+                    .document(data['user_id']),
+                ''));
+        }
+        //get data for landlords with incoming requests
+        Firestore.instance.runTransaction((transaction) async {
+          for (int i = 0; i < usersToGet.length; i++) {
+            DocumentSnapshot userData =
+                await transaction.get(usersToGet[i].ref);
+            if (userData.exists)
+              usersToGet[i].displayId =
+                  userData.data['name'] + ";" + userData.data['phone'];
+          }
+        }).whenComplete(() {
+          if (incomingRequests == null) {
+            incomingRequests = new List();
+            debugPrint("IN WHEN COMPLETE TRANSACTION");
+            for (int i = 0; i < usersToGet.length; i++) {
+              var data = {
+                'name': usersToGet[i].displayId.split(";")[0].trim(),
+                'phone': usersToGet[i].displayId.split(";")[1].trim()
+              };
+              if (mounted && !incomingRequests.contains(data))
+                setState(() {
+                  incomingRequests.add(data);
+                });
+            }
+            debugPrint("IN NAVIGATE");
+            debugPrint(incomingRequests.length.toString());
+          }
+        }).catchError((e) {
+          debugPrint("SERVER TRANSACTION ERROR");
+          debugPrint(e.toString());
+        });
+      } else {
+        setState(() {
+          incomingRequests = new List();
+        });
+      }
+    }, onError: (e) {
+      debugPrint("CALL ERROR");
+      Utility.createErrorSnackBar(_navigatorContext);
+    }).catchError((e) {
+      debugPrint("SERVER ERROR");
+      debugPrint(e.toString());
+      Utility.createErrorSnackBar(_navigatorContext);
     });
   }
 
@@ -574,5 +761,73 @@ class _AddLandlord extends State<AddLandlord> {
   void _navigateToTenant() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => TenantPortal(flatId)));
+  }
+
+  Widget swipeBackground() {
+    return Container(
+      color: Colors.red[600],
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 5,
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Icon(Icons.delete, color: Colors.white),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget setUpButtonChild(buttonText) {
+    if (_progressCircleState == 0) {
+      return new Text(
+        buttonText,
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 10.0,
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.w700,
+        ),
+      );
+    } else if (_progressCircleState == 1) {
+      return CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+      );
+    } else {
+      return Icon(Icons.check, color: Colors.black);
+    }
   }
 }

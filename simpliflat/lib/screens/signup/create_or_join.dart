@@ -51,6 +51,7 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
   List incomingRequests;
   BuildContext scaffoldContext;
   var _isButtonDisabled = false;
+  var flatId;
 
   var _buttonColor;
 
@@ -70,6 +71,7 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
   Future<dynamic> _handleRefresh() async {
     var userId = await Utility.getUserId();
     var flatId;
+    _checkFlatAccept();
     return Firestore.instance
         .collection("joinflat")
         .where("user_id", isEqualTo: userId)
@@ -171,6 +173,7 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
   @override
   Widget build(BuildContext context) {
     var deviceSize = MediaQuery.of(context).size;
+    if(flatId==null) _checkFlatAccept();
     return Scaffold(
         appBar: AppBar(
           title: Text("Find a Flat"),
@@ -258,14 +261,14 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                                       children: <Widget>[
                                         textInCard("Create a", FontWeight.w700,
                                             21.0, 28.0, 40.0),
-                                        textInCard("Flat", FontWeight.w700, 21.0,
-                                            28.0, 5.0),
+                                        textInCard("Flat", FontWeight.w700,
+                                            21.0, 28.0, 5.0),
                                         textInCard("Create a new", null, 12.0,
                                             28.0, 20.0),
-                                        textInCard("flat and invite", null, 12.0,
-                                            28.0, 7.0),
-                                        textInCard("your flatmates.", null, 12.0,
-                                            28.0, 7.0),
+                                        textInCard("flat and invite", null,
+                                            12.0, 28.0, 7.0),
+                                        textInCard("your flatmates.", null,
+                                            12.0, 28.0, 7.0),
                                       ]),
                                 )),
                           )),
@@ -323,14 +326,14 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                                       children: <Widget>[
                                         textInCard("Join a", FontWeight.w700,
                                             21.0, 28.0, 40.0),
-                                        textInCard("Flat", FontWeight.w700, 21.0,
-                                            28.0, 5.0),
-                                        textInCard("Search for your", null, 12.0,
-                                            28.0, 20.0),
+                                        textInCard("Flat", FontWeight.w700,
+                                            21.0, 28.0, 5.0),
+                                        textInCard("Search for your", null,
+                                            12.0, 28.0, 20.0),
                                         textInCard("flat and send", null, 12.0,
                                             28.0, 7.0),
-                                        textInCard(
-                                            "a request.", null, 12.0, 28.0, 7.0),
+                                        textInCard("a request.", null, 12.0,
+                                            28.0, 7.0),
                                       ]),
                                 )),
                           )),
@@ -365,7 +368,7 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                     height: (incomingRequests == null ||
                             incomingRequests.length == 0)
                         ? 5.0
-                        : MediaQuery.of(context).size.height/2,
+                        : MediaQuery.of(context).size.height / 2,
                     child: (incomingRequests == null ||
                             incomingRequests.length == 0)
                         ? null
@@ -449,15 +452,14 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                 _respondToJoinRequest(scaffoldContext, request, -1);
               },
               child: ListTile(
-
                 title: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     incomingRequests[index],
                     style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15.0,
-                  fontFamily: 'Montserrat',
+                      color: Colors.black,
+                      fontSize: 15.0,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                 ),
@@ -676,6 +678,19 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
         }
       }
     });
+  }
+
+  _checkFlatAccept() async {
+    var userId = await Utility.getUserId();
+    Firestore.instance.collection(globals.user).document(userId).get().then(
+        (user) {
+      if (user != null && user['flat_id'] != null && user['flat_id'] != "") {
+        Utility.addToSharedPref(flatId: user['flat_id'].toString().trim());
+        _navigateToHome(user['flat_id'].toString().trim());
+      } else {
+        flatId = "";
+      }
+    }, onError: (e) {}).catchError((e) {});
   }
 
   void _setErrorState(scaffoldContext, error, {textToSend}) {

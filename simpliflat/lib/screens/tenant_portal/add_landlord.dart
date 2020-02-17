@@ -379,9 +379,11 @@ class _AddLandlord extends State<AddLandlord> {
   }
 
   void _inviteLandlordAPI(scaffoldContext, phoneNumber) async {
+    var flatName = await Utility.getFlatName();
     var uID = await Utility.getUserId();
     debugPrint("UserId is " + uID.toString());
     var phone = "+91" + phoneNumber.replaceFirst("+91", "");
+    List landlordFlatList = new List();
     Firestore.instance
         .collection(globals.landlord)
         .where("phone", isEqualTo: phone)
@@ -390,12 +392,15 @@ class _AddLandlord extends State<AddLandlord> {
         .then((landlordUser) {
       if (landlordUser.documents != null &&
           landlordUser.documents.length != 0) {
-        var landlordUserId = landlordUser.documents[0].documentID;
         if (landlordUser.documents[0]['flat_id'] != null) {
-          _setErrorState(scaffoldContext, "Landlord already in a flat",
-              textToSend: "Landlord already in a flat");
-          return;
+          landlordFlatList = landlordUser.documents[0]['flat_id'];
         }
+        var landlordUserId = landlordUser.documents[0].documentID;
+//        if (landlordUser.documents[0]['flat_id'] != null) {
+//          _setErrorState(scaffoldContext, "Landlord already in a flat",
+//              textToSend: "Landlord already in a flat");
+//          return;
+//        }
         debugPrint("landlordUser  = " + landlordUserId);
         //check if we have a request from this landlord
         Firestore.instance
@@ -413,63 +418,49 @@ class _AddLandlord extends State<AddLandlord> {
             List<DocumentReference> toRejectList = new List();
             DocumentReference toAccept;
             debugPrint("LANDLORD REQUEST TO FLAT EXISTS!");
-            //reject other requests
+
+            // accept current request
             Firestore.instance
                 .collection(globals.requestsLandlord)
-                .where('user_id', isEqualTo: landlordUserId)
+                .where("user_id", isEqualTo: landlordUserId)
+                .where("flat_id", isEqualTo: flatId)
+                .where("request_from_flat", isEqualTo: 0)
                 .getDocuments()
-                .then((toBeRejected) {
-              if (toBeRejected.documents != null &&
-                  toBeRejected.documents.length != 0) {
-                for (int i = 0; i < toBeRejected.documents.length; i++) {
-                  var doc = Firestore.instance
-                      .collection(globals.requestsLandlord)
-                      .document(toBeRejected.documents[i].documentID);
-                  debugPrint("doc+" + toBeRejected.documents[i].documentID);
-                  toRejectList.add(doc);
-                }
+                .then((toAcceptData) {
+              if (toAcceptData.documents != null &&
+                  toAcceptData.documents.length != 0) {
+                toAccept = Firestore.instance
+                    .collection(globals.requestsLandlord)
+                    .document(toAcceptData.documents[0].documentID);
               }
+              //perform actual batch operations
+              var batch = Firestore.instance.batch();
+              var timeNow = DateTime.now();
+              for (int i = 0; i < toRejectList.length; i++) {
+                batch.updateData(
+                    toRejectList[i], {'status': -1, 'updated_at': timeNow});
+              }
+              batch.updateData(toAccept, {'status': 1, 'updated_at': timeNow});
 
-              // accept current request
-              Firestore.instance
-                  .collection(globals.requestsLandlord)
-                  .where("user_id", isEqualTo: landlordUserId)
-                  .where("flat_id", isEqualTo: flatId)
-                  .where("request_from_flat", isEqualTo: 0)
-                  .getDocuments()
-                  .then((toAcceptData) {
-                if (toAcceptData.documents != null &&
-                    toAcceptData.documents.length != 0) {
-                  toAccept = Firestore.instance
-                      .collection(globals.requestsLandlord)
-                      .document(toAcceptData.documents[0].documentID);
-                }
-                //perform actual batch operations
-                var batch = Firestore.instance.batch();
-                var timeNow = DateTime.now();
-                for (int i = 0; i < toRejectList.length; i++) {
-                  batch.updateData(
-                      toRejectList[i], {'status': -1, 'updated_at': timeNow});
-                }
-                batch
-                    .updateData(toAccept, {'status': 1, 'updated_at': timeNow});
+              //update user
+              landlordFlatList.add(flatId.toString().trim()  + "Name=" + flatName);
+              var landlordUserRef = Firestore.instance
+                  .collection(globals.landlord)
+                  .document(landlordUserId);
+              batch.updateData(landlordUserRef, {'flat_id': landlordFlatList});
 
-                //update user
-                var userRef =
-                    Firestore.instance.collection("user").document(uID);
-                batch.updateData(userRef, {'flat_id': flatId});
+              //update flat landlord
+              var flatRef = Firestore.instance
+                  .collection(globals.flat)
+                  .document(flatId);
+              batch.updateData(flatRef, {'landlord_id': landlordUserId});
 
-                batch.commit().then((res) {
-                  debugPrint("ADDED LANDLORD");
-                  Utility.addToSharedPref(landlordId: landlordUserId);
-                  setState(() {
-                    _navigateToTenant();
-                    debugPrint("CALL SUCCCESS");
-                  });
-                }, onError: (e) {
-                  _setErrorState(scaffoldContext, "CALL ERROR");
-                }).catchError((e) {
-                  _setErrorState(scaffoldContext, "SERVER ERROR");
+              batch.commit().then((res) {
+                debugPrint("ADDED LANDLORD");
+                Utility.addToSharedPref(landlordId: landlordUserId);
+                setState(() {
+                  _navigateToTenant();
+                  debugPrint("CALL SUCCCESS");
                 });
               }, onError: (e) {
                 _setErrorState(scaffoldContext, "CALL ERROR");
@@ -657,6 +648,8 @@ class _AddLandlord extends State<AddLandlord> {
     setState(() {
       _isButtonDisabled = true;
     });
+    var flatName = await Utility.getFlatName();
+    List landlordFlatList = new List();
     var userId = await Utility.getUserId();
     var timeNow = DateTime.now();
     Firestore.instance
@@ -667,6 +660,9 @@ class _AddLandlord extends State<AddLandlord> {
         .then((landlordUser) {
       if (landlordUser.documents != null &&
           landlordUser.documents.length != 0) {
+        if (landlordUser.documents[0]['flat_id'] != null) {
+          landlordFlatList = landlordUser.documents[0]['flat_id'];
+        }
         var landlordUserId = landlordUser.documents[0].documentID;
         debugPrint("landlordUserId = " + landlordUserId);
         //check if we have a request from this landlord
@@ -697,83 +693,58 @@ class _AddLandlord extends State<AddLandlord> {
                     var doc = Firestore.instance
                         .collection(globals.requestsLandlord)
                         .document(toBeRejected.documents[i].documentID);
-                    if(!(toBeRejected.documents[i]['user_id'] == landlordUserId &&
-                        toBeRejected.documents[i]['request_from_flat']==0)) {
+                    if (!(toBeRejected.documents[i]['user_id'] ==
+                            landlordUserId &&
+                        toBeRejected.documents[i]['request_from_flat'] == 0)) {
                       debugPrint("doc+" + toBeRejected.documents[i].documentID);
                       toRejectList.add(doc);
                     }
                   }
                 }
 
-                //reject other requests made to and from landlord
+                // accept current request
                 Firestore.instance
                     .collection(globals.requestsLandlord)
-                    .where('user_id', isEqualTo: landlordUserId)
+                    .where("user_id", isEqualTo: landlordUserId)
+                    .where("flat_id", isEqualTo: flatId)
+                    .where("request_from_flat", isEqualTo: 0)
                     .getDocuments()
-                    .then((toBeRejectedLandlord) {
-                  if (toBeRejectedLandlord.documents != null &&
-                      toBeRejectedLandlord.documents.length != 0) {
-                    for (int i = 0;
-                        i < toBeRejectedLandlord.documents.length;
-                        i++) {
-                      var doc = Firestore.instance
-                          .collection(globals.requestsLandlord)
-                          .document(
-                              toBeRejectedLandlord.documents[i].documentID);
-                      if(!(toBeRejectedLandlord.documents[i]['flat_id'] == flatId &&
-                          toBeRejectedLandlord.documents[i]['request_from_flat']==0)) {
-                        debugPrint("docLandlord+" + toBeRejectedLandlord.documents[i].documentID);
-                        toRejectList.add(doc);
-                      }
-                    }
+                    .then((toAcceptData) {
+                  if (toAcceptData.documents != null &&
+                      toAcceptData.documents.length != 0) {
+                    toAccept = Firestore.instance
+                        .collection(globals.requestsLandlord)
+                        .document(toAcceptData.documents[0].documentID);
                   }
-                  // accept current request
-                  Firestore.instance
-                      .collection(globals.requestsLandlord)
-                      .where("user_id", isEqualTo: landlordUserId)
-                      .where("flat_id", isEqualTo: flatId)
-                      .where("request_from_flat", isEqualTo: 0)
-                      .getDocuments()
-                      .then((toAcceptData) {
-                    if (toAcceptData.documents != null &&
-                        toAcceptData.documents.length != 0) {
-                      toAccept = Firestore.instance
-                          .collection(globals.requestsLandlord)
-                          .document(toAcceptData.documents[0].documentID);
-                    }
-                    //perform actual batch operations
-                    var batch = Firestore.instance.batch();
-                    for (int i = 0; i < toRejectList.length; i++) {
-                      batch.updateData(toRejectList[i],
-                          {'status': -1, 'updated_at': timeNow});
-                    }
+                  //perform actual batch operations
+                  var batch = Firestore.instance.batch();
+                  for (int i = 0; i < toRejectList.length; i++) {
                     batch.updateData(
-                        toAccept, {'status': 1, 'updated_at': timeNow});
+                        toRejectList[i], {'status': -1, 'updated_at': timeNow});
+                  }
+                  batch.updateData(
+                      toAccept, {'status': 1, 'updated_at': timeNow});
 
-                    //update user
-                    var landlordUserRef = Firestore.instance
-                        .collection(globals.landlord)
-                        .document(landlordUserId);
-                    batch.updateData(landlordUserRef, {'flat_id': flatId});
+                  //update user
+                  landlordFlatList.add(flatId.toString().trim()  + "Name=" + flatName);
+                  var landlordUserRef = Firestore.instance
+                      .collection(globals.landlord)
+                      .document(landlordUserId);
+                  batch.updateData(landlordUserRef, {'flat_id': landlordFlatList});
 
-                    //update flat landlord
-                    var flatRef = Firestore.instance
-                        .collection(globals.flat)
-                        .document(flatId);
-                    batch.updateData(flatRef, {'landlord_id': landlordUserId});
+                  //update flat landlord
+                  var flatRef = Firestore.instance
+                      .collection(globals.flat)
+                      .document(flatId);
+                  batch.updateData(flatRef, {'landlord_id': landlordUserId});
 
-                    batch.commit().then((res) {
-                      debugPrint("ADDED TO FLAT");
-                      Utility.addToSharedPref(landlordId: landlordUserId);
-                      setState(() {
-                        _navigateToTenant();
-                        _isButtonDisabled = false;
-                        debugPrint("CALL SUCCCESS");
-                      });
-                    }, onError: (e) {
-                      _setErrorState(scaffoldContext, "CALL ERROR");
-                    }).catchError((e) {
-                      _setErrorState(scaffoldContext, "SERVER ERROR");
+                  batch.commit().then((res) {
+                    debugPrint("ADDED TO FLAT");
+                    Utility.addToSharedPref(landlordId: landlordUserId);
+                    setState(() {
+                      _navigateToTenant();
+                      _isButtonDisabled = false;
+                      debugPrint("CALL SUCCCESS");
                     });
                   }, onError: (e) {
                     _setErrorState(scaffoldContext, "CALL ERROR");
@@ -814,7 +785,8 @@ class _AddLandlord extends State<AddLandlord> {
               setState(() {
                 _isButtonDisabled = false;
               });
-              _setErrorState(scaffoldContext, "Success!", textToSend: "Success!");
+              _setErrorState(scaffoldContext, "Success!",
+                  textToSend: "Success!");
             }, onError: (e) {
               _setErrorState(scaffoldContext, "CALL ERROR");
             }).catchError((e) {

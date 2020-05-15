@@ -443,7 +443,7 @@ class _AddLandlord extends State<AddLandlord> {
               batch.updateData(toAccept, {'status': 1, 'updated_at': timeNow});
 
               //update user
-              landlordFlatList.add(flatId.toString().trim()  + "Name=" + flatName);
+              landlordFlatList.add(flatId.toString().trim());
               var landlordUserRef = Firestore.instance
                   .collection(globals.landlord)
                   .document(landlordUserId);
@@ -726,7 +726,7 @@ class _AddLandlord extends State<AddLandlord> {
                       toAccept, {'status': 1, 'updated_at': timeNow});
 
                   //update user
-                  landlordFlatList.add(flatId.toString().trim()  + "Name=" + flatName);
+                  landlordFlatList.add(flatId.toString().trim());
                   var landlordUserRef = Firestore.instance
                       .collection(globals.landlord)
                       .document(landlordUserId);

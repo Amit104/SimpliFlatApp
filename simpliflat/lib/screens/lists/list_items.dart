@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:simpliflat/screens/widgets/loading_container.dart';
 import 'add_list_item.dart';
+import 'checkout_items.dart';
 
 class ListItems extends StatefulWidget {
   final flatId;
@@ -57,7 +58,9 @@ class ListItemsState extends State<ListItems> {
                   MaterialPageRoute(
                       builder: (context) => AddListItem(listReference, _items, flatId)),
                 );
-                if (res != null && res != "") _items = res;
+                setState(() {
+                  if (res != null && res != "") _items = res;          
+                });
               },
             ),
           ],
@@ -65,10 +68,26 @@ class ListItemsState extends State<ListItems> {
         body: Builder(builder: (BuildContext scaffoldC) {
           _navigatorContext = scaffoldC;
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Expanded(
                 child: getListItems(),
               ),
+              RaisedButton(
+                padding: EdgeInsets.only(top:20.0, bottom: 20.0),
+                child: Text(
+                  'Checkout',
+                  textAlign: TextAlign.center,
+                ),
+                onPressed: () async {
+                  await Navigator.push(
+                    _navigatorContext,
+                    MaterialPageRoute(
+                        builder: (context) => CheckoutItems(listReference, _items, flatId)),
+                  );
+                },
+                color: Colors.amber,
+              )
             ],
           );
         }),

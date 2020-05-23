@@ -34,6 +34,7 @@ dependencies:
   firebase_storage: ^3.1.1
   file_picker: ^1.4.3+2
   flutter_downloader: ^1.4.0
+  flutter_rating_bar: ^3.0.1+1
 
 dev_dependencies:
   flutter_test:

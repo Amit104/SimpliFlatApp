@@ -15,6 +15,46 @@
       },
       "oauth_client": [
         {
+          "client_id": "215251342923-s6leamivafj58bc6r6jhvuuer5h3gmtn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "69aa59b3e8820660e7cb8206a9f4ba6cd7ea1755"
+          }
+        },
+        {
+          "client_id": "215251342923-qndgfp4q2a04t708me5d4cdiij379egk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "93547068668606b39491db32c6fc03e7b335849a"
+          }
+        },
+        {
+          "client_id": "215251342923-919utpvmfk7u0ca5ojs8g02sdt35aeab.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "a8d0c1076e3c855731211d3112d6c8408c36ad15"
+          }
+        },
+        {
+          "client_id": "215251342923-junk1orq0678s8pgf0tu70oppqv0knr7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "a07e72cf5b1f393769d228d8c58ddf01b18a0383"
+          }
+        },
+        {
+          "client_id": "215251342923-fs4visviv5b448k070b27am3ajlf8cch.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat",
+            "certificate_hash": "675bcfd85819a4c8403ca21418a92db47a4c9328"
+          }
+        },
+        {
           "client_id": "215251342923-18luoch9aan64evut7rai168behhmo8v.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -49,20 +89,98 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "215251342923-q09ae1hndkh9ulgr4lbj2llotin5sn1c.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215251342923:android:0fb63eb8f7b9a18e56dfce",
+        "android_client_info": {
+          "package_name": "com.example.simpliflat_landlord"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "215251342923-4issogjlj2bcf4sqn8q6eh77fbs02ts9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat_landlord",
+            "certificate_hash": "93547068668606b39491db32c6fc03e7b335849a"
+          }
         },
-        "ads_service": {
-          "status": 2
+        {
+          "client_id": "215251342923-cl65apl5e9g4iruoru2895719ck3ua59.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat_landlord",
+            "certificate_hash": "a8d0c1076e3c855731211d3112d6c8408c36ad15"
+          }
+        },
+        {
+          "client_id": "215251342923-rjvenflco424ao945jgh0mmeeld0n1rl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat_landlord",
+            "certificate_hash": "a07e72cf5b1f393769d228d8c58ddf01b18a0383"
+          }
+        },
+        {
+          "client_id": "215251342923-sq32atbm9hnnr78epi8ouukdvv071ofd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat_landlord",
+            "certificate_hash": "a1e8de34b3e6a4f5876b51db627ace4d25646d22"
+          }
+        },
+        {
+          "client_id": "215251342923-2akeq5j9c4jvq2jkgfegm079ffkhrt8q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat_landlord",
+            "certificate_hash": "7e9c133ee5e8e5303f2d16d5334456cf37aef0fc"
+          }
+        },
+        {
+          "client_id": "215251342923-k0vp2gd5ip6fhtt449el8ajvj66h75e7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat_landlord",
+            "certificate_hash": "675bcfd85819a4c8403ca21418a92db47a4c9328"
+          }
+        },
+        {
+          "client_id": "215251342923-a3tnj9hq956ql9mi6uuusaqtv0vq7gnh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simpliflat_landlord",
+            "certificate_hash": "fd5631b4075667ffcb3a9a1e63f362924807e34a"
+          }
+        },
+        {
+          "client_id": "215251342923-q09ae1hndkh9ulgr4lbj2llotin5sn1c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgPRwT6xjO93hZncE2E5OwJzGP0mXGEDU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "215251342923-q09ae1hndkh9ulgr4lbj2llotin5sn1c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

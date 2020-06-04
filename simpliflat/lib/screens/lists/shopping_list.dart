@@ -402,7 +402,7 @@ class ShoppingListsState extends State<ShoppingLists> {
           centerTitle: true,
           actions: <Widget>[
             IconButton(
-                icon: Icon(Icons.add),
+                icon: Icon(Icons.add_circle),
                 onPressed: () {
                   addList(_navigatorContext);
                 })

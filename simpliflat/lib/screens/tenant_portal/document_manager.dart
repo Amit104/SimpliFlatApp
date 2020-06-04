@@ -64,7 +64,7 @@ class _DocumentManager extends State<DocumentManager> {
         },
         tooltip: 'New Document',
         backgroundColor: Colors.red[900],
-        child: new Icon(Icons.add),
+        child: new Icon(Icons.add_circle),
       ),
       body: Builder(
         builder: (BuildContext scaffoldC) {

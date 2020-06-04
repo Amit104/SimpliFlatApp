@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
@@ -9,6 +10,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:simpliflat/screens/widgets/common.dart';
 import 'package:simpliflat/screens/widgets/loading_container.dart';
+import 'tasks/task_list.dart';
+import 'tasks/create_task.dart';
 
 class Dashboard extends StatefulWidget {
   final flatId;
@@ -24,6 +27,7 @@ class Dashboard extends StatefulWidget {
 class DashboardState extends State<Dashboard> {
   var _navigatorContext;
   final flatId;
+ // final taskId;
   var currentUserId;
   bool noticesExist = false;
   bool tasksExist = false;
@@ -73,7 +77,22 @@ class DashboardState extends State<Dashboard> {
           ),
           elevation: 0.0,
           centerTitle: true,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.add_circle,
+                color: Colors.indigo,
+              ),
+              onPressed: () {
+                // do something
+
+                navigateToAddTask();
+              },
+            )
+          ],
         ),
+
+
         body: Builder(builder: (BuildContext scaffoldC) {
           _navigatorContext = scaffoldC;
           return new SingleChildScrollView(
@@ -87,7 +106,7 @@ class DashboardState extends State<Dashboard> {
                   height: 30.0,
                 ),
 
-                // Statistics
+              //   Statistics
                 Text(
                   'Point Board',
                   style: TextStyle(
@@ -106,12 +125,16 @@ class DashboardState extends State<Dashboard> {
                 SizedBox(
                   height: 20.0,
                 ),
-                navigationLinks(),
+               // navigationLinks(),
                 SizedBox(
+
                   height: 25.0,
                 ),
 
                 // Today's Items
+////                Text(
+////                  'HELLooooooo'
+//                ),
                 tasksExist
                     ? Text(
                         'Tasks for you today',
@@ -133,6 +156,8 @@ class DashboardState extends State<Dashboard> {
                       )
                     : Container(height: 0.0),
                 getNotices(),
+
+
               ],
             ),
           );
@@ -545,4 +570,17 @@ class DashboardState extends State<Dashboard> {
     debugPrint("Back");
     Navigator.pop(_navigatorContext, true);
   }
+
+
+  void navigateToAddTask({taskId}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return CreateTask(taskId, flatId);
+      }),
+    );
+  }
+
 }
+
+

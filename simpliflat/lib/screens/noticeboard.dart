@@ -168,8 +168,8 @@ class NoticeBoard extends State<Notice> {
                                 width: 56,
                                 height: 56,
                                 child: Icon(
-                                  Icons.add,
-                                  color: Colors.white,
+                                  Icons.add_circle,
+                                  color: Colors.indigo,
                                 )),
                             onTap: () async {
                               if (_formKey1.currentState.validate()) {

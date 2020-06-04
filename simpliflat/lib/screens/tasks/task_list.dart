@@ -220,7 +220,7 @@ class TaskListState extends State<TaskList> {
           //leading: IconButton(icon: Icon(Icons.search), onPressed: null),
           actions: <Widget>[
             IconButton(
-                icon: Icon(Icons.add),
+                icon: Icon(Icons.add_circle),
                 onPressed: () {
                   navigateToAddTask();
                 })

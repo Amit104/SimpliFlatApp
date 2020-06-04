@@ -50,7 +50,7 @@ class ListItemsState extends State<ListItems> {
           centerTitle: true,
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.add),
+              icon: Icon(Icons.add_circle),
               onPressed: () async {
                 var res = await Navigator.push(
                   _navigatorContext,

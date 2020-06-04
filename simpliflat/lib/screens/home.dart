@@ -1,4 +1,6 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:simpliflat/icons/icons_custom_icons.dart';
@@ -11,11 +13,13 @@ import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dashboard.dart';
 import 'lists/shopping_list.dart';
+import 'tenant_portal/tenant_portal.dart';
 
 class Home extends StatefulWidget {
   final flatId;
 
   Home(this.flatId);
+
 
   @override
   State<StatefulWidget> createState() {
@@ -106,6 +110,7 @@ class _Home extends State<Home> {
 
   final dbHelper = DatabaseHelper.instance;
 
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -114,48 +119,88 @@ class _Home extends State<Home> {
           return null;
         },
         child: Scaffold(
-          body: Center(
-            child: _selectedIndex == 0
-                ? Dashboard(flatId)
-                : (_selectedIndex == 1
-                ? TaskList(flatId)
-                : (_selectedIndex == 2
-                ? ShoppingLists(flatId)
-                : UserProfile())),
+          body:
+
+          Center(
+
+              child: _selectedIndex == 0
+                  ? Dashboard(flatId)
+                   :(_selectedIndex == 1
+                  ?  TaskList(flatId)   // replace with link to payment portal
+
+
+                  : (_selectedIndex == 2
+                  ? TaskList(flatId)  // replace with link to calender
+                  : (_selectedIndex == 3
+                  ? ShoppingLists(flatId)
+                  :  TenantPortal(flatId) )))
+                 // : UserProfile())))
+
+
+             // )
+
           ),
-          bottomNavigationBar: new BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
+
+
+
+
+              bottomNavigationBar: new BottomNavigationBar(
+                elevation:0,
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+              items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                  icon: Icon(Icons.dashboard), title: Text('Dashboard')),
-              BottomNavigationBarItem(
-                  icon: Icon(IconsCustom.tasks_1), title: Text('Tasks')),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.list), title: Text('Lists')),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.home), title: Text('My Flat')),
-            ],
-            currentIndex: _selectedIndex,
-            unselectedItemColor: Colors.indigo[900],
-            fixedColor: Colors.red[900],
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed,
-          ),
-          floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerDocked,
-          floatingActionButton: new FloatingActionButton(
-            onPressed: () async {
-              var _flatId = flatId;
-              if (flatId == null || flatId == "")
-                _flatId = await Utility.getFlatId();
-              List<Map<String, dynamic>> offlineDocuments = await _query();
-              navigateToNotice(_flatId, offlineDocuments);
-            },
-            tooltip: 'Noticeboard',
-            backgroundColor: Colors.red[900],
-            child: new Icon(Icons.arrow_drop_up),
-          ),
-        ));
-  }
+
+              icon: Icon(Icons.home,color:Colors.indigo,size:25), title: Text("")),
+                BottomNavigationBarItem(
+
+                    icon: Icon(Icons.attach_money,color:Colors.indigo,size:25), title: Text("")),
+
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.calendar_today,color:Colors.indigo,size:24), title: Text("")),
+
+                BottomNavigationBarItem(
+
+                    icon: Icon(Icons.shopping_cart,color:Colors.indigo,size:25), title: Text("")),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.camera,color:Colors.indigo,size:25), title: Text("")),
+                ],
+              currentIndex: _selectedIndex,
+              //unselectedItemColor: Colors.deepPurpleAccent,
+              fixedColor: Colors.white,
+              onTap: _onItemTapped,
+              type: BottomNavigationBarType.fixed,
+              ),
+
+//              floatingActionButtonLocation:
+//              FloatingActionButtonLocation.centerDocked,
+//              floatingActionButton: new FloatingActionButton(
+//              heroTag: null,
+//              onPressed: () async {
+//              var _flatId = flatId;
+//              if (flatId == null || flatId == "")
+//              _flatId = await Utility.getFlatId();
+//              List<Map<String, dynamic>> offlineDocuments = await _query();
+//              navigateToNotice(_flatId, offlineDocuments);
+//              },
+//              tooltip: 'Noticeboard',
+//              backgroundColor: Colors.red[900],
+//              child: new Icon(Icons.arrow_drop_up),
+//
+//             ),
+//
+
+
+
+
+
+
+
+
+              ));
+            }
+
+
 
   // get offline notices
   Future<List<Map<String, dynamic>>> _query() async {

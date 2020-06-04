@@ -13,6 +13,7 @@ import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dashboard.dart';
 import 'lists/shopping_list.dart';
+import 'package:simpliflat/screens/Calendar/googlecalendar.dart';
 import 'tenant_portal/tenant_portal.dart';
 
 class Home extends StatefulWidget {
@@ -130,7 +131,7 @@ class _Home extends State<Home> {
 
 
                   : (_selectedIndex == 2
-                  ? TaskList(flatId)  // replace with link to calender
+                  ? googleCalendar(flatId)  // replace with link to calender
                   : (_selectedIndex == 3
                   ? ShoppingLists(flatId)
                   :  TenantPortal(flatId) )))

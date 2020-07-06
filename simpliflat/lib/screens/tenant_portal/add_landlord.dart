@@ -382,7 +382,7 @@ class _AddLandlord extends State<AddLandlord> {
     var flatName = await Utility.getFlatName();
     var uID = await Utility.getUserId();
     debugPrint("UserId is " + uID.toString());
-    var phone = "+91" + phoneNumber.replaceFirst("+91", "");
+    var phone = "+1" + phoneNumber.replaceFirst("+1", "");
     List landlordFlatList = new List();
     Firestore.instance
         .collection(globals.landlord)

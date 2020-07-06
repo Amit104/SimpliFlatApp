@@ -27,7 +27,7 @@ class _SignUpPhoneUser extends State<SignUpPhone> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text("SignUp"),
+          title: Text("Sign Up"),
           elevation: 0.0,
         ),
         //resizeToAvoidBottomPadding: false,
@@ -71,7 +71,7 @@ class _SignUpPhoneUser extends State<SignUpPhone> {
                                         Expanded(
                                           flex: 7,
                                           child: Text(
-                                            "Let me verify your phone number",
+                                            "What's Your Phone Number",
                                             style: TextStyle(
                                                 color: Colors.black,
                                                 fontFamily: 'Montserrat',
@@ -82,6 +82,31 @@ class _SignUpPhoneUser extends State<SignUpPhone> {
                                           flex: 1,
                                           child: Container(),
                                         ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        top: 5.0,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(),
+                                        ),
+                                        Expanded(
+                                          flex: 7,
+                                          child: Text(
+                                            "By signing-up I agree to Terms and condition. ",
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: 'Montserrat',
+                                                fontSize: 12.0),
+                                          ),
+
+                                        ),
+
                                       ],
                                     ),
                                     Padding(
@@ -198,7 +223,7 @@ class _SignUpPhoneUser extends State<SignUpPhone> {
       Navigator.push(
         context,
         new MaterialPageRoute(builder: (context) {
-          return SignUpOTP("+91" + phone.text.trim(), true);
+          return SignUpOTP("+1" + phone.text.trim(), true);
         }),
       ).whenComplete(() {
         setState(() {

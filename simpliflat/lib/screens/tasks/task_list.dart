@@ -12,6 +12,8 @@ import 'package:simpliflat/screens/widgets/loading_container.dart';
 import 'package:simpliflat/screens/Res/strings.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:convert';
 
 typedef TaskItemBodyBuilder<T> = Widget Function(TaskItem<T> item);
 typedef ValueToString<T> = String Function(T value);
@@ -23,6 +25,8 @@ class DualHeaderWithHint extends StatelessWidget {
   final String value;
   final String hint;
   final bool showHint;
+
+
 
   Widget _crossFade(Widget first, Widget second, bool isExpanded) {
     return AnimatedCrossFade(
@@ -147,7 +151,13 @@ class TaskListState extends State<TaskList> {
   int _radioValue1 = 1;
   static var _isResponsibility = true;
   static var _isIssue = true;
+  static var _isPayment = true;
   bool initializedNotifications = false;
+  //List<DateTime> _nextDueDatesForIncompleteTasks;
+
+  var numToMonth = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun',
+                7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'};
+
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   final flatId;
 
@@ -203,6 +213,8 @@ class TaskListState extends State<TaskList> {
         },
       ),
     ];
+
+    
   }
 
   @override
@@ -217,12 +229,13 @@ class TaskListState extends State<TaskList> {
           title: Text("Tasks"),
           elevation: 0.0,
           centerTitle: true,
+          backgroundColor: Colors.grey[300],
           //leading: IconButton(icon: Icon(Icons.search), onPressed: null),
           actions: <Widget>[
             IconButton(
                 icon: Icon(Icons.add),
                 onPressed: () {
-                  navigateToAddTask();
+                  openActionMenu();
                 })
           ],
         ),
@@ -230,14 +243,12 @@ class TaskListState extends State<TaskList> {
           child: Column(
             children: <Widget>[
               filterOptions(),
-              SizedBox(
-                height: 10.0,
-              ),
+              
               SafeArea(
                 top: false,
                 bottom: false,
                 child: Container(
-                  margin: const EdgeInsets.all(1.0),
+                  margin: const EdgeInsets.all(5.0),
                   child: ExpansionPanelList(
                       expansionCallback: (int index, bool isExpanded) {
                         setState(() {
@@ -262,7 +273,14 @@ class TaskListState extends State<TaskList> {
   }
 
   Widget getTaskListView(bool isCompleted) {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<QuerySnapshot> (
+      stream : Firestore.instance
+                .collection(globals.user)
+                .where('flat_id', isEqualTo: flatId)
+                .snapshots(),
+    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot1) {
+      if(!snapshot1.hasData) return LoadingContainerVertical(7);
+        return StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
             .collection(globals.flat)
             .document(flatId)
@@ -275,6 +293,12 @@ class TaskListState extends State<TaskList> {
             handleNotifications(taskSnapshot.data.documents);
 
           /// SORTING
+          /// 
+          // if(isCompleted == false) {
+          //   _nextDueDatesForIncompleteTasks = new List(taskSnapshot.data.documents.length);
+          // }
+          
+          // _nextDueDatesForIncompleteTasks = new List(taskSnapshot.data.documents.length);
           var sortField = getSortField();
           if (sortAscending) {
             taskSnapshot.data.documents.sort((DocumentSnapshot a,
@@ -299,15 +323,21 @@ class TaskListState extends State<TaskList> {
 
           /// FILTERING
           if (!_isResponsibility) {
-            debugPrint("Removing resp");
+            debugPrint("Removing reminder");
             taskSnapshot.data.documents.removeWhere((s) =>
-                s.data['type'].toString().trim() == Strings.responsibility);
+                s.data['type'].toString().trim() == 'Reminder');
           }
 
           if (!_isIssue) {
-            debugPrint("Removing resp");
+            debugPrint("Removing complaint");
             taskSnapshot.data.documents.removeWhere(
-                (s) => s.data['type'].toString().trim() == Strings.issue);
+                (s) => s.data['type'].toString().trim() == 'Complaint');
+          }
+
+          if (!_isPayment) {
+            debugPrint("Removing payment");
+            taskSnapshot.data.documents.removeWhere(
+                (s) => s.data['type'].toString().trim() == 'Payment');
           }
 
           /// TASK LIST VIEW
@@ -323,21 +353,30 @@ class TaskListState extends State<TaskList> {
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int position) {
 
-              var numToMonth = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun',
-                7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'};
+              try {
+                if(isCompleted == false)
+                  debugPrint('at load - ' + taskSnapshot.data.documents[position]["nextDueDate"].toDate().toIso8601String());
+              }
+              catch(e) {
+                debugPrint(e.toString());
+                debugPrint('it is null');
+              }
+              DateTime datetime = taskSnapshot.data.documents[position]["nextDueDate"] == null? 
+              getNextDueDateTime(DateTime.now(), (taskSnapshot.data.documents[position]["due"] as Timestamp).toDate(), taskSnapshot.data.documents[position]["_repeat"], taskSnapshot.data.documents[position]["_frequency"])
+              : (taskSnapshot.data.documents[position]["nextDueDate"] as Timestamp).toDate();
 
-              var datetime = (taskSnapshot.data.documents[position]["due"] as Timestamp).toDate();
               final f = new DateFormat.jm();
               var datetimeString = datetime.day.toString() + " "
                   + numToMonth[datetime.month.toInt()] + " "
                   + datetime.year.toString() + " - "
                   + f.format(datetime);
+              
                   //+ datetime.hour.toString() + ":" + datetime.minute.toString();
 
-              return Card(
-                color: Colors.white,
-                elevation: 2.0,
-                child: Slidable(
+              return Column (
+                //color: Colors.white,
+                //elevation: 2.0,
+                children: [Slidable(
                   key: new Key(position.toString()),
                   enabled: !isCompleted,
                   actionPane: SlidableDrawerActionPane(),
@@ -391,57 +430,11 @@ class TaskListState extends State<TaskList> {
                             taskSnapshot.data.documents[position]['repeat'];
                         var _due = DateTime.now();
                         if (_repeat != -1) {
-                          if (_repeat == 0) {
-                            _due = (taskSnapshot.data.documents[position]['due'] as Timestamp).toDate()
-                                .add(new Duration(days: 1));
-                          } else if (_repeat == 2) {
-                            _due = (taskSnapshot.data.documents[position]['due'] as Timestamp).toDate()
-                                .add(new Duration(days: 7));
-                          }
-                          else if (_repeat == 3) {
-                            var _frequencyList = taskSnapshot
-                                .data.documents[position]['frequency'];
-                            int _length;
-                            int _today = DateTime.now().weekday;
-                            debugPrint(
-                                "Value of today- $_today, length- $_length");
-                            _frequencyList.add(_today);
-                            _frequencyList.sort();
-                            _length = _frequencyList.length;
-                            int _nextDate = _frequencyList[
-                                (_frequencyList.indexOf(_today) + 1) % _length];
-                            int _duration = _nextDate > _today
-                                ? _nextDate - _today
-                                : _nextDate < _today
-                                    ? 7 - (_today - _nextDate)
-                                    : 7;
-                            _due = taskSnapshot.data.documents[position]['due']
-                                .add(new Duration(days: _duration));
-                          }
-                          else if (_repeat == 4) {
-                            _due = taskSnapshot.data.documents[position]['due']
-                                .add(new Duration(days: 28));
-                          }
-                          else if (_repeat == 5) {
-                            var _frequencyList = taskSnapshot
-                                .data.documents[position]['frequency'];
-                            int _length;
-                            int _today = int.parse(
-                                DateTime.now().toString().substring(8, 10));
-                            _frequencyList.add(_today);
-                            _frequencyList.sort();
-                            _length = _frequencyList.length;
-                            int _nextDate = _frequencyList[
-                                (_frequencyList.indexOf(_today) + 1) % _length];
-                            int _duration = _nextDate > _today
-                                ? _nextDate - _today
-                                : _nextDate < _today
-                                    ? 7 - (_today - _nextDate)
-                                    : 28;
-                            _due = taskSnapshot.data.documents[position]['due']
-                                .add(new Duration(days: _duration));
-                            debugPrint("New due date is $_due");
-                          }
+                          
+                          debugPrint('datetime --- ' + datetime.toIso8601String());
+                          DateTime nextDueDate = getNextDueDateTime(datetime, taskSnapshot.data.documents[position]['due'].toDate(), taskSnapshot.data.documents[position]['repeat'], taskSnapshot.data.documents[position]['frequency']);
+                                                    debugPrint('nextdatetime --- ' + nextDueDate.toIso8601String());
+
 
                           Firestore.instance
                               .collection(globals.flat)
@@ -449,12 +442,13 @@ class TaskListState extends State<TaskList> {
                               .collection(globals.tasks)
                               .document(taskSnapshot
                                   .data.documents[position].documentID)
-                              .updateData({'due': _due});
+                              .updateData({'nextDueDate': nextDueDate});
+
 
                           var taskHistoryData = {
                             "created_at": DateTime.now(),
                             "completed_by": _userId,
-                            "user_name": _userName
+                            "user_name": _userName,
                           };
                           Firestore.instance
                               .collection(globals.flat)
@@ -476,7 +470,8 @@ class TaskListState extends State<TaskList> {
                           var taskHistoryData = {
                             "created_at": DateTime.now(),
                             "completed_by": _userId,
-                            "user_name": _userName
+                            "user_name": _userName,
+
                           };
                           Firestore.instance
                               .collection(globals.flat)
@@ -486,7 +481,7 @@ class TaskListState extends State<TaskList> {
                               .data.documents[position].documentID)
                               .collection(globals.taskHistory).add(taskHistoryData);
                         }
-                        setState(() {});
+                        setState((){});
                       },
                     ),
                   ],
@@ -532,87 +527,456 @@ class TaskListState extends State<TaskList> {
                       },
                     ),
                   ],
-                  child: ListTile(
-                    /*leading: CircleAvatar(
-                      backgroundColor: Colors.white10,
-                      child: Icon(
-                        Icons.arrow_right,
-                        color: Colors.black26,
+                  child: Card(
+                    margin: EdgeInsets.only(top:5.0, bottom:5.0),
+                    
+                    elevation: 5.0,
+
+  
+                                      child: ClipPath(
+
+                                        clipper: ShapeBorderClipper(shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
+               
+                                                                              child: Container(
+                      padding: EdgeInsets.only(top: 7.0, bottom: 7.0),
+                      decoration: BoxDecoration(
+                        border: Border(left: BorderSide(color:getPriorityColor(datetime, isCompleted), width: 5.0)),
                       ),
-                    ),*/
-                    title: CommonWidgets.textBox(
-                        taskSnapshot.data.documents[position]["title"], 15.0,
-                        color: Colors.black),
-                    subtitle: Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.access_time,
-                          color: Colors.indigo[700],
-                          size: 16,
-                        ),
-                        Container(
-                          width: 4.0,
-                        ),
-                        CommonWidgets.textBox(
-                            datetimeString,
-                            11.0,
-                            color: Colors.black45),
-                      ],
-                    ),
-                    leading: Container(
-                      decoration: new BoxDecoration(
-                          border: new Border(
-                              right: new BorderSide(width: 1.0, color: Colors.indigo[700]))),
-                      child: Tooltip(
-                        key: tooltipKey[position],
-                        decoration: BoxDecoration(
-                          color: Colors.indigo[100]
-                        ),
-                        message:
-                            taskSnapshot.data.documents[position]["priority"] == 0
-                                ? 'Low Priority'
-                                : 'High Priority',
-                        child: IconButton(
-                          icon: Icon(
-                            taskSnapshot.data.documents[position]
-                            ["priority"] ==
-                                0
-                                ? Icons.low_priority
-                                : Icons.priority_high,
-                            color: taskSnapshot.data.documents[position]
-                                        ["priority"] ==
-                                    0
-                                ? Colors.indigo[700]
-                                : Colors.red,
+                      
+                                          child: ListTile(
+                                            
+                        /*leading: CircleAvatar(
+                          backgroundColor: Colors.white10,
+                          child: Icon(
+                            Icons.arrow_right,
+                            color: Colors.black26,
                           ),
-                          onPressed: () {
-                            dynamic tooltip = tooltipKey[position].currentState;
-                            tooltip.ensureTooltipVisible();
-                          },
+                        ),*/
+                        title: CommonWidgets.textBox(
+                            taskSnapshot.data.documents[position]["title"], 15.0,
+                            color: Colors.black),
+                        subtitle: Column(
+                                                  children: [SizedBox(height:10.0), Row(
+                            children: <Widget>[
+                              CommonWidgets.textBox(
+                                  isCompleted == false? _getDateTimeString(datetime):_getDateTimeString(taskSnapshot.data.documents[position]['due'].toDate()),
+                                  11.0,
+                                  color: Colors.black45),
+                              
+                              Container(
+                                width: 4.0,
+                              ),
+                              taskSnapshot.data.documents[position]["repeat"] != -1?
+                              Icon(
+                                Icons.replay,
+                                size: 16,
+                              ):Container(),
+                              
+                            ],
+                          )],
                         ),
+                        trailing: getUsersAssignedView(taskSnapshot.data.documents[position]["assignee"], snapshot1),
+                        leading: Container(
+                          
+                          child: Tooltip(
+                            key: tooltipKey[position],
+                            decoration: BoxDecoration(
+                              color: Colors.indigo[100]
+                            ),
+                            message:
+                                taskSnapshot.data.documents[position]["priority"] == 0
+                                    ? 'Low Priority'
+                                    : 'High Priority',
+                            child: IconButton(
+                              icon: Icon(
+                                (icons[taskSnapshot.data.documents[position]
+                                ["type"]]['icon']),
+                                color: (icons[taskSnapshot.data.documents[position]
+                                ["type"]]['color']),
+                              ),
+                              onPressed: () {
+                                dynamic tooltip = tooltipKey[position].currentState;
+                                tooltip.ensureTooltipVisible();
+                              },
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          debugPrint("Task added");
+                          navigateToViewTask(
+                              taskId:
+                                  taskSnapshot.data.documents[position].documentID);
+                        },
                       ),
                     ),
-                    onTap: () {
-                      debugPrint("Task added");
-                      navigateToViewTask(
-                          taskId:
-                              taskSnapshot.data.documents[position].documentID);
-                    },
+                                      ),
                   ),
                 ),
-              );
+                ]);
             },
           );
-        });
+        });});
   }
 
-  void navigateToAddTask({taskId}) {
+
+  String _getDateTimeString(DateTime nextDueDate) {
+    final f = new DateFormat.jm();
+                        var datetimeString = nextDueDate.day.toString() + " "
+                            + numToMonth[nextDueDate.month.toInt()] + " "
+                            + nextDueDate.year.toString() + " - "
+                            + f.format(nextDueDate);
+
+    return datetimeString;
+  }
+
+  DateTime getNextDueDateTime(DateTime nowDueDate, DateTime due, int repeat, String frequency) {
+    debugPrint('nowduedate = ' + nowDueDate.toIso8601String());
+    switch(repeat) {
+      case -1: {
+        return due;
+      }
+      case 0: {
+          debugPrint('in 0 ' + repeat.toString());
+          return nowDueDate.add(new Duration(days: 1));
+                
+      }
+      case 1: {
+        return due;
+      }
+      case 2: {
+        DateTime tempNow = new DateTime(nowDueDate.year, nowDueDate.month, nowDueDate.day, due.hour, due.minute);
+
+        tempNow = tempNow.add(new Duration(days: 1));
+        while(tempNow.weekday != nowDueDate.weekday) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+
+        return tempNow;        
+      }
+      case 3: {
+        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
+        taskFreq.sort();
+        int taskDay = -1;
+        for(int i = 0; i < taskFreq.length; i++) {
+          if(taskFreq[i] > nowDueDate.weekday) {
+            taskDay = taskFreq[i];
+            break;
+          }
+          
+        }
+
+        if(taskDay == -1) {
+          taskDay = taskFreq[0];
+        }
+
+        DateTime tempNow = new DateTime(nowDueDate.year, nowDueDate.month, nowDueDate.day, due.hour, due.minute);
+        tempNow = tempNow.add(new Duration(days: 1));
+        while(tempNow.weekday != taskDay) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+
+        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+      }
+      case 4: {
+        int month = nowDueDate.month;
+        int year = nowDueDate.year;
+        if(month == 12) {
+          month = 1;
+          year++;
+        }
+
+        return new DateTime(year, month, due.day, due.hour, due.minute);
+
+        
+      }
+      case 5: {
+        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
+        taskFreq.sort();
+        int taskDay = -1;
+        for(int i = 0; i < taskFreq.length; i++) {
+          if(taskFreq[i] > nowDueDate.day) {
+            taskDay = taskFreq[i];
+            break;
+          }
+          
+        }
+
+        int month = nowDueDate.month;
+        int year = nowDueDate.year;
+
+        if(taskDay == -1) {
+          taskDay = taskFreq[0];
+          month++;
+          if(month == 12) {
+            month = 1;
+            year++;
+          }
+        }
+
+        return new DateTime(year, month, taskDay, due.hour, due.minute);
+
+      }
+    }
+
+    return nowDueDate;
+  }
+
+
+
+  DateTime getNextDueDateTimeAfterToday(DateTime due, int repeat, String frequency) {
+    DateTime now = DateTime.now();
+    debugPrint('freq = ' + frequency);
+    int nowTime = now.hour * 60 + now.minute;
+    int dueTime = due.hour * 60 + due.minute;
+    switch(repeat) {
+      case -1: {
+        return due;
+      }
+      case 0: {
+        if(nowTime > dueTime) {
+          return now.add(new Duration(days: 1));
+        }
+        
+        return new DateTime(now.year, now.month, now.day, due.hour, due.minute);
+        
+      }
+      case 1: {
+        return due;
+      }
+      case 2: {
+        if(due.weekday == now.weekday && nowTime < dueTime) {
+          return new DateTime(now.year, now.month, now.day, due.hour, due.minute);
+        }
+        
+        DateTime tempNow = DateTime.now();
+
+        while(tempNow.weekday != due.weekday) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+        
+      }
+      case 3: {
+        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
+        taskFreq.sort();
+        int taskDay = -1;
+        for(int i = 0; i < taskFreq.length; i++) {
+          if((taskFreq[i] == now.weekday && nowTime < dueTime) || taskFreq[i] > now.weekday) {
+            taskDay = taskFreq[i];
+            break;
+          }
+          
+        }
+
+        if(taskDay == -1) {
+          taskDay = taskFreq[0];
+        }
+
+        DateTime tempNow = DateTime.now();
+
+        while(tempNow.weekday != taskDay) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+
+        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+      }
+      case 4: {
+        if(due.day == now.day && nowTime < dueTime) {
+          return new DateTime(now.year, now.month, now.day, due.hour, due.minute);
+        }
+        
+        DateTime tempNow = DateTime.now();
+        if(due.day == now.day) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+        while(tempNow.day != due.day) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+      }
+      case 5: {
+        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
+        taskFreq.sort();
+        int taskDay = -1;
+        for(int i = 0; i < taskFreq.length; i++) {
+          if((taskFreq[i] == now.day && nowTime < dueTime) || taskFreq[i] > now.day) {
+            taskDay = taskFreq[i];
+            break;
+          }
+          
+        }
+
+        if(taskDay == -1) {
+          taskDay = taskFreq[0];
+        }
+
+        DateTime tempNow = DateTime.now();
+        if(due.day == now.day && nowTime < dueTime) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+        while(tempNow.day != taskDay) {
+          tempNow = tempNow.add(new Duration(days: 1));
+        }
+
+        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+      }
+    }
+
+    return DateTime.now();
+  }
+
+  Map<String, Map<String, dynamic>> icons = {'Reminder': {'icon':Icons.calendar_today, 'color': Colors.black}, 'Payment': {'icon': Icons.payment, 'color':Colors.blue}, 'Complaint': {'icon': Icons.error_outline, 'color': Colors.red}};
+
+  void navigateToAddTask(String typeOfTask, {taskId}) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return CreateTask(taskId, flatId);
+        return CreateTask(taskId, flatId, typeOfTask);
       }),
     );
+  }
+
+  MaterialColor getPriorityColor(DateTime taskDue, bool isCompleted) {
+    if(isCompleted) {
+      return Colors.grey;
+    }
+    DateTime now = DateTime.now();
+    debugPrint("datetime = " + taskDue.toIso8601String());
+    debugPrint(taskDue.toIso8601String());
+    debugPrint(now.difference(taskDue).inDays.toString());
+    if(taskDue.isBefore(now)) {
+      return Colors.grey;
+    }
+    if(taskDue.difference(now).inMinutes <= 1440) {
+      return Colors.red;
+    }
+    else if(taskDue.difference(now).inMinutes <= 4320) {
+      return Colors.yellow;
+    }
+    else {
+      return Colors.green;
+    }
+
+  }
+
+  Future<List<DocumentSnapshot>> getAllFlatUsers() async {
+    QuerySnapshot s = await Firestore.instance
+                .collection(globals.user)
+                .where('flat_id', isEqualTo: flatId)
+                .getDocuments();
+    debugPrint('getData');
+    return s.documents;
+
+  }
+
+  bool userDetailsObtained = false;
+  Widget getUsersAssignedView(users, AsyncSnapshot<QuerySnapshot> snapshot1) {
+    //get user color id
+    List userList = users.toString().trim().split(';');
+    var overflowAddition = 0.0;
+    if (userList.length > 3) overflowAddition = 8.0;
+      
+    return new Container (
+        margin: EdgeInsets.only(right:5.0),
+          child:  Stack(
+        alignment: Alignment.centerRight,
+        overflow: Overflow.visible,
+        children: 
+          _getPositionedOverlappingUsers(users, snapshot1.data.documents),
+        
+      ),
+    );
+  }
+
+  List<Widget> _getPositionedOverlappingUsers(users, List<DocumentSnapshot> flatUsers) {
+    List<String> userList = users.toString().trim().split(',').toList();
+    var overflowAddition = 0.0;
+    if (userList.length > 3) overflowAddition = 8.0;
+    
+    List<Widget> overlappingUsers = new List();
+    overflowAddition > 0
+              ? overlappingUsers.add(Text('+', style: TextStyle(fontSize: 16.0)))
+              : overlappingUsers.add(Container(
+                  height: 0.0,
+                  width: 0.0,
+                ));
+
+    for(var j in userList) {
+        debugPrint("elems == " + j);
+    }
+
+    userList.sort();
+    int length = userList.length > 3? 3: userList.length;
+    debugPrint("length == " + userList.length.toString());
+    for(int i = 0; i < length; i++) {
+      
+     debugPrint("i == " + i.toString());
+      var color = userList[i].toString().trim().hashCode;
+      overlappingUsers.add(new Positioned(
+            right: (i * 20.0) + overflowAddition,
+            child: new CircleAvatar(
+              maxRadius: 14.0,
+              backgroundColor: Colors.primaries[color % Colors.primaries.length][300],
+              child: Text(getInitial(userList[i], flatUsers)),
+            ),
+          ));
+    }
+    return overlappingUsers;
+  }
+
+  String getInitial(documentId, flatUsers) {
+    for(int i = 0; i < flatUsers.length; i++) {
+      if(flatUsers[i].documentID == documentId) {
+        return flatUsers[i].data['name'][0];
+      }
+    }
+    return 'U';
+  }
+
+  void openActionMenu() {
+    final action = CupertinoActionSheet(
+      title: Text(
+        "Tasks",
+        style: TextStyle(fontSize: 30),
+      ),
+      message: Text(
+        "Select the type of task to be created",
+        style: TextStyle(fontSize: 15.0),
+      ),
+      actions: <Widget>[
+        CupertinoActionSheetAction(
+          child: Text("Reminder"),
+          onPressed: () {
+            Navigator.pop(context);
+            navigateToAddTask('Reminder');
+          },
+        ),
+        CupertinoActionSheetAction(
+          child: Text("Complaint"),
+          onPressed: () {
+            Navigator.pop(context);
+            navigateToAddTask('Complaint');
+          },
+        ),
+        CupertinoActionSheetAction(
+          child: Text("Payment"),
+          onPressed: () {
+            Navigator.pop(context);
+            navigateToAddTask('Payment');
+          },
+        )
+      ],
+      cancelButton: CupertinoActionSheetAction(
+        child: Text("Cancel"),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
+    showCupertinoModalPopup(
+        context: context, builder: (context) => action);
+    
   }
 
   void navigateToViewTask({taskId}) {
@@ -631,7 +995,7 @@ class TaskListState extends State<TaskList> {
 
   Widget filterOptions() {
     return Container(
-      height: 68.0,
+      padding: EdgeInsets.symmetric(vertical: 8.0),
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -928,8 +1292,11 @@ class TaskListState extends State<TaskList> {
       if (filter == Strings.responsibility) {
         _isResponsibility = value;
       }
-      if (filter == Strings.issue) {
+      else if (filter == Strings.issue) {
         _isIssue = value;
+      }
+      else if (filter == Strings.payment) {
+        _isPayment = value;
       }
     });
   }
@@ -940,60 +1307,77 @@ class TaskListState extends State<TaskList> {
     return 'due';
   }
 
-  void _showDaily(id, title, description, due) async {
-    var time = due;
+  void _showDaily(id, title, description, DateTime due) async {
+    debugPrint('daily - ' + id.toString());
+    var time = Time(due.hour, due.minute);
+    debugPrint(due.hour.toString() + ' - ' + due.minute.toString());
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         "ShowDailyID", 'RepeatDaily', 'Repeat Task Daily at specified time');
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.showDailyAtTime(
-        id.hashCode, title, description, time, platformChannelSpecifics,
-        payload: due.hour.toString() + due.minute.toString());
+        id.toString().hashCode, title, description, time, platformChannelSpecifics,
+        payload:'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
   }
 
-  void _showWeekly(id, title, description, due, day) async {
-    var time = due;
+  void _schedule(int id, String title, String description, DateTime due) async {
+        debugPrint('schedule - ' + id.toString());
+
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        "ShowDailyID", 'RepeatDaily', 'Repeat Task Daily at specified time');
+    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+    var platformChannelSpecifics = NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    ;
+    await flutterLocalNotificationsPlugin.schedule(id.toString().hashCode, title, description, due, platformChannelSpecifics,
+     payload: 'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
+  }
+
+  void _showWeekly(int id, String title, String description, DateTime due, int day) async {
+        debugPrint('weekly - ' + id.toString());
+
+    day = day + 1;
+    if(day == 8) day = 1;
+    var time = Time(due.hour, due.minute, 0);
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         "ShowWeeklyID", 'RepeatWeekly', 'Repeat Task Weekly at specified time');
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
-        id.hashCode, title, description, day, time, platformChannelSpecifics,
-        payload: day.value.toString() + due.hour.toString() + due.minute.toString());
+        id.toString().hashCode, title, description, Day(day), time, platformChannelSpecifics,
+        payload:'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
   }
 
-  void _showMonthly(id, title, description, due, date) async {
-    var time = due;
+  void _showMonthly(int id, String title, String description, DateTime due, DateTime date) async {
+        debugPrint('monthly - ' + title);
+        debugPrint('monthly date = ' + date.toIso8601String());
+
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         "ShowMonthlyID", 'RepeatMonthly', 'Repeat Task Monthly at specified time');
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.schedule(
-        id.hashCode, title, description, date, platformChannelSpecifics,
-        payload: due.hour.toString() + due.minute.toString());
+        id.toString().hashCode, title, description, date, platformChannelSpecifics,
+        payload:'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
   }
 
-  void handleNotifications(var documents) async {
-    initializedNotifications = true;
+  void _removeIfTaskNotPresent(var documents) async {
     var pendingNotificationRequests =
         await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-    const _days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    ///To handle case of delete task
-    debugPrint(pendingNotificationRequests.length.toString() +
-        " pending notifications " +
-        documents.length.toString());
     for (var pendingNotificationRequest in pendingNotificationRequests) {
       debugPrint("PENDING = " + pendingNotificationRequest.payload.toString());
       var s = false;
       for (int position = 0; position < documents.length; position++) {
-        if (pendingNotificationRequest.id ==
-            documents[position].documentID.hashCode) {
+       
+       if(_getNotificationPayloadValue(pendingNotificationRequest, 'id').contains(documents[position].documentID.hashCode.toString())) {
           s = true;
+          break; 
         }
       }
+        
       if (!s) {
         debugPrint(
             "Cancelling " + pendingNotificationRequest.payload.toString());
@@ -1001,177 +1385,241 @@ class TaskListState extends State<TaskList> {
             .cancel(pendingNotificationRequest.id);
       }
     }
+  }
 
-    for (int position = 0; position < documents.length; position++) {
-      var frequencyOption = documents[position]['repeat'] ?? -1;
-      var existingNotification;
-      for (var pendingNotificationRequest in pendingNotificationRequests) {
-        if (pendingNotificationRequest.id ==
-            documents[position].documentID.hashCode) {
-          existingNotification = pendingNotificationRequest;
-        }
+  String _getNotificationPayloadValue(PendingNotificationRequest pendingNotificationRequest, String key) {
+    debugPrint(pendingNotificationRequest.payload);
+    dynamic payload = pendingNotificationRequest.payload;
+    String value;
+    try {
+      payload = payload.split(',');
+      if(key == 'id') {
+        value = payload[1].split(':')[1];
       }
-      switch (frequencyOption) {
-        case 0:
-        case -1:
-          {
-            var due = (documents[position]['due'] as Timestamp).toDate().toLocal();
-            var notificationTime =
-                TimeOfDay.fromDateTime(due.subtract(Duration(hours: 1)));
-            var dueTimeOfDay = TimeOfDay.fromDateTime(due);
-            var title = "Upcoming Task : " + documents[position]['title'];
-            var description =
-                "You have a task due at ${dueTimeOfDay.hour}:${dueTimeOfDay.minute}. Please check it.";
-            var dueTime =
-                Time(notificationTime.hour, notificationTime.minute, 0);
-            var payload =
-                notificationTime.hour.toString() + notificationTime.minute.toString();
-            if (existingNotification != null &&
-                existingNotification.payload != payload) {
-              debugPrint("Cancelling previous instance");
-              await flutterLocalNotificationsPlugin
-                  .cancel(documents[position].documentID.hashCode);
-              _showDaily(
-                  documents[position].documentID, title, description, dueTime);
-            } else if (existingNotification != null) {
-            } else {
-              _showDaily(
-                  documents[position].documentID, title, description, dueTime);
-            }
-          }
-          break;
-        case 2:
-          {
-            var due = (documents[position]['due'] as Timestamp).toDate().toLocal();
-            var notificationTime =
-                TimeOfDay.fromDateTime(due);
-            var dueTimeOfDay = TimeOfDay.fromDateTime(due);
-            var title = "Upcoming Task : " + documents[position]['title'];
-            var dueDay = Day(due.weekday);
-            var description =
-                "You have a task due at ${dueTimeOfDay.hour}:${dueTimeOfDay.minute}. Please check it.";
-            var dueTime =
-                Time(notificationTime.hour, notificationTime.minute, 0);
-
-            var payload =
-                dueDay.value.toString() + dueTimeOfDay.hour.toString() + dueTimeOfDay.minute.toString();
-            if (existingNotification != null &&
-                existingNotification.payload != payload) {
-              debugPrint("Cancelling previous instance");
-              await flutterLocalNotificationsPlugin
-                  .cancel(documents[position].documentID.hashCode);
-              _showWeekly(
-                  documents[position].documentID, title, description, dueTime, dueDay);
-            } else if (existingNotification != null) {
-            } else {
-              _showWeekly(
-                  documents[position].documentID, title, description, dueTime, dueDay);
-            }
-          }
-          break;
-        case 3:
-          {
-            var due = (documents[position]['due'] as Timestamp).toDate();
-            var frequencies = documents[position]['frequency'] ?? new List();
-            for (int i = 0; i < frequencies.length(); i++) {
-              if ((frequencies[i] - DateTime.now().weekday) % 7 == 1 &&
-                  TimeOfDay.now().hour < TimeOfDay.fromDateTime(due).hour &&
-                  TimeOfDay.now().minute < TimeOfDay.fromDateTime(due).minute) {
-                var notificationTime =
-                    TimeOfDay.fromDateTime(due.subtract(Duration(days: 1)));
-                var dueTimeOfDay = TimeOfDay.fromDateTime(due);
-                var title = "Upcoming Task : " + documents[position]['title'];
-                var description =
-                    "You have a task due at ${dueTimeOfDay.hour}:${dueTimeOfDay.minute}. Please check it.";
-                var dueTime =
-                    Time(notificationTime.hour, notificationTime.minute, 0);
-                var payload = dueTimeOfDay.hour.toString() +
-                    dueTimeOfDay.minute.toString();
-                if (existingNotification != null &&
-                    existingNotification.payload != payload) {
-                  debugPrint("Cancelling previous instance");
-                  await flutterLocalNotificationsPlugin
-                      .cancel(documents[position].documentID.hashCode);
-                  _showDaily(documents[position].documentID, title, description,
-                      dueTime);
-                } else if (existingNotification != null) {
-                } else {
-                  _showDaily(documents[position].documentID, title, description,
-                      dueTime);
-                }
-                break;
-              }
-            }
-          }
-          break;
-        case 4:
-          {
-            var due = (documents[position]['due'] as Timestamp).toDate();
-            var notificationTime =
-                TimeOfDay.fromDateTime(due);
-            var dueTimeOfDay = TimeOfDay.fromDateTime(due);
-            var title = "Upcoming Task : " + documents[position]['title'];
-            var dueDay = Day(due.subtract(Duration(days: 1)).weekday);
-            var description =
-                "You have a task due ${_days[due.subtract(Duration(days: 1)).weekday-1]} at ${dueTimeOfDay.hour}:${dueTimeOfDay.minute}. Please check it.";
-            var dueTime =
-                Time(notificationTime.hour, notificationTime.minute, 0);
-            var payload =
-                dueTimeOfDay.hour.toString() + dueTimeOfDay.minute.toString();
-            if (existingNotification != null &&
-                existingNotification.payload != payload) {
-              debugPrint("Cancelling previous instance");
-              await flutterLocalNotificationsPlugin
-                  .cancel(documents[position].documentID.hashCode);
-              _showMonthly(
-                  documents[position].documentID, title, description, dueTime, due.subtract(Duration(days: 1)));
-            } else if (existingNotification != null) {
-            } else {
-              _showMonthly(
-                  documents[position].documentID, title, description, dueTime, due.subtract(Duration(days: 1)));
-            }
-          }
-          break;
-        case 5:
-          {
-            var due = (documents[position]['due'] as Timestamp).toDate();
-            var frequencies = documents[position]['frequency'];
-            for (int i = 0; i < frequencies.length(); i++) {
-              if ((frequencies[i] - DateTime.now().day) % 28 == 1 &&
-                  TimeOfDay.now().hour < TimeOfDay.fromDateTime(due).hour &&
-                  TimeOfDay.now().minute < TimeOfDay.fromDateTime(due).minute) {
-                var notificationTime =
-                    TimeOfDay.fromDateTime(due.subtract(Duration(days: 1)));
-                var dueTimeOfDay = TimeOfDay.fromDateTime(due);
-                var title = "Upcoming Task : " + documents[position]['title'];
-                var description =
-                    "You have a task due at ${dueTimeOfDay.hour}:${dueTimeOfDay.minute}. Please check it.";
-                var dueTime =
-                    Time(notificationTime.hour, notificationTime.minute, 0);
-                var payload = dueTimeOfDay.hour.toString() +
-                    dueTimeOfDay.minute.toString();
-                if (existingNotification != null &&
-                    existingNotification.payload != payload) {
-                  debugPrint("Cancelling previous instance");
-                  await flutterLocalNotificationsPlugin
-                      .cancel(documents[position].documentID.hashCode);
-                  _showDaily(documents[position].documentID, title, description,
-                      dueTime);
-                } else if (existingNotification != null) {
-                } else {
-                  _showDaily(documents[position].documentID, title, description,
-                      dueTime);
-                }
-                break;
-              }
-            }
-          }
-          break;
-        default:
-          {}
-          break;
+      else if(key == 'due') {
+        value = payload[0].split(':')[1];
       }
     }
+    catch(e) {
+
+    }
+    value = value == null? '': value;
+    return value;
+  }
+
+  void _addOrModifyNotificationsForNewTasks(var documents) async {
+    var pendingNotificationRequests =
+        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    
+    for(int i = 0; i < documents.length; i++) {
+      List<PendingNotificationRequest> taskNotifications = _getNotificationsForDocument((documents[i] as DocumentSnapshot).documentID.hashCode.toString(), pendingNotificationRequests);
+      debugPrint('title - ' + documents[i]['title'] + '; modify - ' + taskNotifications.length.toString());
+      if(taskNotifications.isEmpty) {
+        _addNotificationsForTask(documents[i]);
+        continue;
+
+      }
+      if([-1, 0, 1, 2, 4].contains(documents[i]['repeat']) && !_checkIfDueDateOrRepeatModified(documents[i], taskNotifications[0]) && taskNotifications.length >= 1) {
+        continue;
+      }
+      else if([-1, 0, 1, 2, 4].contains(documents[i]['repeat'])) {
+        _cancelNotificationsForTask(taskNotifications);
+        _addNotificationsForTask(documents[i]);
+        continue;
+      }
+      List<PendingNotificationRequest> deletedFrequencyTasks = _getRemovedTaskFrequencyNotifications(taskNotifications, documents[i]['frequency']);
+      List<int> addedFrequencies = _getAddedTaskFrequencyNotifications(taskNotifications, documents[i]['frequency']);
+
+
+      
+      if([3, 5].contains(documents[i]['repeat']) && !_checkIfDueDateOrRepeatModified(documents[i], taskNotifications[0]) && deletedFrequencyTasks.isEmpty && addedFrequencies.isEmpty) {
+        continue;
+      }
+      
+      else if(_checkIfDueDateOrRepeatModified(documents[i], taskNotifications[0])) {
+        _cancelNotificationsForTask(taskNotifications);
+        _addNotificationsForTask(documents[i]);
+      }
+      else {
+        if(deletedFrequencyTasks.isNotEmpty) {
+          _cancelNotificationsForTask(deletedFrequencyTasks);
+        }
+        if(addedFrequencies.isNotEmpty) {
+          _addTasksForAddedFrequencies(addedFrequencies, documents[i]);
+
+        }
+      }
+      
+
+    }
+
+  }
+
+  void _addTasksForAddedFrequencies(List<int> frequencies, DocumentSnapshot document) {
+    int _repeat = document['repeat'];
+    String title = document['title'];
+    DateTime due = (document['due'] as Timestamp).toDate();
+    String description = "You have a task due at ${due.hour}:${due.minute}. Please check it.";
+
+    if(_repeat == 3) {
+      for(int i = 0; i < frequencies.length; i++) {
+          _showWeekly(int.parse(document.documentID.hashCode.toString() + "3" + frequencies[i].toString().padLeft(2, '0')), title, description, due, frequencies[i]);
+      }
+    }
+    else if(_repeat == 5) {
+      for(int i = 0; i < frequencies.length; i++) {
+          DateTime notificationDate = getNextDueDateTimeAfterToday(due, _repeat, frequencies.join(','));
+          _showMonthly(int.parse(document.documentID.hashCode.toString() + "5" + frequencies[i].toString().padLeft(2, '0')), title, description, due, notificationDate);
+      }
+    }
+  }
+
+  List<PendingNotificationRequest> _getRemovedTaskFrequencyNotifications(List<PendingNotificationRequest> taskNotifications, String frequency) {
+    Set<int> documentFrequencies = frequency.split(',').map(int.parse).toSet();
+    List<PendingNotificationRequest> deletedNotificationFrequencies = new List();
+
+    for(var notification in taskNotifications) {
+      
+      String id = _getNotificationPayloadValue(notification, 'id');
+      int nFreq = int.parse(id.substring(id.length - 2));
+      if(!documentFrequencies.contains(nFreq)) {
+        deletedNotificationFrequencies.add(notification);
+      }
+      
+    }
+
+    return deletedNotificationFrequencies;
+    
+  }
+
+  List<int> _getAddedTaskFrequencyNotifications(List<PendingNotificationRequest> taskNotifications, String frequency) {
+    Set<int> documentFrequencies = frequency.split(',').map(int.parse).toSet();
+    Set<int> notificationFrequencies = new Set();
+    for(var notification in taskNotifications) {
+      String id = _getNotificationPayloadValue(notification, 'id');
+      int freq = int.parse(id.substring(id.length - 2));
+      notificationFrequencies.add(freq);
+    }
+
+    Set<int> addedFrequencies = documentFrequencies.difference(notificationFrequencies);
+
+    return addedFrequencies.toList();
+    
+  }
+
+  void _cancelNotificationsForTask(List<PendingNotificationRequest> taskNotifications) {
+    for(var notification in taskNotifications) {
+      flutterLocalNotificationsPlugin.cancel(notification.id);
+    }
+  }
+
+  bool _checkIfDueDateOrRepeatModified(var document, PendingNotificationRequest taskNotification) {
+    int _repeat = document['repeat'];
+    DateTime documentDue = document['due'].toDate();
+    
+    DateTime d = DateTime.fromMillisecondsSinceEpoch(int.parse(_getNotificationPayloadValue(taskNotification, 'due')));
+    String id = _getNotificationPayloadValue(taskNotification, 'id');
+    int taskRepeat = int.parse(id[id.length - 3]);
+    
+
+    if(_repeat == 3 || _repeat == 5) {
+      if(documentDue.hour == d.hour && documentDue.minute == d.minute && _repeat == taskRepeat) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+    else {
+      if(d.compareTo(documentDue) == 0 && _repeat == taskRepeat) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+  }
+
+  void _addNotificationsForTask(var document) {
+    int _repeat = document['repeat'];
+    String title = document['title'];
+    DateTime due = (document['due'] as Timestamp).toDate();
+    debugPrint('hello');
+    List<int> frequency = [];
+    if(_repeat == 3 || _repeat == 5)
+      frequency = document['frequency'].toString().split(',').map(int.parse).toList();
+    String description = "You have a task due at ${due.hour}:${due.minute}. Please check it.";
+
+    switch(_repeat) {
+      case -1:{ 
+        _schedule(int.parse(document.documentID.hashCode.toString() + "900"), title, description, due);
+        break;
+      }
+      case 0: {
+        _showDaily(int.parse(document.documentID.hashCode.toString() + "100"), title, description, due);
+        break;
+      }
+      case 2: {
+        _showWeekly(int.parse(document.documentID.hashCode.toString() + "200"), title, description, due, due.weekday);
+        break;
+      }
+      case 3: {
+        for(int i = 0; i < frequency.length; i++) {
+          _showWeekly(int.parse(document.documentID.hashCode.toString() + "3" + frequency[i].toString().padLeft(2, '0')), title, description, due, frequency[i]);
+        }
+        break;
+      }
+      case 4: {
+        DateTime notificationDate = getNextDueDateTimeAfterToday(due, 4, '');
+
+        _showMonthly(int.parse(document.documentID.hashCode.toString() + "400"), title, description, due, notificationDate);
+        break;
+      }
+      case 5: {
+        for(int i = 0; i < frequency.length; i++) {
+          DateTime notificationDate = getNextDueDateTimeAfterToday(new DateTime(due.year, due.month, frequency[i], due.hour, due.minute), 4, '');
+
+          _showMonthly(int.parse(document.documentID.hashCode.toString() + "5" + frequency[i].toString().padLeft(2, '0')), title, description, due, notificationDate);
+        }
+        break;
+      }
+    }
+  }
+
+  List<PendingNotificationRequest> _getNotificationsForDocument(String id, List<PendingNotificationRequest> pendingNotifications) {
+    List<PendingNotificationRequest> notificationsForTasks = new List();
+    for (var pendingNotificationRequest in pendingNotifications) {
+            if(_getNotificationPayloadValue(pendingNotificationRequest, 'id').contains(id)) {
+                notificationsForTasks.add(pendingNotificationRequest);
+            }
+          
+        
+      }
+    return notificationsForTasks;
+  }
+
+  void handleNotifications(var documents) async {
+     List<PendingNotificationRequest> pendingNotifications = await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+   /* debugPrint(pendingNotifications.length.toString());
+    for (var pendingNotificationRequest in pendingNotifications) {
+    flutterLocalNotificationsPlugin.cancel(pendingNotificationRequest.id);            
+          
+        
+      }*/
+     
+    await _removeIfTaskNotPresent(documents);
+    await _addOrModifyNotificationsForNewTasks(documents);
+
+    pendingNotifications = await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    debugPrint(pendingNotifications.length.toString());
+    for (var pendingNotificationRequest in pendingNotifications) {
+                debugPrint('notification == ' + pendingNotificationRequest.title + ' due = ' + pendingNotificationRequest.body.toString());
+            
+          
+        
+      }
+
+   
   }
 }
 
@@ -1233,8 +1681,25 @@ class _FilterSheet extends State<FilterSheet> {
               },
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FilterChip(
+              label: Text(Strings.payment),
+              backgroundColor: Colors.transparent,
+              selectedColor: Colors.white30,
+              shape: StadiumBorder(side: BorderSide()),
+              selected: TaskListState._isPayment,
+              onSelected: (bool value) {
+                setState(() {
+                  TaskListState._isPayment = value;
+                });
+                this.widget.callback(Strings.payment, value);
+              },
+            ),
+          ),
         ],
       ),
     );
   }
+
 }

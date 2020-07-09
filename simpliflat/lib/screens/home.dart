@@ -131,7 +131,7 @@ class _Home extends State<Home> {
 
 
                   : (_selectedIndex == 2
-                  ? googleCalendar(flatId)  // replace with link to calender
+                  ? TaskList(flatId)  // replace with link to calender
                   : (_selectedIndex == 3
                   ? ShoppingLists(flatId)
                   :  TenantPortal(flatId) )))

@@ -7,5 +7,6 @@ class Strings {
   //task strings
   static String responsibility = "Responsibility";
   static String issue = "Issue";
+  static String payment = 'Payment';
 
 }

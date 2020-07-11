@@ -154,6 +154,7 @@ class TaskListState extends State<TaskList> {
   bool initializedNotifications = false;
   bool isTenantPortal;
   String collectionname;
+
   //List<DateTime> _nextDueDatesForIncompleteTasks;
 
   var numToMonth = {
@@ -241,14 +242,25 @@ class TaskListState extends State<TaskList> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Tasks"),
+          title: Text(
+            "Tasks",
+            style: TextStyle(color: Colors.indigo[900]),
+          ),
           elevation: 0.0,
           centerTitle: true,
-          backgroundColor: Colors.grey[300],
-          //leading: IconButton(icon: Icon(Icons.search), onPressed: null),
+          leading: IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.indigo,
+            ),
+            onPressed: () {
+              Utility.navigateToProfileOptions(context);
+            },
+          ),
           actions: <Widget>[
             IconButton(
                 icon: Icon(Icons.add_circle),
+                color: Colors.indigo,
                 onPressed: () {
                   openActionMenu();
                 })
@@ -589,13 +601,6 @@ class TaskListState extends State<TaskList> {
                                             width: 5.0)),
                                   ),
                                   child: ListTile(
-                                    /*leading: CircleAvatar(
-                          backgroundColor: Colors.white10,
-                          child: Icon(
-                            Icons.arrow_right,
-                            color: Colors.black26,
-                          ),
-                        ),*/
                                     title: CommonWidgets.textBox(
                                         taskSnapshot.data.documents[position]
                                             ["title"],
@@ -970,6 +975,7 @@ class TaskListState extends State<TaskList> {
   }
 
   bool userDetailsObtained = false;
+
   Widget getUsersAssignedView(users, AsyncSnapshot<QuerySnapshot> snapshot1) {
     //get user color id
     List userList = users.toString().trim().split(';');
@@ -1792,9 +1798,9 @@ class TaskListState extends State<TaskList> {
         await flutterLocalNotificationsPlugin.pendingNotificationRequests();
     /* debugPrint(pendingNotifications.length.toString());
     for (var pendingNotificationRequest in pendingNotifications) {
-    flutterLocalNotificationsPlugin.cancel(pendingNotificationRequest.id);            
-          
-        
+    flutterLocalNotificationsPlugin.cancel(pendingNotificationRequest.id);
+
+
       }*/
 
     await _removeIfTaskNotPresent(documents);

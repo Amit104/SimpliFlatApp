@@ -122,17 +122,16 @@ class ShoppingListsState extends State<ShoppingLists> {
                     builder: (context) {
                       return new AlertDialog(
                         title: new Text('Delete'),
-                        content: new Text('Are you sure you want to delete this list?'),
+                        content: new Text(
+                            'Are you sure you want to delete this list?'),
                         actions: <Widget>[
                           new FlatButton(
                             child: new Text('Cancel'),
-                            onPressed: () =>
-                                Navigator.of(context).pop(false),
+                            onPressed: () => Navigator.of(context).pop(false),
                           ),
                           new FlatButton(
                             child: new Text('Ok'),
-                            onPressed: () =>
-                                Navigator.of(context).pop(true),
+                            onPressed: () => Navigator.of(context).pop(true),
                           ),
                         ],
                       );
@@ -397,12 +396,25 @@ class ShoppingListsState extends State<ShoppingLists> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Lists"),
+          title: Text(
+            "Lists",
+            style: TextStyle(color: Colors.indigo[900]),
+          ),
           elevation: 0.0,
           centerTitle: true,
+          leading: IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.indigo,
+            ),
+            onPressed: () {
+              Utility.navigateToProfileOptions(context);
+            },
+          ),
           actions: <Widget>[
             IconButton(
                 icon: Icon(Icons.add_circle),
+                color: Colors.indigo,
                 onPressed: () {
                   addList(_navigatorContext);
                 })

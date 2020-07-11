@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
+import 'package:simpliflat/screens/profile/profile_options.dart';
 
 class Utility {
+
+  static void navigateToProfileOptions(context) async {
+    var userName = await Utility.getUserName();
+    var userPhone = await Utility.getUserPhone();
+    var flatName = await Utility.getFlatName();
+    var displayId = await Utility.getFlatDisplayId();
+
+    Map result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              ProfileOptions(userName, userPhone, flatName, displayId)),
+    );
+  }
+
   static void createErrorSnackBar(scaffoldContext,
       {error: 'Something went wrong. Try again!'}) {
     final snackBar = SnackBar(

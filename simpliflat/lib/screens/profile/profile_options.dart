@@ -29,9 +29,42 @@ class _ProfileOptions extends State<ProfileOptions> {
   var _minimumPadding = 5.0;
   BuildContext _scaffoldContext;
   TextEditingController textField = TextEditingController();
+  var userName;
+  var userPhone;
 
   void initPrefs() async {
     await _getFromSharedPref();
+    setState() {
+      userName = widget.userName;
+      userPhone = widget.userPhone;
+    }
+    _updateUserDetails();
+  }
+
+  void _updateUserDetails() async {
+    var _userId = await Utility.getUserId();
+    var _userName = await Utility.getUserName();
+    var _userPhone = await Utility.getUserPhone();
+    if (_userName == null ||
+        _userName == "" ||
+        _userPhone == null ||
+        _userPhone == "") {
+      Firestore.instance.collection("user").document(_userId).get().then(
+              (snapshot) {
+            if (snapshot.exists) {
+              setState(() {
+                userName = snapshot.data['name'];
+                userPhone = snapshot.data['phone'];
+              });
+              Utility.addToSharedPref(userName: userName);
+              Utility.addToSharedPref(userPhone: userPhone);
+            }
+          }, onError: (e) {
+      });
+    } else {
+      userName = await Utility.getUserName();
+      userPhone = await Utility.getUserPhone();
+    }
   }
 
   @override
@@ -50,7 +83,7 @@ class _ProfileOptions extends State<ProfileOptions> {
             ),
             body: Builder(builder: (BuildContext scaffoldC) {
               _scaffoldContext = scaffoldC;
-              return new Center(
+              return userName != null ? Center(
                   child: ListView(children: <Widget>[
                 Card(
                   color: Colors.white,
@@ -99,7 +132,7 @@ class _ProfileOptions extends State<ProfileOptions> {
                   elevation: 2.0,
                   child: ListTile(
                     title: Text(
-                      widget.userName,
+                      userName,
                     ),
                     leading: Icon(
                       Icons.account_circle,
@@ -123,7 +156,7 @@ class _ProfileOptions extends State<ProfileOptions> {
                                   _changeUserName,
                                   _userNameValidator,
                                   TextInputType.text,
-                                  widget.userName));
+                                  userName));
                         }),
                   ),
                 ),
@@ -132,7 +165,7 @@ class _ProfileOptions extends State<ProfileOptions> {
                   elevation: 2.0,
                   child: ListTile(
                       title: Text(
-                        widget.userPhone,
+                        userPhone,
                       ),
                       leading: Icon(
                         Icons.phone,
@@ -220,7 +253,7 @@ class _ProfileOptions extends State<ProfileOptions> {
                     child: Text('Logout'),
                   ),
                 ),
-              ]));
+              ])) : Center(child: CircularProgressIndicator());
             })));
   }
 
@@ -264,7 +297,25 @@ class _ProfileOptions extends State<ProfileOptions> {
             .document(checker.documents[0].documentID);
         batch.updateData(reqRef, data);
 
-        var userRef = Firestore.instance.collection(globals.landlord).document(uID);
+        var userRef = Firestore.instance.collection(globals.user).document(uID);
+        batch.updateData(userRef, {"flat_id": null});
+
+        batch.commit().then((res) async {
+          debugPrint("Exit flat");
+
+          //remove sharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove(globals.flatId);
+
+          _backHome();
+        }, onError: (e) {
+          _setErrorState(_scaffoldContext, "CALL ERROR");
+        }).catchError((e) {
+          _setErrorState(_scaffoldContext, "SERVER ERROR");
+        });
+
+      } else {
+        var userRef = Firestore.instance.collection(globals.user).document(uID);
         batch.updateData(userRef, {"flat_id": null});
 
         batch.commit().then((res) async {
@@ -413,7 +464,7 @@ class _ProfileOptions extends State<ProfileOptions> {
   String _userNameValidator(String name) {
     if (name.isEmpty) {
       return "Cannot be empty";
-    } else if (name == widget.userName) {
+    } else if (name == userName) {
       return "Cannot be the same name";
     }
     return null;
@@ -427,7 +478,7 @@ class _ProfileOptions extends State<ProfileOptions> {
         .document(uID)
         .updateData(data)
         .then((updated) {
-      widget.userName = name;
+      userName = name;
       editedData.add("name");
       Utility.addToSharedPref(userName: name);
     });
@@ -437,44 +488,4 @@ class _ProfileOptions extends State<ProfileOptions> {
       debugPrint("Username changed");
     });
   }
-
-/*zString _phoneNumberValidator(String number) {
-    if (number.isEmpty) {
-      return "Cannot be empty";
-    } else if ("+91" + number == widget.userPhone) {
-      return "Cannot be the same number";
-    } else if (number.length != 10) {
-      return "Please enter a valid 10 digit number";
-    }
-    /*TODO: handle existing account with same number
-      1. disallow number change
-      2.  ask to choose between accounts
-     */
-    return null;
-  }
-
-  _changePhoneNumber(textField) async {
-    String phoneNumber = "+91" + textField.text.trim();
-    Map results = await Navigator.push(
-      context,
-      new MaterialPageRoute(builder: (context) {
-        return SignUpOTP(phoneNumber, false);
-      }),
-    );
-
-    if (results.containsKey('success')) {
-      var data = {"phone": phoneNumber};
-      Firestore.instance.collection("user").document(uID).updateData(data);
-      widget.userPhone = phoneNumber;
-      editedData.add("phone");
-    } else {
-      Utility.createErrorSnackBar(_scaffoldContext,
-          error: "Phone verification failed");
-    }
-    textField.clear();
-    Navigator.of(context, rootNavigator: true).pop();
-    setState(() {
-      debugPrint("Phone changed");
-    });
-  }*/
 }

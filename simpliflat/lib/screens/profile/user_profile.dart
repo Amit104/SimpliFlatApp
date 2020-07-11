@@ -28,14 +28,12 @@ class _UserProfile extends State<UserProfile> {
   String userPhone;
   double contactHeight = 0;
   List existingUsers;
-  List incomingRequests;
   List noteList;
   List addUsersRequests;
   int addUserRequestCount;
   int contactsCount;
   int noteCount;
   int usersCount;
-  int incomingRequestsCount;
   var _isButtonDisabled = false;
   var _formKey1 = GlobalKey<FormState>();
   var _progressCircleState = 0;
@@ -59,10 +57,6 @@ class _UserProfile extends State<UserProfile> {
     if (this.existingUsers == null) {
       existingUsers = new List();
       _updateUsersView();
-    }
-    if (this.incomingRequests == null) {
-      incomingRequests = new List();
-      _updateRequestsView();
     }
 
     if (this.addUserRequestCount == null) {
@@ -102,9 +96,21 @@ class _UserProfile extends State<UserProfile> {
       },
       child: Scaffold(
           appBar: AppBar(
-            title: Text(Strings.profileAppBar),
+            title: Text(
+              Strings.profileAppBar,
+              style: TextStyle(color: Colors.indigo[900]),
+            ),
             elevation: 0.0,
             centerTitle: true,
+            leading: IconButton(
+              icon: Icon(
+                Icons.settings,
+                color: Colors.indigo,
+              ),
+              onPressed: () {
+                Utility.navigateToProfileOptions(context);
+              },
+            ),
           ),
           body: Builder(builder: (BuildContext scaffoldC) {
             _navigatorContext = scaffoldC;
@@ -346,39 +352,6 @@ class _UserProfile extends State<UserProfile> {
                               : _getExistingUsers(),
                         ),
 
-                        //Incoming requests
-                        Row(
-                          children: (incomingRequests == null ||
-                                  incomingRequests.length == 0)
-                              ? <Widget>[Container(margin: EdgeInsets.all(0.0))]
-                              : <Widget>[
-                                  Expanded(child: Container()),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10.0, bottom: 6.0),
-                                    child: Text("Incoming Requests",
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(
-                                            fontSize: 18.0,
-                                            fontFamily: 'Montserrat',
-                                            color: Colors.black)),
-                                  ),
-                                  Expanded(flex: 15, child: Container()),
-                                ],
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(top: 7.0, bottom: 7.0),
-                          height: (incomingRequests == null ||
-                                  incomingRequests.length == 0)
-                              ? 5.0
-                              : 118.0,
-                          color: Colors.white,
-                          child: (incomingRequests == null ||
-                                  incomingRequests.length == 0)
-                              ? null
-                              : _getIncomingRequestsHorizontal(),
-                        ),
-
                         //Your Requests
                         Row(
                           children: (addUsersRequests == null ||
@@ -418,20 +391,6 @@ class _UserProfile extends State<UserProfile> {
                         ),
                         Column(
                           children: <Widget>[
-                            Card(
-                              child: ListTile(
-                                leading: Icon(
-                                  Icons.person,
-                                  color: Colors.redAccent,
-                                ),
-                                title: Text('Profile'),
-                                onTap: () {
-                                  navigateToProfileOptions();
-                                },
-                              ),
-                              color: Colors.white,
-                              elevation: 2.0,
-                            ),
                             Card(
                               child: ListTile(
                                 leading: Icon(
@@ -993,8 +952,8 @@ class _UserProfile extends State<UserProfile> {
                             usersCount++;
                             existingUsers.sort((a, b) =>
                                 b.getUpdatedAt.compareTo(a.getUpdatedAt));
-                            incomingRequests.remove(userData);
-                            incomingRequestsCount--;
+                            //incomingRequests.remove(userData);
+                            //incomingRequestsCount--;
                             Utility.createErrorSnackBar(_navigatorContext,
                                 error: "Success!");
                           });
@@ -1082,125 +1041,6 @@ class _UserProfile extends State<UserProfile> {
     });
   }
 
-  // TODO get latest request first
-  _respondToJoinRequest(userData, didAccept) async {
-    if (_flatId == null) await _getFromSharedPref();
-    setState(() {
-      _isButtonDisabled = true;
-    });
-    var timeNow = DateTime.now();
-    if (didAccept == 1) {
-      Firestore.instance
-          .collection("joinflat")
-          .where("user_id", isEqualTo: userData.userId.toString().trim())
-          .getDocuments()
-          .then((joinRequests) {
-        if (joinRequests == null || joinRequests.documents.length == 0) {
-          Utility.createErrorSnackBar(_navigatorContext);
-          _enableButtonOnly();
-        } else {
-          DocumentReference toUpdateFlat;
-          var batch = Firestore.instance.batch();
-          for (var request in joinRequests.documents) {
-            DocumentReference ref = Firestore.instance
-                .collection("joinflat")
-                .document(request.documentID);
-            var data = {"status": -1, "updated_at": timeNow};
-            batch.updateData(ref, data);
-            if (request.data["flat_id"] == _flatId &&
-                request.data["request_from_flat"] == 0) {
-              toUpdateFlat = ref;
-            }
-          }
-          batch.commit().then((snapshot) {
-            if (toUpdateFlat == null) {
-              Utility.createErrorSnackBar(_navigatorContext);
-              _enableButtonOnly();
-            } else {
-              toUpdateFlat
-                  .updateData({"status": 1, "updated_at": timeNow}).then(
-                      (snapshot) {
-                Firestore.instance
-                    .collection("user")
-                    .document(userData.userId.toString().trim())
-                    .updateData({
-                  "flat_id": _flatId.toString().trim(),
-                  "updated_at": timeNow
-                }).then((user) {
-                  debugPrint(userData.userId);
-                  setState(() {
-                    FlatUsersResponse newUser = new FlatUsersResponse(
-                        name: userData.name,
-                        userId: userData.userId,
-                        createdAt: userData.createdAt,
-                        updatedAt: timeNow);
-                    existingUsers.add(newUser);
-                    existingUsers.sort(
-                        (a, b) => b.getUpdatedAt.compareTo(a.getUpdatedAt));
-                    usersCount++;
-                    incomingRequests.remove(userData);
-                    incomingRequestsCount--;
-                    Utility.createErrorSnackBar(_navigatorContext,
-                        error: "Success!");
-                  });
-                  _enableButtonOnly();
-                }, onError: (e) {
-                  debugPrint("ERROR IN REQ ACEEPT");
-                  Utility.createErrorSnackBar(_navigatorContext);
-                  _enableButtonOnly();
-                });
-              }, onError: (e) {
-                debugPrint("ERROR IN REQ ACEEPT");
-                Utility.createErrorSnackBar(_navigatorContext);
-                _enableButtonOnly();
-              });
-            }
-          }, onError: (e) {
-            debugPrint("ERROR IN REQ ACEEPT");
-            Utility.createErrorSnackBar(_navigatorContext);
-            _enableButtonOnly();
-          });
-        }
-      }, onError: (e) {
-        debugPrint("ERROR IN REQ ACCEPT");
-        Utility.createErrorSnackBar(_navigatorContext);
-        _enableButtonOnly();
-      });
-    } else {
-      debugPrint("####" + userData.userId);
-      Firestore.instance
-          .collection("joinflat")
-          .where("user_id", isEqualTo: userData.userId.toString().trim())
-          .where("flat_id", isEqualTo: _flatId.toString().trim())
-          .where("request_from_flat", isEqualTo: 0)
-          .getDocuments()
-          .then((joinRequests) {
-        if (joinRequests == null || joinRequests.documents.length == 0) {
-          debugPrint("CALL ERROR");
-          Utility.createErrorSnackBar(_navigatorContext);
-          _enableButtonOnly();
-        } else {
-          debugPrint(joinRequests.documents[0].documentID);
-          Firestore.instance
-              .collection("joinflat")
-              .document(joinRequests.documents[0].documentID)
-              .updateData({"status": -1, "updated_at": timeNow}).then((user) {
-            setState(() {
-              incomingRequests.remove(userData);
-              incomingRequestsCount--;
-              Utility.createErrorSnackBar(_navigatorContext, error: "Success!");
-            });
-            _enableButtonOnly();
-          }, onError: (e) {
-            debugPrint("ERROR IN REQ ACEEPT");
-            Utility.createErrorSnackBar(_navigatorContext);
-            _enableButtonOnly();
-          });
-        }
-      });
-    }
-  }
-
   void _updateUsersView() async {
     if (_flatId == null) await _getFromSharedPref();
     Firestore.instance
@@ -1223,88 +1063,6 @@ class _UserProfile extends State<UserProfile> {
       }
     }, onError: (e) {
       debugPrint("ERROR IN UPDATE USERS VIEW");
-      Utility.createErrorSnackBar(_navigatorContext);
-    });
-  }
-
-  void _updateRequestsView() async {
-    if (_flatId == null) await _getFromSharedPref();
-    Firestore.instance
-        .collection("joinflat")
-        .where("flat_id", isEqualTo: _flatId)
-        .where("status", isEqualTo: 0)
-        .where("request_from_flat", isEqualTo: 0)
-        .getDocuments()
-        .then((joinRequests) {
-      if (joinRequests == null || joinRequests.documents.length == 0) {
-        //no requests
-      } else {
-        joinRequests.documents.sort(
-            (a, b) => b.data['updated_at'].compareTo(a.data['updated_at']));
-        List<FlatIncomingResponse> usersToFetch = new List();
-        for (int i = 0; i < joinRequests.documents.length; i++) {
-          FlatIncomingResponse f = new FlatIncomingResponse();
-          f.userId = joinRequests.documents[i].data['user_id'];
-          f.createdAt =
-              (joinRequests.documents[i].data['created_at'] as Timestamp)
-                  .toDate();
-          f.updatedAt =
-              (joinRequests.documents[i].data['updated_at'] as Timestamp)
-                  .toDate();
-          Firestore.instance
-              .collection("user")
-              .document(f.userId)
-              .get()
-              .then((userData) {
-            f.name = userData.data['name'];
-            f.phone = userData.data['phone'];
-            usersToFetch.add(f);
-          }).whenComplete(() {
-            setState(() {
-              this.incomingRequestsCount = usersToFetch.length;
-              this.incomingRequests = usersToFetch;
-            });
-          });
-        }
-        for (int i = 0; i < usersToFetch.length; i++) {
-          debugPrint(usersToFetch[i].userId);
-          Firestore.instance
-              .collection("user")
-              .document(usersToFetch[i].userId.trim())
-              .get()
-              .then((userData) {
-            if (userData.exists) {
-              usersToFetch[i].name = userData.data['name'];
-              usersToFetch[i].phone = userData.data['phone'];
-              debugPrint("###" + usersToFetch[i].name);
-            }
-          });
-        }
-        /*Firestore.instance.runTransaction((transaction) async {
-          debugPrint("IN TRANSACTION");
-          for (int i = 0; i < usersToFetch.length; i++) {
-            DocumentSnapshot userData = await transaction.get(Firestore.instance
-                .collection("user")
-                .document(usersToFetch[i].userId.trim()));
-
-            if (userData.exists) {
-              usersToFetch[i].name = userData.data['name'];
-              usersToFetch[i].phone = userData.data['phone'];
-            }
-          }
-        }).whenComplete(() {
-          debugPrint("IN WHEN COMPLETE TRANSACTION");
-          setState(() {
-            this.incomingRequestsCount = usersToFetch.length;
-            this.incomingRequests = usersToFetch;
-          });
-        }).catchError((e) {
-          debugPrint("SERVER TRANSACTION ERROR");
-          Utility.createErrorSnackBar(_navigatorContext);
-        });*/
-      }
-    }, onError: (e) {
-      debugPrint("SERVER ERROR");
       Utility.createErrorSnackBar(_navigatorContext);
     });
   }
@@ -1934,139 +1692,6 @@ class _UserProfile extends State<UserProfile> {
                         maxLines: 2,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
-  // TODO fix
-  ListView _getIncomingRequestsHorizontal() {
-    TextStyle titleStyle = Theme.of(context).textTheme.subhead;
-    return ListView.builder(
-        itemCount: this.incomingRequestsCount,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 1.0, right: 1.0),
-            child: SizedBox(
-              width: 135,
-              height: 105,
-              child: Card(
-                color: Colors.white,
-                elevation: 0.5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Container(
-                      height: 10.0,
-                    ),
-                    Center(
-                      child: Text(
-                        incomingRequests[index].name,
-                        maxLines: 3,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15.0,
-                          fontFamily: 'Montserrat',
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 2.0,
-                    ),
-                    Center(
-                      child: Text(
-                        incomingRequests[index].phone,
-                        maxLines: 3,
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 12.0,
-                          fontFamily: 'Montserrat',
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 24.0,
-                    ),
-                    new Expanded(
-                        child: new Align(
-                            alignment: FractionalOffset.bottomCenter,
-                            child: new Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                ButtonTheme(
-                                    height: 20.0,
-                                    minWidth: 30.0,
-                                    child: RaisedButton(
-                                        elevation: 0.0,
-                                        shape: new RoundedRectangleBorder(
-                                          borderRadius:
-                                              new BorderRadius.circular(0.0),
-                                          side: BorderSide(
-                                            width: 0.5,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        color: Colors.white,
-                                        textColor:
-                                            Theme.of(context).primaryColorDark,
-                                        child: (_progressCircleState == 0)
-                                            ? setUpButtonChild("Accept")
-                                            : setUpButtonChild("Waiting"),
-                                        onPressed: () {
-                                          if (_isButtonDisabled == false)
-                                            _respondToJoinRequest(
-                                                incomingRequests[index], 1);
-                                          else {
-                                            setState(() {
-                                              _progressCircleState = 1;
-                                            });
-
-                                            Utility.createErrorSnackBar(context,
-                                                error:
-                                                    "Waiting for Request Call to Complete!");
-                                          }
-                                        })),
-                                ButtonTheme(
-                                    height: 20.0,
-                                    minWidth: 30.0,
-                                    child: RaisedButton(
-                                        elevation: 0.0,
-                                        shape: new RoundedRectangleBorder(
-                                          borderRadius:
-                                              new BorderRadius.circular(0.0),
-                                          side: BorderSide(
-                                            width: 0.5,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        color: Colors.white,
-                                        textColor:
-                                            Theme.of(context).primaryColorDark,
-                                        child: (_progressCircleState == 0)
-                                            ? setUpButtonChild("Accept",
-                                                color: Colors.red,
-                                                icon: Icons.delete)
-                                            : setUpButtonChild("Waiting"),
-                                        onPressed: () {
-                                          if (_isButtonDisabled == false) {
-                                            var request =
-                                                incomingRequests[index];
-                                            setState(() {
-                                              incomingRequests.removeAt(index);
-                                              incomingRequestsCount--;
-                                            });
-                                            _respondToJoinRequest(request, -1);
-                                          } else
-                                            Utility.createErrorSnackBar(context,
-                                                error:
-                                                    "Waiting for Request Call to Complete!");
-                                        })),
-                              ],
-                            ))),
                   ],
                 ),
               ),

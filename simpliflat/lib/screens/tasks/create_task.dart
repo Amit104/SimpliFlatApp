@@ -789,11 +789,13 @@ class _CreateTask extends State<CreateTask> {
                               margin: EdgeInsets.only(right: 5.0),
                               child: Chip(
                                 labelPadding: EdgeInsets.all(5.0),
+                                shape: StadiumBorder(side: BorderSide(color: Colors.grey[400],width: 0.5)),
+                                backgroundColor: selectedUsers.contains(documentID)
+                                    ? Colors.grey[400]
+                                    : Colors.white,
                                 avatar: CircleAvatar(
                                     backgroundColor:
-                                        selectedUsers.contains(documentID)
-                                            ? Colors.grey[400]
-                                            : Colors.purple,
+                                        Colors.primaries[documentID.toString().trim().hashCode % Colors.primaries.length], //: Colors.purple,
                                     child: Text(
                                       getInitials(name),
                                     )),

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
@@ -10,8 +9,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:simpliflat/screens/widgets/common.dart';
 import 'package:simpliflat/screens/widgets/loading_container.dart';
-import 'tasks/task_list.dart';
-import 'tasks/create_task.dart';
 
 class Dashboard extends StatefulWidget {
   final flatId;
@@ -27,7 +24,8 @@ class Dashboard extends StatefulWidget {
 class DashboardState extends State<Dashboard> {
   var _navigatorContext;
   final flatId;
- // final taskId;
+
+  // final taskId;
   var currentUserId;
   bool noticesExist = false;
   bool tasksExist = false;
@@ -84,15 +82,11 @@ class DashboardState extends State<Dashboard> {
                 color: Colors.indigo,
               ),
               onPressed: () {
-                // do something
-
                 navigateToAddTask();
               },
             )
           ],
         ),
-
-
         body: Builder(builder: (BuildContext scaffoldC) {
           _navigatorContext = scaffoldC;
           return new SingleChildScrollView(
@@ -106,7 +100,7 @@ class DashboardState extends State<Dashboard> {
                   height: 30.0,
                 ),
 
-              //   Statistics
+                //   Statistics
                 Text(
                   'Point Board',
                   style: TextStyle(
@@ -125,16 +119,10 @@ class DashboardState extends State<Dashboard> {
                 SizedBox(
                   height: 20.0,
                 ),
-               // navigationLinks(),
+                navigationLinks(),
                 SizedBox(
-
                   height: 25.0,
                 ),
-
-                // Today's Items
-////                Text(
-////                  'HELLooooooo'
-//                ),
                 tasksExist
                     ? Text(
                         'Tasks for you today',
@@ -156,8 +144,6 @@ class DashboardState extends State<Dashboard> {
                       )
                     : Container(height: 0.0),
                 getNotices(),
-
-
               ],
             ),
           );
@@ -183,14 +169,13 @@ class DashboardState extends State<Dashboard> {
             textColor: Colors.indigo[900],
             onPressed: () async {
               var landlordId = await Utility.getLandlordId();
-              if(landlordId == null || landlordId == "") {
+              if (landlordId == null || landlordId == "") {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (BuildContext context) => AddLandlord(flatId)));
               } else {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (BuildContext context) => TenantPortal(flatId)));
               }
-
             },
           ),
         ),
@@ -298,11 +283,13 @@ class DashboardState extends State<Dashboard> {
           if (!taskSnapshot.hasData) return LoadingContainerVertical(3);
 
           taskSnapshot.data.documents.sort(
-              (DocumentSnapshot a, DocumentSnapshot b) =>
-                  int.parse(b.data['due'].compareTo(a.data['due']).toString()));
+              (DocumentSnapshot a, DocumentSnapshot b) => int.parse(b
+                  .data['nextDueDate']
+                  .compareTo(a.data['nextDueDate'])
+                  .toString()));
 
           taskSnapshot.data.documents.removeWhere((data) =>
-              date.format((data['due'] as Timestamp).toDate()) !=
+              date.format((data['nextDueDate'] as Timestamp).toDate()) !=
               date.format(DateTime.now().toLocal()));
 
           taskSnapshot.data.documents.removeWhere((s) =>
@@ -571,7 +558,6 @@ class DashboardState extends State<Dashboard> {
     Navigator.pop(_navigatorContext, true);
   }
 
-
   void navigateToAddTask({taskId}) {
     // Navigator.push(
     //   context,
@@ -580,7 +566,4 @@ class DashboardState extends State<Dashboard> {
     //   }),
     // );
   }
-
 }
-
-

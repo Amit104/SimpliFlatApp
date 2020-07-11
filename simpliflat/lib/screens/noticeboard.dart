@@ -90,10 +90,9 @@ class NoticeBoard extends State<Notice> {
                             child: Container(
                               child: new Text(getDateValue(value),
                                   style: new TextStyle(
-                                    color: Colors.red[900],
-                                    fontSize: 14.0,
-                                    fontFamily: 'Robato'
-                                  )),
+                                      color: Colors.red[900],
+                                      fontSize: 14.0,
+                                      fontFamily: 'Robato')),
                               decoration: new BoxDecoration(
                                   borderRadius: new BorderRadius.all(
                                       new Radius.circular(6.0)),
@@ -163,13 +162,12 @@ class NoticeBoard extends State<Notice> {
                         child: Material(
                           color: Colors.red[900], // button color
                           child: InkWell(
-                            splashColor: Colors.indigo, // inkwell color
+                            splashColor: Colors.red, // inkwell color
                             child: SizedBox(
                                 width: 56,
                                 height: 56,
                                 child: Icon(
-                                  Icons.add_circle,
-                                  color: Colors.indigo,
+                                  Icons.add,
                                 )),
                             onTap: () async {
                               if (_formKey1.currentState.validate()) {

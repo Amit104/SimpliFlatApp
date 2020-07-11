@@ -1,9 +1,9 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:simpliflat/icons/icons_custom_icons.dart';
+import 'package:simpliflat/screens/profile/profile.dart';
 import 'package:simpliflat/screens/profile/user_profile.dart';
 import 'package:simpliflat/screens/tasks/task_list.dart';
 import 'package:simpliflat/screens/utility.dart';
@@ -20,7 +20,6 @@ class Home extends StatefulWidget {
   final flatId;
 
   Home(this.flatId);
-
 
   @override
   State<StatefulWidget> createState() {
@@ -94,15 +93,16 @@ class _Home extends State<Home> {
         firebaseMessaging.getToken().then((token) async {
           debugPrint("TOKEN = " + token);
           notificationToken = token;
-          if (token == null) {} else {
+          if (token == null) {
+          } else {
             var userId = await Utility.getUserId();
             Firestore.instance
                 .collection(globals.user)
                 .document(userId)
                 .updateData({'notification_token': notificationToken}).then(
                     (updated) {
-                  Utility.addToSharedPref(notificationToken: notificationToken);
-                });
+              Utility.addToSharedPref(notificationToken: notificationToken);
+            });
           }
         });
       }
@@ -110,7 +110,6 @@ class _Home extends State<Home> {
   }
 
   final dbHelper = DatabaseHelper.instance;
-
 
   @override
   Widget build(BuildContext context) {
@@ -120,88 +119,48 @@ class _Home extends State<Home> {
           return null;
         },
         child: Scaffold(
-          body:
-
-          Center(
-
-              child: _selectedIndex == 0
-                  ? Dashboard(flatId)
-                   :(_selectedIndex == 1
-                  ?  TaskList(flatId, false)   // replace with link to payment portal
-
-
-                  : (_selectedIndex == 2
-                  ? TaskList(flatId, false)  // replace with link to calender
-                  : (_selectedIndex == 3
-                  ? ShoppingLists(flatId)
-                  :  TenantPortal(flatId) )))
-                 // : UserProfile())))
-
-
-             // )
-
+          body: Center(
+            child: _selectedIndex == 0
+                ? Dashboard(flatId)
+                : (_selectedIndex == 1
+                    ? TaskList(flatId, false)
+                    : (_selectedIndex == 2
+                        ? ShoppingLists(flatId)
+                        : UserProfile())),
           ),
-
-
-
-
-              bottomNavigationBar: new BottomNavigationBar(
-                elevation:0,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-              items: <BottomNavigationBarItem>[
+          bottomNavigationBar: new BottomNavigationBar(
+            items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-
-              icon: Icon(Icons.home,color:Colors.indigo,size:25), title: Text("")),
-                BottomNavigationBarItem(
-
-                    icon: Icon(Icons.attach_money,color:Colors.indigo,size:25), title: Text("")),
-
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.calendar_today,color:Colors.indigo,size:24), title: Text("")),
-
-                BottomNavigationBarItem(
-
-                    icon: Icon(Icons.shopping_cart,color:Colors.indigo,size:25), title: Text("")),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.camera,color:Colors.indigo,size:25), title: Text("")),
-                ],
-              currentIndex: _selectedIndex,
-              //unselectedItemColor: Colors.deepPurpleAccent,
-              fixedColor: Colors.white,
-              onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed,
-              ),
-
-//              floatingActionButtonLocation:
-//              FloatingActionButtonLocation.centerDocked,
-//              floatingActionButton: new FloatingActionButton(
-//              heroTag: null,
-//              onPressed: () async {
-//              var _flatId = flatId;
-//              if (flatId == null || flatId == "")
-//              _flatId = await Utility.getFlatId();
-//              List<Map<String, dynamic>> offlineDocuments = await _query();
-//              navigateToNotice(_flatId, offlineDocuments);
-//              },
-//              tooltip: 'Noticeboard',
-//              backgroundColor: Colors.red[900],
-//              child: new Icon(Icons.arrow_drop_up),
-//
-//             ),
-//
-
-
-
-
-
-
-
-
-              ));
-            }
-
-
+                  icon: Icon(Icons.dashboard), title: Text('Dashboard')),
+              BottomNavigationBarItem(
+                  icon: Icon(IconsCustom.tasks_1), title: Text('Tasks')),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.list), title: Text('Lists')),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.home), title: Text('My Flat')),
+            ],
+            currentIndex: _selectedIndex,
+            unselectedItemColor: Colors.indigo[900],
+            fixedColor: Colors.red[900],
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed,
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: new FloatingActionButton(
+            onPressed: () async {
+              var _flatId = flatId;
+              if (flatId == null || flatId == "")
+                _flatId = await Utility.getFlatId();
+              List<Map<String, dynamic>> offlineDocuments = await _query();
+              navigateToNotice(_flatId, offlineDocuments);
+            },
+            tooltip: 'Noticeboard',
+            backgroundColor: Colors.red[900],
+            child: new Icon(Icons.arrow_drop_up),
+          ),
+        ));
+  }
 
   // get offline notices
   Future<List<Map<String, dynamic>>> _query() async {
@@ -209,8 +168,8 @@ class _Home extends State<Home> {
     return allRows;
   }
 
-  void navigateToNotice(var flatId,
-      List<Map<String, dynamic>> offlineDocuments) async {
+  void navigateToNotice(
+      var flatId, List<Map<String, dynamic>> offlineDocuments) async {
     var _userId = await Utility.getUserId();
     Navigator.push(context, _createRoute(flatId, _userId, offlineDocuments));
   }
@@ -251,17 +210,17 @@ class _Home extends State<Home> {
         _userPhone == null ||
         _userPhone == "") {
       Firestore.instance.collection(globals.user).document(_userId).get().then(
-              (snapshot) {
-            if (snapshot.exists) {
-              if (mounted)
-                setState(() {
-                  userName = snapshot.data['name'];
-                  userPhone = snapshot.data['phone'];
-                });
-              Utility.addToSharedPref(userName: userName);
-              Utility.addToSharedPref(userPhone: userPhone);
-            }
-          }, onError: (e) {});
+          (snapshot) {
+        if (snapshot.exists) {
+          if (mounted)
+            setState(() {
+              userName = snapshot.data['name'];
+              userPhone = snapshot.data['phone'];
+            });
+          Utility.addToSharedPref(userName: userName);
+          Utility.addToSharedPref(userPhone: userPhone);
+        }
+      }, onError: (e) {});
     } else {
       userName = await Utility.getUserName();
       userPhone = await Utility.getUserPhone();
@@ -313,28 +272,29 @@ class _Home extends State<Home> {
 
   void _getLandlord() async {
     landlordId = await Utility.getLandlordId();
-    if(landlordId!=null)
-      debugPrint("shared pref " + landlordId);
+    if (landlordId != null) debugPrint("shared pref " + landlordId);
     try {
       await Firestore.instance.runTransaction((transaction) async {
-        var flat = await transaction.get(Firestore.instance
-            .collection(globals.flat)
-            .document(flatId));
-        if(flat!=null && flat['landlord_id']!=null) { //add landlord name too
+        var flat = await transaction
+            .get(Firestore.instance.collection(globals.flat).document(flatId));
+        if (flat != null && flat['landlord_id'] != null) {
+          //add landlord name too
           debugPrint("online landlord" + flat['landlord_id'].toString().trim());
           var landlord = await transaction.get(Firestore.instance
-            .collection(globals.landlord)
-            .document(flat['landlord_id']));
+              .collection(globals.landlord)
+              .document(flat['landlord_id']));
           globals.landlordIdValue = flat['landlord_id'].toString().trim();
           globals.landlordNameValue = landlord['name'].toString().trim();
           Utility.addToSharedPref(
-              landlordId: flat['landlord_id'].toString().trim(), landlordName: landlord['name'].toString().trim());
-          
+              landlordId: flat['landlord_id'].toString().trim(),
+              landlordName: landlord['name'].toString().trim());
+
           if (mounted)
             setState(() {
               landlordId = flat["landlord_id"].toString().trim();
             });
-        } else if (flat!=null && (flat['landlord_id']==null || flat['landlord_id']=="" )) {
+        } else if (flat != null &&
+            (flat['landlord_id'] == null || flat['landlord_id'] == "")) {
           debugPrint("online empty landlord ");
           Utility.removeLandlordId();
         }

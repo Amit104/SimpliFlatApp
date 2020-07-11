@@ -34,7 +34,7 @@ class _DocumentManager extends State<DocumentManager> {
 
   String _path;
   String _extension;
-  FileType _pickingType = FileType.any;
+  FileType _pickingType = FileType.ANY;
   bool _loadingPath = false;
 
   _DocumentManager(this._flatId);

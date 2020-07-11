@@ -160,8 +160,7 @@ class _MessageBoard extends State<MessageBoard> {
                                 width: 56,
                                 height: 56,
                                 child: Icon(
-                                  Icons.add_circle,
-                                  color: Colors.white,
+                                  Icons.add,
                                 )),
                             onTap: () async {
                               if (_formKey1.currentState.validate()) {

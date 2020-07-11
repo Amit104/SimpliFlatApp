@@ -43,7 +43,7 @@ class _TenantPortal extends State<TenantPortal> {
         child: Scaffold(
           body: Center(
             child: _selectedIndex == 0
-                ? TaskList(flatId)
+                ? TaskList(flatId, true)
                 : (_selectedIndex == 1
                     ? MessageBoard(flatId)
                     : DocumentManager(flatId)),

@@ -127,11 +127,11 @@ class _Home extends State<Home> {
               child: _selectedIndex == 0
                   ? Dashboard(flatId)
                    :(_selectedIndex == 1
-                  ?  TaskList(flatId)   // replace with link to payment portal
+                  ?  TaskList(flatId, false)   // replace with link to payment portal
 
 
                   : (_selectedIndex == 2
-                  ? TaskList(flatId)  // replace with link to calender
+                  ? TaskList(flatId, false)  // replace with link to calender
                   : (_selectedIndex == 3
                   ? ShoppingLists(flatId)
                   :  TenantPortal(flatId) )))
@@ -320,10 +320,16 @@ class _Home extends State<Home> {
         var flat = await transaction.get(Firestore.instance
             .collection(globals.flat)
             .document(flatId));
-        if(flat!=null && flat['landlord_id']!=null) {
+        if(flat!=null && flat['landlord_id']!=null) { //add landlord name too
           debugPrint("online landlord" + flat['landlord_id'].toString().trim());
+          var landlord = await transaction.get(Firestore.instance
+            .collection(globals.landlord)
+            .document(flat['landlord_id']));
+          globals.landlordIdValue = flat['landlord_id'].toString().trim();
+          globals.landlordNameValue = landlord['name'].toString().trim();
           Utility.addToSharedPref(
-              landlordId: flat['landlord_id'].toString().trim());
+              landlordId: flat['landlord_id'].toString().trim(), landlordName: landlord['name'].toString().trim());
+          
           if (mounted)
             setState(() {
               landlordId = flat["landlord_id"].toString().trim();

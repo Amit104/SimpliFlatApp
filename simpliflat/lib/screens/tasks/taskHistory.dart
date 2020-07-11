@@ -9,12 +9,13 @@ import 'package:simpliflat/screens/widgets/loading_container.dart';
 class TaskHistory extends StatefulWidget {
   final taskId;
   final _flatId;
+  final isTenantPortal;
 
-  TaskHistory(this.taskId, this._flatId);
+  TaskHistory(this.taskId, this._flatId, this.isTenantPortal);
 
   @override
   State<StatefulWidget> createState() {
-    return _TaskHistory(this.taskId, this._flatId);
+    return _TaskHistory(this.taskId, this._flatId, this.isTenantPortal);
   }
 }
 
@@ -22,8 +23,14 @@ class _TaskHistory extends State<TaskHistory> {
   final taskId;
   final _flatId;
   var _navigatorContext;
+  String collectionname;
+  bool isTenantPortal;
 
-  _TaskHistory(this.taskId, this._flatId);
+  _TaskHistory(this.taskId, this._flatId, this.isTenantPortal) {
+    collectionname = isTenantPortal
+        ? 'tasks_' + globals.landlordIdValue
+        : collectionname = 'tasks';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +53,7 @@ class _TaskHistory extends State<TaskHistory> {
                 stream: Firestore.instance
                     .collection(globals.flat)
                     .document(_flatId)
-                    .collection(globals.tasks)
+                    .collection(collectionname)
                     .document(taskId)
                     .collection(globals.taskHistory)
                     .snapshots(),
@@ -141,7 +148,7 @@ class _TaskHistory extends State<TaskHistory> {
     Firestore.instance
         .collection(globals.flat)
         .document(_flatId)
-        .collection(globals.tasks)
+        .collection(collectionname)
         .document(taskId)
         .collection(globals.taskHistory)
         .document(reference.documentID)

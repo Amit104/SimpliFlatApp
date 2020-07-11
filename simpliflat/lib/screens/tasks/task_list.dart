@@ -26,8 +26,6 @@ class DualHeaderWithHint extends StatelessWidget {
   final String hint;
   final bool showHint;
 
-
-
   Widget _crossFade(Widget first, Widget second, bool isExpanded) {
     return AnimatedCrossFade(
       firstChild: first,
@@ -128,12 +126,13 @@ class TaskItem<T> {
 
 class TaskList extends StatefulWidget {
   final flatId;
+  final bool isTenantPortal;
 
-  TaskList(this.flatId);
+  TaskList(this.flatId, this.isTenantPortal);
 
   @override
   State<StatefulWidget> createState() {
-    return TaskListState(flatId);
+    return TaskListState(flatId, isTenantPortal);
   }
 }
 
@@ -153,15 +152,33 @@ class TaskListState extends State<TaskList> {
   static var _isIssue = true;
   static var _isPayment = true;
   bool initializedNotifications = false;
+  bool isTenantPortal;
+  String collectionname;
   //List<DateTime> _nextDueDatesForIncompleteTasks;
 
-  var numToMonth = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun',
-                7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'};
+  var numToMonth = {
+    1: 'Jan',
+    2: 'Feb',
+    3: 'Mar',
+    4: 'Apr',
+    5: 'May',
+    6: 'Jun',
+    7: 'Jul',
+    8: 'Aug',
+    9: 'Sep',
+    10: 'Oct',
+    11: 'Nov',
+    12: 'Dec'
+  };
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   final flatId;
 
-  TaskListState(this.flatId);
+  TaskListState(this.flatId, this.isTenantPortal) {
+    collectionname = isTenantPortal
+        ? 'tasks_' + globals.landlordIdValue
+        : collectionname = 'tasks';
+  }
 
   Future<void> onSelectNotification(String payload) async {
     if (payload != null) {
@@ -172,10 +189,10 @@ class TaskListState extends State<TaskList> {
   @override
   void initState() {
     super.initState();
-    Utility.getUserId().then((userId){
+    Utility.getUserId().then((userId) {
       _userId = userId;
     });
-    Utility.getUserName().then((userName){
+    Utility.getUserName().then((userName) {
       _userName = userName;
     });
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
@@ -213,8 +230,6 @@ class TaskListState extends State<TaskList> {
         },
       ),
     ];
-
-    
   }
 
   @override
@@ -243,7 +258,6 @@ class TaskListState extends State<TaskList> {
           child: Column(
             children: <Widget>[
               filterOptions(),
-              
               SafeArea(
                 top: false,
                 bottom: false,
@@ -273,601 +287,686 @@ class TaskListState extends State<TaskList> {
   }
 
   Widget getTaskListView(bool isCompleted) {
-    return StreamBuilder<QuerySnapshot> (
-      stream : Firestore.instance
-                .collection(globals.user)
-                .where('flat_id', isEqualTo: flatId)
-                .snapshots(),
-    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot1) {
-      if(!snapshot1.hasData) return LoadingContainerVertical(7);
-        return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
-            .collection(globals.flat)
-            .document(flatId)
-            .collection(globals.tasks)
-            .where("completed", isEqualTo: isCompleted)
+            .collection(globals.user)
+            .where('flat_id', isEqualTo: flatId)
             .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> taskSnapshot) {
-          if (!taskSnapshot.hasData) return LoadingContainerVertical(7);
-          if (isCompleted == false)
-            handleNotifications(taskSnapshot.data.documents);
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot1) {
+          if (!snapshot1.hasData) return LoadingContainerVertical(7);
+          return StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance
+                  .collection(globals.flat)
+                  .document(flatId)
+                  .collection(collectionname)
+                  .where("completed", isEqualTo: isCompleted)
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> taskSnapshot) {
+                if (!taskSnapshot.hasData) return LoadingContainerVertical(7);
+                if (isCompleted == false)
+                  handleNotifications(taskSnapshot.data.documents);
 
-          /// SORTING
-          /// 
-          // if(isCompleted == false) {
-          //   _nextDueDatesForIncompleteTasks = new List(taskSnapshot.data.documents.length);
-          // }
-          
-          // _nextDueDatesForIncompleteTasks = new List(taskSnapshot.data.documents.length);
-          var sortField = getSortField();
-          if (sortAscending) {
-            taskSnapshot.data.documents.sort((DocumentSnapshot a,
+                /// SORTING
+                ///
+                // if(isCompleted == false) {
+                //   _nextDueDatesForIncompleteTasks = new List(taskSnapshot.data.documents.length);
+                // }
+
+                // _nextDueDatesForIncompleteTasks = new List(taskSnapshot.data.documents.length);
+                var sortField = getSortField();
+                if (sortAscending) {
+                  /*taskSnapshot.data.documents.sort((DocumentSnapshot a,
                     DocumentSnapshot b) =>
-                int.parse(a.data['due'].compareTo(b.data['due']).toString()));
-            taskSnapshot.data.documents.sort(
-                (DocumentSnapshot a, DocumentSnapshot b) => int.parse(
-                    a.data[sortField].compareTo(b.data[sortField]).toString()));
-          } else {
-            taskSnapshot.data.documents.sort((DocumentSnapshot a,
+                int.parse(a.data['nextDueDate'].compareTo(b.data['nextDueDate']).toString()));*/
+                  taskSnapshot.data.documents.sort(
+                      (DocumentSnapshot a, DocumentSnapshot b) => int.parse(a
+                          .data[sortField]
+                          .compareTo(b.data[sortField])
+                          .toString()));
+                } else {
+                  /*taskSnapshot.data.documents.sort((DocumentSnapshot a,
                     DocumentSnapshot b) =>
-                int.parse(b.data['due'].compareTo(a.data['due']).toString()));
-            taskSnapshot.data.documents.sort(
-                (DocumentSnapshot a, DocumentSnapshot b) => int.parse(
-                    b.data[sortField].compareTo(a.data[sortField]).toString()));
-          }
+                int.parse(b.data['nextDueDate'].compareTo(a.data['nextDueDate']).toString()));*/
+                  taskSnapshot.data.documents.sort(
+                      (DocumentSnapshot a, DocumentSnapshot b) => int.parse(b
+                          .data[sortField]
+                          .compareTo(a.data[sortField])
+                          .toString()));
+                }
 
-          if (!peopleFilterAllSelected) {
-            taskSnapshot.data.documents.removeWhere(
-                    (s) => !s.data['assignee'].toString().contains(_userId.trim()));
-          }
+                if (!peopleFilterAllSelected) {
+                  taskSnapshot.data.documents.removeWhere((s) =>
+                      !s.data['assignee'].toString().contains(_userId.trim()));
+                }
 
-          /// FILTERING
-          if (!_isResponsibility) {
-            debugPrint("Removing reminder");
-            taskSnapshot.data.documents.removeWhere((s) =>
-                s.data['type'].toString().trim() == 'Reminder');
-          }
+                /// FILTERING
+                if (!_isResponsibility) {
+                  debugPrint("Removing reminder");
+                  taskSnapshot.data.documents.removeWhere(
+                      (s) => s.data['type'].toString().trim() == 'Reminder');
+                }
 
-          if (!_isIssue) {
-            debugPrint("Removing complaint");
-            taskSnapshot.data.documents.removeWhere(
-                (s) => s.data['type'].toString().trim() == 'Complaint');
-          }
+                if (!_isIssue) {
+                  debugPrint("Removing complaint");
+                  taskSnapshot.data.documents.removeWhere(
+                      (s) => s.data['type'].toString().trim() == 'Complaint');
+                }
 
-          if (!_isPayment) {
-            debugPrint("Removing payment");
-            taskSnapshot.data.documents.removeWhere(
-                (s) => s.data['type'].toString().trim() == 'Payment');
-          }
+                if (!_isPayment) {
+                  debugPrint("Removing payment");
+                  taskSnapshot.data.documents.removeWhere(
+                      (s) => s.data['type'].toString().trim() == 'Payment');
+                }
 
-          /// TASK LIST VIEW
-          var tooltipKey = new List();
-          for (int i = 0; i < taskSnapshot.data.documents.length; i++) {
-            tooltipKey.add(GlobalKey());
-          }
+                /// TASK LIST VIEW
+                var tooltipKey = new List();
+                for (int i = 0; i < taskSnapshot.data.documents.length; i++) {
+                  tooltipKey.add(GlobalKey());
+                }
 
-          return new ListView.builder(
-            itemCount: taskSnapshot.data.documents.length,
-            scrollDirection: Axis.vertical,
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: (BuildContext context, int position) {
+                return new ListView.builder(
+                  itemCount: taskSnapshot.data.documents.length,
+                  scrollDirection: Axis.vertical,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int position) {
+                    try {
+                      if (isCompleted == false)
+                        debugPrint('at load - ' +
+                            taskSnapshot.data.documents[position]["nextDueDate"]
+                                .toDate()
+                                .toIso8601String());
+                    } catch (e) {
+                      debugPrint(e.toString());
+                      debugPrint('it is null');
+                    }
+                    DateTime datetime = taskSnapshot.data.documents[position]
+                                ["nextDueDate"] ==
+                            null
+                        ? getNextDueDateTime(
+                            DateTime.now(),
+                            (taskSnapshot.data.documents[position]["due"]
+                                    as Timestamp)
+                                .toDate(),
+                            taskSnapshot.data.documents[position]["_repeat"],
+                            taskSnapshot.data.documents[position]["_frequency"])
+                        : (taskSnapshot.data.documents[position]["nextDueDate"]
+                                as Timestamp)
+                            .toDate();
 
-              try {
-                if(isCompleted == false)
-                  debugPrint('at load - ' + taskSnapshot.data.documents[position]["nextDueDate"].toDate().toIso8601String());
-              }
-              catch(e) {
-                debugPrint(e.toString());
-                debugPrint('it is null');
-              }
-              DateTime datetime = taskSnapshot.data.documents[position]["nextDueDate"] == null? 
-              getNextDueDateTime(DateTime.now(), (taskSnapshot.data.documents[position]["due"] as Timestamp).toDate(), taskSnapshot.data.documents[position]["_repeat"], taskSnapshot.data.documents[position]["_frequency"])
-              : (taskSnapshot.data.documents[position]["nextDueDate"] as Timestamp).toDate();
+                    final f = new DateFormat.jm();
+                    var datetimeString = datetime.day.toString() +
+                        " " +
+                        numToMonth[datetime.month.toInt()] +
+                        " " +
+                        datetime.year.toString() +
+                        " - " +
+                        f.format(datetime);
 
-              final f = new DateFormat.jm();
-              var datetimeString = datetime.day.toString() + " "
-                  + numToMonth[datetime.month.toInt()] + " "
-                  + datetime.year.toString() + " - "
-                  + f.format(datetime);
-              
-                  //+ datetime.hour.toString() + ":" + datetime.minute.toString();
+                    //+ datetime.hour.toString() + ":" + datetime.minute.toString();
 
-              return Column (
-                //color: Colors.white,
-                //elevation: 2.0,
-                children: [Slidable(
-                  key: new Key(position.toString()),
-                  enabled: !isCompleted,
-                  actionPane: SlidableDrawerActionPane(),
-                  dismissal: SlidableDismissal(
-                    child: SlidableDrawerDismissal(),
-                    closeOnCanceled: true,
-                    dismissThresholds: <SlideActionType, double>{
-                      SlideActionType.primary: 1.0
-                    },
-                    onWillDismiss: (actionType) {
-                      return showDialog<bool>(
-                        context: context,
-                        builder: (context) {
-                          return new AlertDialog(
-                            title: new Text('Delete'),
-                            content: new Text('Item will be deleted'),
+                    return Column(
+                        //color: Colors.white,
+                        //elevation: 2.0,
+                        children: [
+                          Slidable(
+                            key: new Key(position.toString()),
+                            enabled: !isCompleted,
+                            actionPane: SlidableDrawerActionPane(),
+                            dismissal: SlidableDismissal(
+                              child: SlidableDrawerDismissal(),
+                              closeOnCanceled: true,
+                              dismissThresholds: <SlideActionType, double>{
+                                SlideActionType.primary: 1.0
+                              },
+                              onWillDismiss: (actionType) {
+                                return showDialog<bool>(
+                                  context: context,
+                                  builder: (context) {
+                                    return new AlertDialog(
+                                      title: new Text('Delete'),
+                                      content: new Text('Item will be deleted'),
+                                      actions: <Widget>[
+                                        new FlatButton(
+                                          child: new Text('Cancel'),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                        ),
+                                        new FlatButton(
+                                          child: new Text('Ok'),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              onDismissed: (actionType) {
+                                Firestore.instance
+                                    .collection(globals.flat)
+                                    .document(flatId)
+                                    .collection(collectionname)
+                                    .document(taskSnapshot
+                                        .data.documents[position].documentID)
+                                    .delete();
+                              },
+                            ),
+                            actionExtentRatio: 0.25,
                             actions: <Widget>[
-                              new FlatButton(
-                                child: new Text('Cancel'),
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                              ),
-                              new FlatButton(
-                                child: new Text('Ok'),
-                                onPressed: () =>
-                                    Navigator.of(context).pop(true),
+                              new IconSlideAction(
+                                caption: 'Complete',
+                                color: Colors.green,
+                                icon: Icons.check,
+                                onTap: () {
+                                  var _repeat = taskSnapshot
+                                      .data.documents[position]['repeat'];
+                                  var _due = DateTime.now();
+                                  if (_repeat != -1) {
+                                    debugPrint('datetime --- ' +
+                                        datetime.toIso8601String());
+                                    DateTime nextDueDate = getNextDueDateTime(
+                                        datetime,
+                                        taskSnapshot
+                                            .data.documents[position]['due']
+                                            .toDate(),
+                                        taskSnapshot.data.documents[position]
+                                            ['repeat'],
+                                        taskSnapshot.data.documents[position]
+                                            ['frequency']);
+                                    debugPrint('nextdatetime --- ' +
+                                        nextDueDate.toIso8601String());
+
+                                    Firestore.instance
+                                        .collection(globals.flat)
+                                        .document(flatId)
+                                        .collection(collectionname)
+                                        .document(taskSnapshot.data
+                                            .documents[position].documentID)
+                                        .updateData(
+                                            {'nextDueDate': nextDueDate});
+
+                                    var taskHistoryData = {
+                                      "created_at": DateTime.now(),
+                                      "completed_by": _userId,
+                                      "user_name": _userName,
+                                    };
+                                    Firestore.instance
+                                        .collection(globals.flat)
+                                        .document(flatId)
+                                        .collection(collectionname)
+                                        .document(taskSnapshot.data
+                                            .documents[position].documentID)
+                                        .collection(globals.taskHistory)
+                                        .add(taskHistoryData);
+                                  } else {
+                                    Firestore.instance
+                                        .collection(globals.flat)
+                                        .document(flatId)
+                                        .collection(collectionname)
+                                        .document(taskSnapshot.data
+                                            .documents[position].documentID)
+                                        .updateData({'completed': true});
+
+                                    var taskHistoryData = {
+                                      "created_at": DateTime.now(),
+                                      "completed_by": _userId,
+                                      "user_name": _userName,
+                                    };
+                                    Firestore.instance
+                                        .collection(globals.flat)
+                                        .document(flatId)
+                                        .collection(collectionname)
+                                        .document(taskSnapshot.data
+                                            .documents[position].documentID)
+                                        .collection(globals.taskHistory)
+                                        .add(taskHistoryData);
+                                  }
+                                  setState(() {});
+                                },
                               ),
                             ],
-                          );
-                        },
-                      );
-                    },
-                    onDismissed: (actionType) {
-                      Firestore.instance
-                          .collection(globals.flat)
-                          .document(flatId)
-                          .collection(globals.tasks)
-                          .document(
-                              taskSnapshot.data.documents[position].documentID)
-                          .delete();
-                    },
-                  ),
-                  actionExtentRatio: 0.25,
-                  actions: <Widget>[
-                    new IconSlideAction(
-                      caption: 'Complete',
-                      color: Colors.green,
-                      icon: Icons.check,
-                      onTap: () {
-                        var _repeat =
-                            taskSnapshot.data.documents[position]['repeat'];
-                        var _due = DateTime.now();
-                        if (_repeat != -1) {
-                          
-                          debugPrint('datetime --- ' + datetime.toIso8601String());
-                          DateTime nextDueDate = getNextDueDateTime(datetime, taskSnapshot.data.documents[position]['due'].toDate(), taskSnapshot.data.documents[position]['repeat'], taskSnapshot.data.documents[position]['frequency']);
-                                                    debugPrint('nextdatetime --- ' + nextDueDate.toIso8601String());
+                            secondaryActions: <Widget>[
+                              new IconSlideAction(
+                                caption: 'Delete',
+                                color: Colors.red,
+                                icon: Icons.delete,
+                                onTap: () async {
+                                  var state = Slidable.of(context);
+                                  var dismiss = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) {
+                                      return new AlertDialog(
+                                        title: new Text('Delete'),
+                                        content:
+                                            new Text('Item will be deleted'),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text('Cancel'),
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                          ),
+                                          new FlatButton(
+                                            child: new Text('Ok'),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
-
-                          Firestore.instance
-                              .collection(globals.flat)
-                              .document(flatId)
-                              .collection(globals.tasks)
-                              .document(taskSnapshot
-                                  .data.documents[position].documentID)
-                              .updateData({'nextDueDate': nextDueDate});
-
-
-                          var taskHistoryData = {
-                            "created_at": DateTime.now(),
-                            "completed_by": _userId,
-                            "user_name": _userName,
-                          };
-                          Firestore.instance
-                              .collection(globals.flat)
-                              .document(flatId)
-                              .collection(globals.tasks)
-                              .document(taskSnapshot
-                              .data.documents[position].documentID)
-                              .collection(globals.taskHistory).add(taskHistoryData);
-
-                        } else {
-                          Firestore.instance
-                              .collection(globals.flat)
-                              .document(flatId)
-                              .collection(globals.tasks)
-                              .document(taskSnapshot
-                                  .data.documents[position].documentID)
-                              .updateData({'completed': true});
-
-                          var taskHistoryData = {
-                            "created_at": DateTime.now(),
-                            "completed_by": _userId,
-                            "user_name": _userName,
-
-                          };
-                          Firestore.instance
-                              .collection(globals.flat)
-                              .document(flatId)
-                              .collection(globals.tasks)
-                              .document(taskSnapshot
-                              .data.documents[position].documentID)
-                              .collection(globals.taskHistory).add(taskHistoryData);
-                        }
-                        setState((){});
-                      },
-                    ),
-                  ],
-                  secondaryActions: <Widget>[
-                    new IconSlideAction(
-                      caption: 'Delete',
-                      color: Colors.red,
-                      icon: Icons.delete,
-                      onTap: () async {
-                        var state = Slidable.of(context);
-                        var dismiss = await showDialog<bool>(
-                          context: context,
-                          builder: (context) {
-                            return new AlertDialog(
-                              title: new Text('Delete'),
-                              content: new Text('Item will be deleted'),
-                              actions: <Widget>[
-                                new FlatButton(
-                                  child: new Text('Cancel'),
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                ),
-                                new FlatButton(
-                                  child: new Text('Ok'),
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-
-                        if (dismiss) {
-                          Firestore.instance
-                              .collection(globals.flat)
-                              .document(flatId)
-                              .collection(globals.tasks)
-                              .document(taskSnapshot
-                                  .data.documents[position].documentID)
-                              .delete();
-                          state.dismiss();
-                        }
-                      },
-                    ),
-                  ],
-                  child: Card(
-                    margin: EdgeInsets.only(top:5.0, bottom:5.0),
-                    
-                    elevation: 5.0,
-
-  
-                                      child: ClipPath(
-
-                                        clipper: ShapeBorderClipper(shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
-               
-                                                                              child: Container(
-                      padding: EdgeInsets.only(top: 7.0, bottom: 7.0),
-                      decoration: BoxDecoration(
-                        border: Border(left: BorderSide(color:getPriorityColor(datetime, isCompleted), width: 5.0)),
-                      ),
-                      
-                                          child: ListTile(
-                                            
-                        /*leading: CircleAvatar(
+                                  if (dismiss) {
+                                    Firestore.instance
+                                        .collection(globals.flat)
+                                        .document(flatId)
+                                        .collection(collectionname)
+                                        .document(taskSnapshot.data
+                                            .documents[position].documentID)
+                                        .delete();
+                                    state.dismiss();
+                                  }
+                                },
+                              ),
+                            ],
+                            child: Card(
+                              margin: EdgeInsets.only(top: 5.0, bottom: 5.0),
+                              elevation: 5.0,
+                              child: ClipPath(
+                                clipper: ShapeBorderClipper(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(3))),
+                                child: Container(
+                                  padding:
+                                      EdgeInsets.only(top: 7.0, bottom: 7.0),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        left: BorderSide(
+                                            color: getPriorityColor(
+                                                datetime, isCompleted),
+                                            width: 5.0)),
+                                  ),
+                                  child: ListTile(
+                                    /*leading: CircleAvatar(
                           backgroundColor: Colors.white10,
                           child: Icon(
                             Icons.arrow_right,
                             color: Colors.black26,
                           ),
                         ),*/
-                        title: CommonWidgets.textBox(
-                            taskSnapshot.data.documents[position]["title"], 15.0,
-                            color: Colors.black),
-                        subtitle: Column(
-                                                  children: [SizedBox(height:10.0), Row(
-                            children: <Widget>[
-                              CommonWidgets.textBox(
-                                  isCompleted == false? _getDateTimeString(datetime):_getDateTimeString(taskSnapshot.data.documents[position]['due'].toDate()),
-                                  11.0,
-                                  color: Colors.black45),
-                              
-                              Container(
-                                width: 4.0,
+                                    title: CommonWidgets.textBox(
+                                        taskSnapshot.data.documents[position]
+                                            ["title"],
+                                        15.0,
+                                        color: Colors.black),
+                                    subtitle: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 10.0),
+                                        taskSnapshot.data.documents[position]
+                                                    ["repeat"] ==
+                                                1
+                                            ? CommonWidgets.textBox(
+                                                'Always Available', 12.0,
+                                                color: Colors.black45)
+                                            : Row(
+                                                children: <Widget>[
+                                                  CommonWidgets.textBox(
+                                                      isCompleted == false
+                                                          ? _getDateTimeString(
+                                                              datetime)
+                                                          : _getDateTimeString(
+                                                              taskSnapshot
+                                                                  .data
+                                                                  .documents[
+                                                                      position]
+                                                                      ['due']
+                                                                  .toDate()),
+                                                      11.0,
+                                                      color: Colors.black45),
+                                                  Container(
+                                                    width: 4.0,
+                                                  ),
+                                                  taskSnapshot.data.documents[
+                                                                  position]
+                                                              ["repeat"] !=
+                                                          -1
+                                                      ? Icon(
+                                                          Icons.replay,
+                                                          size: 16,
+                                                        )
+                                                      : Container(),
+                                                ],
+                                              )
+                                      ],
+                                    ),
+                                    trailing: getUsersAssignedView(
+                                        taskSnapshot.data.documents[position]
+                                            ["assignee"],
+                                        snapshot1),
+                                    leading: Container(
+                                      child: Tooltip(
+                                        key: tooltipKey[position],
+                                        decoration: BoxDecoration(
+                                            color: Colors.indigo[100]),
+                                        message: taskSnapshot.data
+                                                        .documents[position]
+                                                    ["priority"] ==
+                                                0
+                                            ? 'Low Priority'
+                                            : 'High Priority',
+                                        child: IconButton(
+                                          icon: Icon(
+                                            (icons[taskSnapshot
+                                                    .data.documents[position]
+                                                ["type"]]['icon']),
+                                            color: (icons[taskSnapshot
+                                                    .data.documents[position]
+                                                ["type"]]['color']),
+                                          ),
+                                          onPressed: () {
+                                            dynamic tooltip =
+                                                tooltipKey[position]
+                                                    .currentState;
+                                            tooltip.ensureTooltipVisible();
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      debugPrint("Task added");
+                                      navigateToViewTask(
+                                          taskId: taskSnapshot.data
+                                              .documents[position].documentID);
+                                    },
+                                  ),
+                                ),
                               ),
-                              taskSnapshot.data.documents[position]["repeat"] != -1?
-                              Icon(
-                                Icons.replay,
-                                size: 16,
-                              ):Container(),
-                              
-                            ],
-                          )],
-                        ),
-                        trailing: getUsersAssignedView(taskSnapshot.data.documents[position]["assignee"], snapshot1),
-                        leading: Container(
-                          
-                          child: Tooltip(
-                            key: tooltipKey[position],
-                            decoration: BoxDecoration(
-                              color: Colors.indigo[100]
-                            ),
-                            message:
-                                taskSnapshot.data.documents[position]["priority"] == 0
-                                    ? 'Low Priority'
-                                    : 'High Priority',
-                            child: IconButton(
-                              icon: Icon(
-                                (icons[taskSnapshot.data.documents[position]
-                                ["type"]]['icon']),
-                                color: (icons[taskSnapshot.data.documents[position]
-                                ["type"]]['color']),
-                              ),
-                              onPressed: () {
-                                dynamic tooltip = tooltipKey[position].currentState;
-                                tooltip.ensureTooltipVisible();
-                              },
                             ),
                           ),
-                        ),
-                        onTap: () {
-                          debugPrint("Task added");
-                          navigateToViewTask(
-                              taskId:
-                                  taskSnapshot.data.documents[position].documentID);
-                        },
-                      ),
-                    ),
-                                      ),
-                  ),
-                ),
-                ]);
-            },
-          );
-        });});
+                        ]);
+                  },
+                );
+              });
+        });
   }
-
 
   String _getDateTimeString(DateTime nextDueDate) {
     final f = new DateFormat.jm();
-                        var datetimeString = nextDueDate.day.toString() + " "
-                            + numToMonth[nextDueDate.month.toInt()] + " "
-                            + nextDueDate.year.toString() + " - "
-                            + f.format(nextDueDate);
+    var datetimeString = nextDueDate.day.toString() +
+        " " +
+        numToMonth[nextDueDate.month.toInt()] +
+        " " +
+        nextDueDate.year.toString() +
+        " - " +
+        f.format(nextDueDate);
 
     return datetimeString;
   }
 
-  DateTime getNextDueDateTime(DateTime nowDueDate, DateTime due, int repeat, String frequency) {
+  DateTime getNextDueDateTime(
+      DateTime nowDueDate, DateTime due, int repeat, String frequency) {
     debugPrint('nowduedate = ' + nowDueDate.toIso8601String());
-    switch(repeat) {
-      case -1: {
-        return due;
-      }
-      case 0: {
+    switch (repeat) {
+      case -1:
+        {
+          return due;
+        }
+      case 0:
+        {
           debugPrint('in 0 ' + repeat.toString());
           return nowDueDate.add(new Duration(days: 1));
-                
-      }
-      case 1: {
-        return due;
-      }
-      case 2: {
-        DateTime tempNow = new DateTime(nowDueDate.year, nowDueDate.month, nowDueDate.day, due.hour, due.minute);
+        }
+      case 1:
+        {
+          return due;
+        }
+      case 2:
+        {
+          DateTime tempNow = new DateTime(nowDueDate.year, nowDueDate.month,
+              nowDueDate.day, due.hour, due.minute);
 
-        tempNow = tempNow.add(new Duration(days: 1));
-        while(tempNow.weekday != nowDueDate.weekday) {
           tempNow = tempNow.add(new Duration(days: 1));
-        }
-
-        return tempNow;        
-      }
-      case 3: {
-        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
-        taskFreq.sort();
-        int taskDay = -1;
-        for(int i = 0; i < taskFreq.length; i++) {
-          if(taskFreq[i] > nowDueDate.weekday) {
-            taskDay = taskFreq[i];
-            break;
+          while (tempNow.weekday != nowDueDate.weekday) {
+            tempNow = tempNow.add(new Duration(days: 1));
           }
-          
-        }
 
-        if(taskDay == -1) {
-          taskDay = taskFreq[0];
+          return tempNow;
         }
+      case 3:
+        {
+          List<int> taskFreq =
+              frequency.split(',').map(int.parse).toSet().toList();
+          taskFreq.sort();
+          int taskDay = -1;
+          for (int i = 0; i < taskFreq.length; i++) {
+            if (taskFreq[i] > nowDueDate.weekday) {
+              taskDay = taskFreq[i];
+              break;
+            }
+          }
 
-        DateTime tempNow = new DateTime(nowDueDate.year, nowDueDate.month, nowDueDate.day, due.hour, due.minute);
-        tempNow = tempNow.add(new Duration(days: 1));
-        while(tempNow.weekday != taskDay) {
+          if (taskDay == -1) {
+            taskDay = taskFreq[0];
+          }
+
+          DateTime tempNow = new DateTime(nowDueDate.year, nowDueDate.month,
+              nowDueDate.day, due.hour, due.minute);
           tempNow = tempNow.add(new Duration(days: 1));
-        }
-
-        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
-      }
-      case 4: {
-        int month = nowDueDate.month;
-        int year = nowDueDate.year;
-        if(month == 12) {
-          month = 1;
-          year++;
-        }
-
-        return new DateTime(year, month, due.day, due.hour, due.minute);
-
-        
-      }
-      case 5: {
-        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
-        taskFreq.sort();
-        int taskDay = -1;
-        for(int i = 0; i < taskFreq.length; i++) {
-          if(taskFreq[i] > nowDueDate.day) {
-            taskDay = taskFreq[i];
-            break;
+          while (tempNow.weekday != taskDay) {
+            tempNow = tempNow.add(new Duration(days: 1));
           }
-          
+
+          return new DateTime(
+              tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
         }
-
-        int month = nowDueDate.month;
-        int year = nowDueDate.year;
-
-        if(taskDay == -1) {
-          taskDay = taskFreq[0];
-          month++;
-          if(month == 12) {
+      case 4:
+        {
+          int month = nowDueDate.month;
+          int year = nowDueDate.year;
+          if (month == 12) {
             month = 1;
             year++;
           }
+
+          return new DateTime(year, month, due.day, due.hour, due.minute);
         }
+      case 5:
+        {
+          List<int> taskFreq =
+              frequency.split(',').map(int.parse).toSet().toList();
+          taskFreq.sort();
+          int taskDay = -1;
+          for (int i = 0; i < taskFreq.length; i++) {
+            if (taskFreq[i] > nowDueDate.day) {
+              taskDay = taskFreq[i];
+              break;
+            }
+          }
 
-        return new DateTime(year, month, taskDay, due.hour, due.minute);
+          int month = nowDueDate.month;
+          int year = nowDueDate.year;
 
-      }
+          if (taskDay == -1) {
+            taskDay = taskFreq[0];
+            month++;
+            if (month == 12) {
+              month = 1;
+              year++;
+            }
+          }
+
+          return new DateTime(year, month, taskDay, due.hour, due.minute);
+        }
     }
 
     return nowDueDate;
   }
 
-
-
-  DateTime getNextDueDateTimeAfterToday(DateTime due, int repeat, String frequency) {
+  DateTime getNextDueDateTimeAfterToday(
+      DateTime due, int repeat, String frequency) {
     DateTime now = DateTime.now();
     debugPrint('freq = ' + frequency);
     int nowTime = now.hour * 60 + now.minute;
     int dueTime = due.hour * 60 + due.minute;
-    switch(repeat) {
-      case -1: {
-        return due;
-      }
-      case 0: {
-        if(nowTime > dueTime) {
-          return now.add(new Duration(days: 1));
+    switch (repeat) {
+      case -1:
+        {
+          return due;
         }
-        
-        return new DateTime(now.year, now.month, now.day, due.hour, due.minute);
-        
-      }
-      case 1: {
-        return due;
-      }
-      case 2: {
-        if(due.weekday == now.weekday && nowTime < dueTime) {
-          return new DateTime(now.year, now.month, now.day, due.hour, due.minute);
-        }
-        
-        DateTime tempNow = DateTime.now();
-
-        while(tempNow.weekday != due.weekday) {
-          tempNow = tempNow.add(new Duration(days: 1));
-        }
-        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
-        
-      }
-      case 3: {
-        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
-        taskFreq.sort();
-        int taskDay = -1;
-        for(int i = 0; i < taskFreq.length; i++) {
-          if((taskFreq[i] == now.weekday && nowTime < dueTime) || taskFreq[i] > now.weekday) {
-            taskDay = taskFreq[i];
-            break;
+      case 0:
+        {
+          if (nowTime > dueTime) {
+            return now.add(new Duration(days: 1));
           }
-          
-        }
 
-        if(taskDay == -1) {
-          taskDay = taskFreq[0];
+          return new DateTime(
+              now.year, now.month, now.day, due.hour, due.minute);
         }
-
-        DateTime tempNow = DateTime.now();
-
-        while(tempNow.weekday != taskDay) {
-          tempNow = tempNow.add(new Duration(days: 1));
+      case 1:
+        {
+          return due;
         }
-
-        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
-      }
-      case 4: {
-        if(due.day == now.day && nowTime < dueTime) {
-          return new DateTime(now.year, now.month, now.day, due.hour, due.minute);
-        }
-        
-        DateTime tempNow = DateTime.now();
-        if(due.day == now.day) {
-          tempNow = tempNow.add(new Duration(days: 1));
-        }
-        while(tempNow.day != due.day) {
-          tempNow = tempNow.add(new Duration(days: 1));
-        }
-        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
-      }
-      case 5: {
-        List<int> taskFreq = frequency.split(',').map(int.parse).toSet().toList();
-        taskFreq.sort();
-        int taskDay = -1;
-        for(int i = 0; i < taskFreq.length; i++) {
-          if((taskFreq[i] == now.day && nowTime < dueTime) || taskFreq[i] > now.day) {
-            taskDay = taskFreq[i];
-            break;
+      case 2:
+        {
+          if (due.weekday == now.weekday && nowTime < dueTime) {
+            return new DateTime(
+                now.year, now.month, now.day, due.hour, due.minute);
           }
-          
-        }
 
-        if(taskDay == -1) {
-          taskDay = taskFreq[0];
-        }
+          DateTime tempNow = DateTime.now();
 
-        DateTime tempNow = DateTime.now();
-        if(due.day == now.day && nowTime < dueTime) {
-          tempNow = tempNow.add(new Duration(days: 1));
+          while (tempNow.weekday != due.weekday) {
+            tempNow = tempNow.add(new Duration(days: 1));
+          }
+          return new DateTime(
+              tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
         }
-        while(tempNow.day != taskDay) {
-          tempNow = tempNow.add(new Duration(days: 1));
-        }
+      case 3:
+        {
+          List<int> taskFreq =
+              frequency.split(',').map(int.parse).toSet().toList();
+          taskFreq.sort();
+          int taskDay = -1;
+          for (int i = 0; i < taskFreq.length; i++) {
+            if ((taskFreq[i] == now.weekday && nowTime < dueTime) ||
+                taskFreq[i] > now.weekday) {
+              taskDay = taskFreq[i];
+              break;
+            }
+          }
 
-        return new DateTime(tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
-      }
+          if (taskDay == -1) {
+            taskDay = taskFreq[0];
+          }
+
+          DateTime tempNow = DateTime.now();
+
+          while (tempNow.weekday != taskDay) {
+            tempNow = tempNow.add(new Duration(days: 1));
+          }
+
+          return new DateTime(
+              tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+        }
+      case 4:
+        {
+          if (due.day == now.day && nowTime < dueTime) {
+            return new DateTime(
+                now.year, now.month, now.day, due.hour, due.minute);
+          }
+
+          DateTime tempNow = DateTime.now();
+          if (due.day == now.day) {
+            tempNow = tempNow.add(new Duration(days: 1));
+          }
+          while (tempNow.day != due.day) {
+            tempNow = tempNow.add(new Duration(days: 1));
+          }
+          return new DateTime(
+              tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+        }
+      case 5:
+        {
+          List<int> taskFreq =
+              frequency.split(',').map(int.parse).toSet().toList();
+          taskFreq.sort();
+          int taskDay = -1;
+          for (int i = 0; i < taskFreq.length; i++) {
+            if ((taskFreq[i] == now.day && nowTime < dueTime) ||
+                taskFreq[i] > now.day) {
+              taskDay = taskFreq[i];
+              break;
+            }
+          }
+
+          if (taskDay == -1) {
+            taskDay = taskFreq[0];
+          }
+
+          DateTime tempNow = DateTime.now();
+          if (due.day == now.day && nowTime < dueTime) {
+            tempNow = tempNow.add(new Duration(days: 1));
+          }
+          while (tempNow.day != taskDay) {
+            tempNow = tempNow.add(new Duration(days: 1));
+          }
+
+          return new DateTime(
+              tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+        }
     }
 
     return DateTime.now();
   }
 
-  Map<String, Map<String, dynamic>> icons = {'Reminder': {'icon':Icons.calendar_today, 'color': Colors.black}, 'Payment': {'icon': Icons.payment, 'color':Colors.blue}, 'Complaint': {'icon': Icons.error_outline, 'color': Colors.red}};
+  Map<String, Map<String, dynamic>> icons = {
+    'Reminder': {'icon': Icons.calendar_today, 'color': Colors.black},
+    'Payment': {'icon': Icons.payment, 'color': Colors.blue},
+    'Complaint': {'icon': Icons.error_outline, 'color': Colors.red}
+  };
 
   void navigateToAddTask(String typeOfTask, {taskId}) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return CreateTask(taskId, flatId, typeOfTask);
+        return CreateTask(taskId, flatId, typeOfTask, isTenantPortal);
       }),
     );
   }
 
   MaterialColor getPriorityColor(DateTime taskDue, bool isCompleted) {
-    if(isCompleted) {
+    if (isCompleted) {
       return Colors.grey;
     }
     DateTime now = DateTime.now();
     debugPrint("datetime = " + taskDue.toIso8601String());
     debugPrint(taskDue.toIso8601String());
     debugPrint(now.difference(taskDue).inDays.toString());
-    if(taskDue.isBefore(now)) {
+    if (taskDue.isBefore(now)) {
       return Colors.grey;
     }
-    if(taskDue.difference(now).inMinutes <= 1440) {
+    if (taskDue.difference(now).inMinutes <= 1440) {
       return Colors.red;
-    }
-    else if(taskDue.difference(now).inMinutes <= 4320) {
+    } else if (taskDue.difference(now).inMinutes <= 4320) {
       return Colors.yellow;
-    }
-    else {
+    } else {
       return Colors.green;
     }
-
   }
 
   Future<List<DocumentSnapshot>> getAllFlatUsers() async {
     QuerySnapshot s = await Firestore.instance
-                .collection(globals.user)
-                .where('flat_id', isEqualTo: flatId)
-                .getDocuments();
+        .collection(globals.user)
+        .where('flat_id', isEqualTo: flatId)
+        .getDocuments();
     debugPrint('getData');
     return s.documents;
-
   }
 
   bool userDetailsObtained = false;
@@ -876,59 +975,61 @@ class TaskListState extends State<TaskList> {
     List userList = users.toString().trim().split(';');
     var overflowAddition = 0.0;
     if (userList.length > 3) overflowAddition = 8.0;
-      
-    return new Container (
-        margin: EdgeInsets.only(right:5.0),
-          child:  Stack(
+
+    return new Container(
+      margin: EdgeInsets.only(right: 5.0),
+      child: Stack(
         alignment: Alignment.centerRight,
         overflow: Overflow.visible,
-        children: 
-          _getPositionedOverlappingUsers(users, snapshot1.data.documents),
-        
+        children:
+            _getPositionedOverlappingUsers(users, snapshot1.data.documents),
       ),
     );
   }
 
-  List<Widget> _getPositionedOverlappingUsers(users, List<DocumentSnapshot> flatUsers) {
+  List<Widget> _getPositionedOverlappingUsers(
+      users, List<DocumentSnapshot> flatUsers) {
     List<String> userList = users.toString().trim().split(',').toList();
     var overflowAddition = 0.0;
     if (userList.length > 3) overflowAddition = 8.0;
-    
+
     List<Widget> overlappingUsers = new List();
     overflowAddition > 0
-              ? overlappingUsers.add(Text('+', style: TextStyle(fontSize: 16.0)))
-              : overlappingUsers.add(Container(
-                  height: 0.0,
-                  width: 0.0,
-                ));
+        ? overlappingUsers.add(Text('+', style: TextStyle(fontSize: 16.0)))
+        : overlappingUsers.add(Container(
+            height: 0.0,
+            width: 0.0,
+          ));
 
-    for(var j in userList) {
-        debugPrint("elems == " + j);
+    for (var j in userList) {
+      debugPrint("elems == " + j);
     }
 
     userList.sort();
-    int length = userList.length > 3? 3: userList.length;
+    int length = userList.length > 3 ? 3 : userList.length;
     debugPrint("length == " + userList.length.toString());
-    for(int i = 0; i < length; i++) {
-      
-     debugPrint("i == " + i.toString());
+    for (int i = 0; i < length; i++) {
+      debugPrint("i == " + i.toString());
       var color = userList[i].toString().trim().hashCode;
       overlappingUsers.add(new Positioned(
-            right: (i * 20.0) + overflowAddition,
-            child: new CircleAvatar(
-              maxRadius: 14.0,
-              backgroundColor: Colors.primaries[color % Colors.primaries.length][300],
-              child: Text(getInitial(userList[i], flatUsers)),
-            ),
-          ));
+        right: (i * 20.0) + overflowAddition,
+        child: new CircleAvatar(
+          maxRadius: 14.0,
+          backgroundColor: Colors.primaries[color % Colors.primaries.length]
+              [300],
+          child: Text(getInitial(userList[i], flatUsers)),
+        ),
+      ));
     }
     return overlappingUsers;
   }
 
   String getInitial(documentId, flatUsers) {
-    for(int i = 0; i < flatUsers.length; i++) {
-      if(flatUsers[i].documentID == documentId) {
+    for (int i = 0; i < flatUsers.length; i++) {
+      if (flatUsers[i].documentID == documentId) {
         return flatUsers[i].data['name'][0];
+      } else if (documentId == globals.landlordIdValue) {
+        return globals.landlordNameValue[0];
       }
     }
     return 'U';
@@ -974,16 +1075,14 @@ class TaskListState extends State<TaskList> {
         },
       ),
     );
-    showCupertinoModalPopup(
-        context: context, builder: (context) => action);
-    
+    showCupertinoModalPopup(context: context, builder: (context) => action);
   }
 
   void navigateToViewTask({taskId}) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return ViewTask(taskId, flatId);
+        return ViewTask(taskId, flatId, isTenantPortal);
       }),
     );
   }
@@ -1291,18 +1390,16 @@ class TaskListState extends State<TaskList> {
     setState(() {
       if (filter == Strings.responsibility) {
         _isResponsibility = value;
-      }
-      else if (filter == Strings.issue) {
+      } else if (filter == Strings.issue) {
         _isIssue = value;
-      }
-      else if (filter == Strings.payment) {
+      } else if (filter == Strings.payment) {
         _isPayment = value;
       }
     });
   }
 
   String getSortField() {
-    if (sortBy == sortingValues.DUE_DATE) return 'due';
+    if (sortBy == sortingValues.DUE_DATE) return 'nextDueDate';
     if (sortBy == sortingValues.PRIORITY) return 'priority';
     return 'due';
   }
@@ -1317,12 +1414,19 @@ class TaskListState extends State<TaskList> {
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.showDailyAtTime(
-        id.toString().hashCode, title, description, time, platformChannelSpecifics,
-        payload:'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
+        id.toString().hashCode,
+        title,
+        description,
+        time,
+        platformChannelSpecifics,
+        payload: 'due:' +
+            due.millisecondsSinceEpoch.toString() +
+            ',id:' +
+            id.toString());
   }
 
   void _schedule(int id, String title, String description, DateTime due) async {
-        debugPrint('schedule - ' + id.toString());
+    debugPrint('schedule - ' + id.toString());
 
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         "ShowDailyID", 'RepeatDaily', 'Repeat Task Daily at specified time');
@@ -1330,15 +1434,20 @@ class TaskListState extends State<TaskList> {
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     ;
-    await flutterLocalNotificationsPlugin.schedule(id.toString().hashCode, title, description, due, platformChannelSpecifics,
-     payload: 'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
+    await flutterLocalNotificationsPlugin.schedule(id.toString().hashCode,
+        title, description, due, platformChannelSpecifics,
+        payload: 'due:' +
+            due.millisecondsSinceEpoch.toString() +
+            ',id:' +
+            id.toString());
   }
 
-  void _showWeekly(int id, String title, String description, DateTime due, int day) async {
-        debugPrint('weekly - ' + id.toString());
+  void _showWeekly(
+      int id, String title, String description, DateTime due, int day) async {
+    debugPrint('weekly - ' + id.toString());
 
     day = day + 1;
-    if(day == 8) day = 1;
+    if (day == 8) day = 1;
     var time = Time(due.hour, due.minute, 0);
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         "ShowWeeklyID", 'RepeatWeekly', 'Repeat Task Weekly at specified time');
@@ -1346,22 +1455,36 @@ class TaskListState extends State<TaskList> {
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
-        id.toString().hashCode, title, description, Day(day), time, platformChannelSpecifics,
-        payload:'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
+        id.toString().hashCode,
+        title,
+        description,
+        Day(day),
+        time,
+        platformChannelSpecifics,
+        payload: 'due:' +
+            due.millisecondsSinceEpoch.toString() +
+            ',id:' +
+            id.toString());
   }
 
-  void _showMonthly(int id, String title, String description, DateTime due, DateTime date) async {
-        debugPrint('monthly - ' + title);
-        debugPrint('monthly date = ' + date.toIso8601String());
+  void _showMonthly(int id, String title, String description, DateTime due,
+      DateTime date) async {
+    debugPrint('monthly - ' + title);
+    debugPrint('monthly date = ' + date.toIso8601String());
 
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        "ShowMonthlyID", 'RepeatMonthly', 'Repeat Task Monthly at specified time');
+        "ShowMonthlyID",
+        'RepeatMonthly',
+        'Repeat Task Monthly at specified time');
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.schedule(
-        id.toString().hashCode, title, description, date, platformChannelSpecifics,
-        payload:'due:' + due.millisecondsSinceEpoch.toString() + ',id:' + id.toString());
+    await flutterLocalNotificationsPlugin.schedule(id.toString().hashCode,
+        title, description, date, platformChannelSpecifics,
+        payload: 'due:' +
+            due.millisecondsSinceEpoch.toString() +
+            ',id:' +
+            id.toString());
   }
 
   void _removeIfTaskNotPresent(var documents) async {
@@ -1371,13 +1494,13 @@ class TaskListState extends State<TaskList> {
       debugPrint("PENDING = " + pendingNotificationRequest.payload.toString());
       var s = false;
       for (int position = 0; position < documents.length; position++) {
-       
-       if(_getNotificationPayloadValue(pendingNotificationRequest, 'id').contains(documents[position].documentID.hashCode.toString())) {
+        if (_getNotificationPayloadValue(pendingNotificationRequest, 'id')
+            .contains(documents[position].documentID.hashCode.toString())) {
           s = true;
-          break; 
+          break;
         }
       }
-        
+
       if (!s) {
         debugPrint(
             "Cancelling " + pendingNotificationRequest.payload.toString());
@@ -1387,154 +1510,182 @@ class TaskListState extends State<TaskList> {
     }
   }
 
-  String _getNotificationPayloadValue(PendingNotificationRequest pendingNotificationRequest, String key) {
+  String _getNotificationPayloadValue(
+      PendingNotificationRequest pendingNotificationRequest, String key) {
     debugPrint(pendingNotificationRequest.payload);
     dynamic payload = pendingNotificationRequest.payload;
     String value;
     try {
       payload = payload.split(',');
-      if(key == 'id') {
+      if (key == 'id') {
         value = payload[1].split(':')[1];
-      }
-      else if(key == 'due') {
+      } else if (key == 'due') {
         value = payload[0].split(':')[1];
       }
-    }
-    catch(e) {
-
-    }
-    value = value == null? '': value;
+    } catch (e) {}
+    value = value == null ? '' : value;
     return value;
   }
 
   void _addOrModifyNotificationsForNewTasks(var documents) async {
     var pendingNotificationRequests =
         await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-    
-    for(int i = 0; i < documents.length; i++) {
-      List<PendingNotificationRequest> taskNotifications = _getNotificationsForDocument((documents[i] as DocumentSnapshot).documentID.hashCode.toString(), pendingNotificationRequests);
-      debugPrint('title - ' + documents[i]['title'] + '; modify - ' + taskNotifications.length.toString());
-      if(taskNotifications.isEmpty) {
+
+    for (int i = 0; i < documents.length; i++) {
+      DateTime dueDateTimeTemp = (documents[i]['due'] as Timestamp).toDate();
+      if ((documents[i]['repeat'] == -1 &&
+              dueDateTimeTemp.isBefore(DateTime.now())) ||
+          documents[i]['repeat'] == 1) {
+        continue;
+      }
+
+      List<PendingNotificationRequest> taskNotifications =
+          _getNotificationsForDocument(
+              (documents[i] as DocumentSnapshot).documentID.hashCode.toString(),
+              pendingNotificationRequests);
+      debugPrint('title - ' +
+          documents[i]['title'] +
+          '; modify - ' +
+          taskNotifications.length.toString());
+      if (taskNotifications.isEmpty) {
         _addNotificationsForTask(documents[i]);
         continue;
-
       }
-      if([-1, 0, 1, 2, 4].contains(documents[i]['repeat']) && !_checkIfDueDateOrRepeatModified(documents[i], taskNotifications[0]) && taskNotifications.length >= 1) {
+      if ([-1, 0, 1, 2, 4].contains(documents[i]['repeat']) &&
+          !_checkIfDueDateOrRepeatModified(
+              documents[i], taskNotifications[0]) &&
+          taskNotifications.length >= 1) {
         continue;
-      }
-      else if([-1, 0, 1, 2, 4].contains(documents[i]['repeat'])) {
+      } else if ([-1, 0, 1, 2, 4].contains(documents[i]['repeat'])) {
         _cancelNotificationsForTask(taskNotifications);
         _addNotificationsForTask(documents[i]);
         continue;
       }
-      List<PendingNotificationRequest> deletedFrequencyTasks = _getRemovedTaskFrequencyNotifications(taskNotifications, documents[i]['frequency']);
-      List<int> addedFrequencies = _getAddedTaskFrequencyNotifications(taskNotifications, documents[i]['frequency']);
+      List<PendingNotificationRequest> deletedFrequencyTasks =
+          _getRemovedTaskFrequencyNotifications(
+              taskNotifications, documents[i]['frequency']);
+      List<int> addedFrequencies = _getAddedTaskFrequencyNotifications(
+          taskNotifications, documents[i]['frequency']);
 
-
-      
-      if([3, 5].contains(documents[i]['repeat']) && !_checkIfDueDateOrRepeatModified(documents[i], taskNotifications[0]) && deletedFrequencyTasks.isEmpty && addedFrequencies.isEmpty) {
+      if ([3, 5].contains(documents[i]['repeat']) &&
+          !_checkIfDueDateOrRepeatModified(
+              documents[i], taskNotifications[0]) &&
+          deletedFrequencyTasks.isEmpty &&
+          addedFrequencies.isEmpty) {
         continue;
-      }
-      
-      else if(_checkIfDueDateOrRepeatModified(documents[i], taskNotifications[0])) {
+      } else if (_checkIfDueDateOrRepeatModified(
+          documents[i], taskNotifications[0])) {
         _cancelNotificationsForTask(taskNotifications);
         _addNotificationsForTask(documents[i]);
-      }
-      else {
-        if(deletedFrequencyTasks.isNotEmpty) {
+      } else {
+        if (deletedFrequencyTasks.isNotEmpty) {
           _cancelNotificationsForTask(deletedFrequencyTasks);
         }
-        if(addedFrequencies.isNotEmpty) {
+        if (addedFrequencies.isNotEmpty) {
           _addTasksForAddedFrequencies(addedFrequencies, documents[i]);
-
         }
       }
-      
-
     }
-
   }
 
-  void _addTasksForAddedFrequencies(List<int> frequencies, DocumentSnapshot document) {
+  void _addTasksForAddedFrequencies(
+      List<int> frequencies, DocumentSnapshot document) {
     int _repeat = document['repeat'];
     String title = document['title'];
     DateTime due = (document['due'] as Timestamp).toDate();
-    String description = "You have a task due at ${due.hour}:${due.minute}. Please check it.";
+    String description = "You have a task due at " +
+        TimeOfDay(hour: due.hour, minute: due.minute).format(context) +
+        ". Please check it.";
 
-    if(_repeat == 3) {
-      for(int i = 0; i < frequencies.length; i++) {
-          _showWeekly(int.parse(document.documentID.hashCode.toString() + "3" + frequencies[i].toString().padLeft(2, '0')), title, description, due, frequencies[i]);
+    if (_repeat == 3) {
+      for (int i = 0; i < frequencies.length; i++) {
+        _showWeekly(
+            int.parse(document.documentID.hashCode.toString() +
+                "3" +
+                frequencies[i].toString().padLeft(2, '0')),
+            title,
+            description,
+            due,
+            frequencies[i]);
       }
-    }
-    else if(_repeat == 5) {
-      for(int i = 0; i < frequencies.length; i++) {
-          DateTime notificationDate = getNextDueDateTimeAfterToday(due, _repeat, frequencies.join(','));
-          _showMonthly(int.parse(document.documentID.hashCode.toString() + "5" + frequencies[i].toString().padLeft(2, '0')), title, description, due, notificationDate);
+    } else if (_repeat == 5) {
+      for (int i = 0; i < frequencies.length; i++) {
+        DateTime notificationDate =
+            getNextDueDateTimeAfterToday(due, _repeat, frequencies.join(','));
+        _showMonthly(
+            int.parse(document.documentID.hashCode.toString() +
+                "5" +
+                frequencies[i].toString().padLeft(2, '0')),
+            title,
+            description,
+            due,
+            notificationDate);
       }
     }
   }
 
-  List<PendingNotificationRequest> _getRemovedTaskFrequencyNotifications(List<PendingNotificationRequest> taskNotifications, String frequency) {
+  List<PendingNotificationRequest> _getRemovedTaskFrequencyNotifications(
+      List<PendingNotificationRequest> taskNotifications, String frequency) {
     Set<int> documentFrequencies = frequency.split(',').map(int.parse).toSet();
-    List<PendingNotificationRequest> deletedNotificationFrequencies = new List();
+    List<PendingNotificationRequest> deletedNotificationFrequencies =
+        new List();
 
-    for(var notification in taskNotifications) {
-      
+    for (var notification in taskNotifications) {
       String id = _getNotificationPayloadValue(notification, 'id');
       int nFreq = int.parse(id.substring(id.length - 2));
-      if(!documentFrequencies.contains(nFreq)) {
+      if (!documentFrequencies.contains(nFreq)) {
         deletedNotificationFrequencies.add(notification);
       }
-      
     }
 
     return deletedNotificationFrequencies;
-    
   }
 
-  List<int> _getAddedTaskFrequencyNotifications(List<PendingNotificationRequest> taskNotifications, String frequency) {
+  List<int> _getAddedTaskFrequencyNotifications(
+      List<PendingNotificationRequest> taskNotifications, String frequency) {
     Set<int> documentFrequencies = frequency.split(',').map(int.parse).toSet();
     Set<int> notificationFrequencies = new Set();
-    for(var notification in taskNotifications) {
+    for (var notification in taskNotifications) {
       String id = _getNotificationPayloadValue(notification, 'id');
       int freq = int.parse(id.substring(id.length - 2));
       notificationFrequencies.add(freq);
     }
 
-    Set<int> addedFrequencies = documentFrequencies.difference(notificationFrequencies);
+    Set<int> addedFrequencies =
+        documentFrequencies.difference(notificationFrequencies);
 
     return addedFrequencies.toList();
-    
   }
 
-  void _cancelNotificationsForTask(List<PendingNotificationRequest> taskNotifications) {
-    for(var notification in taskNotifications) {
+  void _cancelNotificationsForTask(
+      List<PendingNotificationRequest> taskNotifications) {
+    for (var notification in taskNotifications) {
       flutterLocalNotificationsPlugin.cancel(notification.id);
     }
   }
 
-  bool _checkIfDueDateOrRepeatModified(var document, PendingNotificationRequest taskNotification) {
+  bool _checkIfDueDateOrRepeatModified(
+      var document, PendingNotificationRequest taskNotification) {
     int _repeat = document['repeat'];
     DateTime documentDue = document['due'].toDate();
-    
-    DateTime d = DateTime.fromMillisecondsSinceEpoch(int.parse(_getNotificationPayloadValue(taskNotification, 'due')));
+
+    DateTime d = DateTime.fromMillisecondsSinceEpoch(
+        int.parse(_getNotificationPayloadValue(taskNotification, 'due')));
     String id = _getNotificationPayloadValue(taskNotification, 'id');
     int taskRepeat = int.parse(id[id.length - 3]);
-    
 
-    if(_repeat == 3 || _repeat == 5) {
-      if(documentDue.hour == d.hour && documentDue.minute == d.minute && _repeat == taskRepeat) {
+    if (_repeat == 3 || _repeat == 5) {
+      if (documentDue.hour == d.hour &&
+          documentDue.minute == d.minute &&
+          _repeat == taskRepeat) {
         return false;
-      }
-      else {
+      } else {
         return true;
       }
-    }
-    else {
-      if(d.compareTo(documentDue) == 0 && _repeat == taskRepeat) {
+    } else {
+      if (d.compareTo(documentDue) == 0 && _repeat == taskRepeat) {
         return false;
-      }
-      else {
+      } else {
         return true;
       }
     }
@@ -1546,80 +1697,118 @@ class TaskListState extends State<TaskList> {
     DateTime due = (document['due'] as Timestamp).toDate();
     debugPrint('hello');
     List<int> frequency = [];
-    if(_repeat == 3 || _repeat == 5)
-      frequency = document['frequency'].toString().split(',').map(int.parse).toList();
-    String description = "You have a task due at ${due.hour}:${due.minute}. Please check it.";
+    if (_repeat == 3 || _repeat == 5)
+      frequency =
+          document['frequency'].toString().split(',').map(int.parse).toList();
+    String description =
+        "You have a task due at ${due.hour}:${due.minute}. Please check it.";
 
-    switch(_repeat) {
-      case -1:{ 
-        _schedule(int.parse(document.documentID.hashCode.toString() + "900"), title, description, due);
-        break;
-      }
-      case 0: {
-        _showDaily(int.parse(document.documentID.hashCode.toString() + "100"), title, description, due);
-        break;
-      }
-      case 2: {
-        _showWeekly(int.parse(document.documentID.hashCode.toString() + "200"), title, description, due, due.weekday);
-        break;
-      }
-      case 3: {
-        for(int i = 0; i < frequency.length; i++) {
-          _showWeekly(int.parse(document.documentID.hashCode.toString() + "3" + frequency[i].toString().padLeft(2, '0')), title, description, due, frequency[i]);
+    switch (_repeat) {
+      case -1:
+        {
+          _schedule(int.parse(document.documentID.hashCode.toString() + "900"),
+              title, description, due);
+          break;
         }
-        break;
-      }
-      case 4: {
-        DateTime notificationDate = getNextDueDateTimeAfterToday(due, 4, '');
-
-        _showMonthly(int.parse(document.documentID.hashCode.toString() + "400"), title, description, due, notificationDate);
-        break;
-      }
-      case 5: {
-        for(int i = 0; i < frequency.length; i++) {
-          DateTime notificationDate = getNextDueDateTimeAfterToday(new DateTime(due.year, due.month, frequency[i], due.hour, due.minute), 4, '');
-
-          _showMonthly(int.parse(document.documentID.hashCode.toString() + "5" + frequency[i].toString().padLeft(2, '0')), title, description, due, notificationDate);
+      case 0:
+        {
+          _showDaily(int.parse(document.documentID.hashCode.toString() + "100"),
+              title, description, due);
+          break;
         }
-        break;
-      }
+      case 2:
+        {
+          _showWeekly(
+              int.parse(document.documentID.hashCode.toString() + "200"),
+              title,
+              description,
+              due,
+              due.weekday);
+          break;
+        }
+      case 3:
+        {
+          for (int i = 0; i < frequency.length; i++) {
+            _showWeekly(
+                int.parse(document.documentID.hashCode.toString() +
+                    "3" +
+                    frequency[i].toString().padLeft(2, '0')),
+                title,
+                description,
+                due,
+                frequency[i]);
+          }
+          break;
+        }
+      case 4:
+        {
+          DateTime notificationDate = getNextDueDateTimeAfterToday(due, 4, '');
+
+          _showMonthly(
+              int.parse(document.documentID.hashCode.toString() + "400"),
+              title,
+              description,
+              due,
+              notificationDate);
+          break;
+        }
+      case 5:
+        {
+          for (int i = 0; i < frequency.length; i++) {
+            DateTime notificationDate = getNextDueDateTimeAfterToday(
+                new DateTime(
+                    due.year, due.month, frequency[i], due.hour, due.minute),
+                4,
+                '');
+
+            _showMonthly(
+                int.parse(document.documentID.hashCode.toString() +
+                    "5" +
+                    frequency[i].toString().padLeft(2, '0')),
+                title,
+                description,
+                due,
+                notificationDate);
+          }
+          break;
+        }
     }
   }
 
-  List<PendingNotificationRequest> _getNotificationsForDocument(String id, List<PendingNotificationRequest> pendingNotifications) {
+  List<PendingNotificationRequest> _getNotificationsForDocument(
+      String id, List<PendingNotificationRequest> pendingNotifications) {
     List<PendingNotificationRequest> notificationsForTasks = new List();
     for (var pendingNotificationRequest in pendingNotifications) {
-            if(_getNotificationPayloadValue(pendingNotificationRequest, 'id').contains(id)) {
-                notificationsForTasks.add(pendingNotificationRequest);
-            }
-          
-        
+      if (_getNotificationPayloadValue(pendingNotificationRequest, 'id')
+          .contains(id)) {
+        notificationsForTasks.add(pendingNotificationRequest);
       }
+    }
     return notificationsForTasks;
   }
 
   void handleNotifications(var documents) async {
-     List<PendingNotificationRequest> pendingNotifications = await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-   /* debugPrint(pendingNotifications.length.toString());
+    List<PendingNotificationRequest> pendingNotifications =
+        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    /* debugPrint(pendingNotifications.length.toString());
     for (var pendingNotificationRequest in pendingNotifications) {
     flutterLocalNotificationsPlugin.cancel(pendingNotificationRequest.id);            
           
         
       }*/
-     
+
     await _removeIfTaskNotPresent(documents);
     await _addOrModifyNotificationsForNewTasks(documents);
 
-    pendingNotifications = await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    pendingNotifications =
+        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
     debugPrint(pendingNotifications.length.toString());
     for (var pendingNotificationRequest in pendingNotifications) {
-                debugPrint('notification == ' + pendingNotificationRequest.title + ' due = ' + pendingNotificationRequest.body.toString());
-            
-          
-        
-      }
-
-   
+      debugPrint('notification == ' +
+          pendingNotificationRequest.title +
+          ' due = ' +
+          pendingNotificationRequest.body.toString());
+    }
   }
 }
 
@@ -1701,5 +1890,4 @@ class _FilterSheet extends State<FilterSheet> {
       ),
     );
   }
-
 }

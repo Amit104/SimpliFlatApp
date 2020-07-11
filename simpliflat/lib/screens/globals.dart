@@ -12,6 +12,7 @@ String isSyncedNote = 'isSyncedNote';
 String notificationToken = "notificationToken";
 String flatName = "flatName";
 String landlordId = "landlordId";
+String landlordName = "landlordName";
 
 //collection names
 
@@ -27,6 +28,9 @@ String landlord = "landlord";
 
 String messageBoard = "messageboard";
 String documentManager = "documentmanager";
+
+String landlordIdValue;
+String landlordNameValue;
 
 String lists="lists";
 String listItems="items";

@@ -17,7 +17,7 @@ class Utility {
   }
 
   static void addToSharedPref(
-      {userName: 'null', userPhone: '',userId: 'null', flatId: 'null', displayId: 'null', notificationToken: 'null', flatName: 'null', landlordId: 'null'}) async {
+      {userName: 'null', userPhone: '',userId: 'null', flatId: 'null', displayId: 'null', notificationToken: 'null', flatName: 'null', landlordId: 'null', landlordName: 'null'}) async {
     final prefs = await SharedPreferences.getInstance();
     if (userName != 'null')
       await prefs.setString(globals.userName, userName.toString());
@@ -35,6 +35,8 @@ class Utility {
       await prefs.setString(globals.flatName, flatName);
     if (landlordId != 'null')
       await prefs.setString(globals.landlordId, landlordId);
+    if (landlordName != 'null')
+      await prefs.setString(globals.landlordName, landlordName);
   }
 
   static Future<String> getUserName() async {
@@ -83,10 +85,17 @@ class Utility {
     return await prefs.get(globals.landlordId);
   }
 
+  static Future<String> getLandlordName() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Try reading data from the counter key. If it does not exist, return 0.
+    return await prefs.get(globals.landlordName);
+  }
+
   static removeLandlordId() async {
     final prefs = await SharedPreferences.getInstance();
     // Try reading data from the counter key. If it does not exist, return 0.
     await prefs.remove(globals.landlordId);
+    await prefs.remove(globals.landlordName);
   }
 
 

@@ -437,7 +437,7 @@ class DashboardState extends State<Dashboard> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return ViewTask(taskId, flatId);
+        return ViewTask(taskId, flatId, false);
       }),
     );
   }
@@ -573,12 +573,12 @@ class DashboardState extends State<Dashboard> {
 
 
   void navigateToAddTask({taskId}) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) {
-        return CreateTask(taskId, flatId);
-      }),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) {
+    //     return CreateTask(taskId, flatId);
+    //   }),
+    // );
   }
 
 }

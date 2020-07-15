@@ -214,7 +214,7 @@ exports.createList =
 // flatContacts  Notifications
 //////////////////////////////////////////////////////////////////////////////////////////
 
-exports.createList = 
+exports.createFlatContacts = 
     functions
     .firestore
     .document('flat/{flat_id}/flatContacts/{id}')
@@ -266,7 +266,7 @@ exports.createList =
 // messageboard Notifications (landlord related)
 //////////////////////////////////////////////////////////////////////////////////////////
 
-exports.createList = 
+exports.createMessageBoard = 
     functions
     .firestore
     .document('flat/{flat_id}/messageboard/{id}')
@@ -340,7 +340,7 @@ exports.createList =
 // documentmanager Notifications (landlord related)
 //////////////////////////////////////////////////////////////////////////////////////////
 
-exports.createList = 
+exports.createDocumentManager = 
     functions
     .firestore
     .document('flat/{flat_id}/documentmanager/{id}')
@@ -414,7 +414,7 @@ exports.createList =
 // joinflat Notifications
 //////////////////////////////////////////////////////////////////////////////////////////
 
-exports.createList = 
+exports.joinFlat = 
     functions
     .firestore
     .document('joinflat/{id}')
@@ -475,7 +475,7 @@ exports.createList =
 // joinflat_landlord Notifications (landlord related)
 //////////////////////////////////////////////////////////////////////////////////////////
 
-exports.createList = 
+exports.joinFlatLandlord = 
     functions
     .firestore
     .document('joinflat_landlord/{id}')
@@ -531,10 +531,10 @@ exports.createList =
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Tasks  Notifications
+// Tasks  Notifications (landlord related) 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-exports.createTask = 
+exports.createLandlordTask = 
     functions
     .firestore
     .document('flat/{flat_id}/tasks_{landlordId}/{id}')
@@ -592,14 +592,14 @@ exports.createTask =
                 }
             }
             return admin.messaging().sendToDevice(tokens,payload).then((response) => {
-                console.log("Tasks notification pushed [TYPE] onCreate [DOCUMENT] /flat/" + context.params.flat_id + "/tasks_" + context.params.landlordId + "/" + context.params.id);
+                console.log("Landlord-Tenant Tasks notification pushed [TYPE] onCreate [DOCUMENT] /flat/" + context.params.flat_id + "/tasks_" + context.params.landlordId + "/" + context.params.id);
             }).catch((err) => {
                 console.error(err);
             });
         }  
 });
 
-exports.updateTask = 
+exports.updateLandlordTask = 
     functions
     .firestore
     .document('flat/{flat_id}/tasks_{landlordId}/{id}')
@@ -653,7 +653,7 @@ exports.updateTask =
                 }
             }
             return admin.messaging().sendToDevice(tokens,payload).then((response) => {
-                console.log("Tasks notification pushed [TYPE] onCreate [DOCUMENT] /flat/" + context.params.flat_id + "/tasks_" + context.params.landlordId + "/" + context.params.id);
+                console.log("Landlord-Tenant Tasks notification pushed [TYPE] onCreate [DOCUMENT] /flat/" + context.params.flat_id + "/tasks_" + context.params.landlordId + "/" + context.params.id);
             }).catch((err) => {
                 console.error(err);
             });

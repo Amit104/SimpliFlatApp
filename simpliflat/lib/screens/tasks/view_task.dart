@@ -4,6 +4,7 @@ import 'package:simpliflat/screens/Res/strings.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:simpliflat/screens/models/models.dart';
 import 'package:simpliflat/screens/tasks/create_task.dart';
+import 'package:simpliflat/screens/tasks/pay_now.dart';
 import 'package:simpliflat/screens/tasks/taskHistory.dart';
 import 'package:simpliflat/screens/utility.dart';
 import 'package:simpliflat/screens/widgets/common.dart';
@@ -440,6 +441,36 @@ class _ViewTask extends State<ViewTask> {
                     fontSize: 13.0,
                     fontFamily: 'Montserrat',
                   )),
+            ),
+          ),
+          Opacity(
+            opacity: 0.6,
+            child: Container(
+              height: 52.0,
+              width: MediaQuery.of(_navigatorContext).size.width * 0.95,
+              padding: const EdgeInsets.only(top: 1.0, right: 1.0, left: 10.0),
+              child: RaisedButton(
+                padding: EdgeInsets.symmetric(vertical: 15.0),
+                color: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                child: Text(
+                  "Pay Now",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                      fontFamily: 'Montserrat'),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) {
+                      return PayNow(taskId, _flatId, payee, paymentAmount.toString());
+                    }),
+                  );
+                },
+              ),
             ),
           ),
         ]));

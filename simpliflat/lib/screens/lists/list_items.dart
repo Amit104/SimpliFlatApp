@@ -37,16 +37,20 @@ class ListItemsState extends State<ListItems> {
   void initState() {
     super.initState();
     var tempList = listReference['items'] ?? new List();
-    _items = new List<String>.from(tempList);
+    _items = new List<Map>.from(tempList);
   }
 
   TextEditingController inputController = new TextEditingController();
+
   void _addItem() {
     String item = inputController.text;
     if (item.length > 0 && item.length < 100) {
       setState(() {
-        if(_items== null) _items = new List();
-        _items.add(item.trim());
+        if (_items == null) _items = new List();
+        Map m = new Map();
+        m['item'] = item.trim();
+        m['completed'] = false;
+        _items.insert(0, m);
         _suggestions.add(item.trim());
         inputController.text = "";
       });
@@ -56,7 +60,7 @@ class ListItemsState extends State<ListItems> {
           .collection(globals.lists)
           .document(listReference.documentID)
           .updateData({'items': _items});
-    } else if  (item.length >= 100) {
+    } else if (item.length >= 100) {
       Utility.createErrorSnackBar(_navigatorContext, error: "Tooo Long!");
     }
   }
@@ -142,12 +146,14 @@ class ListItemsState extends State<ListItems> {
                         },
                         transitionBuilder:
                             (context, suggestionsBox, animationController) =>
-                        suggestionsBox, // no animation
+                                suggestionsBox,
+                        // no animation
                         onSuggestionSelected: (suggestion) {
                           inputController.text = suggestion;
                           _addItem();
                           if (!_keyboardFocusNode.hasFocus) {
-                            FocusScope.of(context).requestFocus(_keyboardFocusNode);
+                            FocusScope.of(context)
+                                .requestFocus(_keyboardFocusNode);
                           }
                         },
                       ))),
@@ -158,26 +164,29 @@ class ListItemsState extends State<ListItems> {
     );
   }
 
+  void reorderList(var oldIndex, var newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      setState(() {
+        final item = _items.removeAt(oldIndex);
+        _items.insert(newIndex, item);
+      });
+      Firestore.instance
+          .collection(globals.flat)
+          .document(flatId)
+          .collection(globals.lists)
+          .document(listReference.documentID)
+          .updateData({'items': _items});
+    });
+  }
+
   Widget getListItems() {
-    if (_items == null || _items.length == 0)
-      return Container();
+    if (_items == null || _items.length == 0) return Container();
     return ReorderableListView(
       onReorder: (int oldIndex, int newIndex) {
-        setState(() {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
-          setState(() {
-            final item = _items.removeAt(oldIndex);
-            _items.insert(newIndex, item);
-          });
-          Firestore.instance
-              .collection(globals.flat)
-              .document(flatId)
-              .collection(globals.lists)
-              .document(listReference.documentID)
-              .updateData({'items': _items});
-        });
+        reorderList(oldIndex, newIndex);
       },
       scrollDirection: Axis.vertical,
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -281,14 +290,25 @@ class ListItemsState extends State<ListItems> {
               ),
             ],
             child: ListTile(
-              title: Text(listitem.toString().trim(),
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: 'Montserrat',
-                    color: Colors.black,
-                  )),
+              title: Text(
+                listitem['item'].toString().trim(),
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontFamily: 'Montserrat',
+                  color: listitem['completed'] ? Colors.black54 : Colors.black,
+                  decoration: listitem['completed'] ? TextDecoration.lineThrough : null
+                ),
+              ),
               leading: const Icon(Icons.drag_handle),
-              trailing: Icon(Icons.check_circle_outline),
+              trailing: GestureDetector(
+                child: listitem['completed'] ? Icon(Icons.check_circle, color: Colors.indigo,) : Icon(Icons.check_circle_outline),
+                onTap: () {
+                  listitem['completed'] = !listitem['completed'];
+                  var newIndex = listitem['completed'] ? _items.length : 0;
+                  var oldIndex = index;
+                  reorderList(oldIndex, newIndex);
+                },
+              ),
               onTap: () {},
             ),
           ),

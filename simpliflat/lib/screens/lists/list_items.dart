@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:simpliflat/screens/widgets/loading_container.dart';
-import 'add_list_item.dart';
+import 'package:simpliflat/screens/lists/suggestions.dart';
+import '../utility.dart';
 
 class ListItems extends StatefulWidget {
   final flatId;
@@ -27,6 +28,9 @@ class ListItemsState extends State<ListItems> {
   final listReference;
   List _items;
 
+  FocusNode _keyboardFocusNode = FocusNode();
+  Suggestions _suggestions = Suggestions();
+
   ListItemsState(this.listReference, this.flatId);
 
   @override
@@ -34,6 +38,27 @@ class ListItemsState extends State<ListItems> {
     super.initState();
     var tempList = listReference['items'] ?? new List();
     _items = new List<String>.from(tempList);
+  }
+
+  TextEditingController inputController = new TextEditingController();
+  void _addItem() {
+    String item = inputController.text;
+    if (item.length > 0 && item.length < 100) {
+      setState(() {
+        if(_items== null) _items = new List();
+        _items.add(item.trim());
+        _suggestions.add(item.trim());
+        inputController.text = "";
+      });
+      Firestore.instance
+          .collection(globals.flat)
+          .document(flatId)
+          .collection(globals.lists)
+          .document(listReference.documentID)
+          .updateData({'items': _items});
+    } else if  (item.length >= 100) {
+      Utility.createErrorSnackBar(_navigatorContext, error: "Tooo Long!");
+    }
   }
 
   @override
@@ -48,7 +73,7 @@ class ListItemsState extends State<ListItems> {
           title: Text(listReference['title'].toString().trim()),
           elevation: 0.0,
           centerTitle: true,
-          actions: <Widget>[
+          /*actions: <Widget>[
             IconButton(
               icon: Icon(Icons.add_circle),
               onPressed: () async {
@@ -60,15 +85,72 @@ class ListItemsState extends State<ListItems> {
                 if (res != null && res != "") _items = res;
               },
             ),
-          ],
+          ],*/
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _addItem,
+          child: Icon(Icons.add),
         ),
         body: Builder(builder: (BuildContext scaffoldC) {
           _navigatorContext = scaffoldC;
-          return Column(
+          return Stack(
             children: <Widget>[
-              Expanded(
+              Container(
                 child: getListItems(),
+                padding: EdgeInsets.only(bottom: 60),
               ),
+              Positioned(
+                  bottom: 0.0,
+                  width: MediaQuery.of(context).size.width, // width 100%
+                  child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: const Color(0x80000000),
+                            offset: Offset(0.0, 6.0),
+                            blurRadius: 20.0,
+                          ),
+                        ],
+                      ),
+                      child: TypeAheadField(
+                        textFieldConfiguration: TextFieldConfiguration(
+                          controller: inputController,
+                          textCapitalization: TextCapitalization.sentences,
+                          onSubmitted: (dynamic x) => _addItem(),
+                          autofocus: false,
+                          focusNode: _keyboardFocusNode,
+                          decoration: InputDecoration(
+                            hintText: "New Item..",
+                            contentPadding: EdgeInsets.all(20),
+                          ),
+                        ),
+                        direction: AxisDirection.up,
+                        hideOnEmpty: true,
+                        suggestionsCallback: (pattern) {
+                          if (pattern.length > 0) {
+                            return _suggestions.get(pattern);
+                          } else {
+                            return [];
+                          }
+                        },
+                        debounceDuration: Duration(milliseconds: 100),
+                        itemBuilder: (context, suggestion) {
+                          return ListTile(
+                            title: Text(suggestion),
+                          );
+                        },
+                        transitionBuilder:
+                            (context, suggestionsBox, animationController) =>
+                        suggestionsBox, // no animation
+                        onSuggestionSelected: (suggestion) {
+                          inputController.text = suggestion;
+                          _addItem();
+                          if (!_keyboardFocusNode.hasFocus) {
+                            FocusScope.of(context).requestFocus(_keyboardFocusNode);
+                          }
+                        },
+                      ))),
             ],
           );
         }),
@@ -78,7 +160,7 @@ class ListItemsState extends State<ListItems> {
 
   Widget getListItems() {
     if (_items == null || _items.length == 0)
-      return LoadingContainerVertical(3);
+      return Container();
     return ReorderableListView(
       onReorder: (int oldIndex, int newIndex) {
         setState(() {
@@ -201,11 +283,12 @@ class ListItemsState extends State<ListItems> {
             child: ListTile(
               title: Text(listitem.toString().trim(),
                   style: TextStyle(
-                    fontSize: 14.0,
+                    fontSize: 18.0,
                     fontFamily: 'Montserrat',
                     color: Colors.black,
                   )),
               leading: const Icon(Icons.drag_handle),
+              trailing: Icon(Icons.check_circle_outline),
               onTap: () {},
             ),
           ),

@@ -146,14 +146,15 @@ class ShoppingListsState extends State<ShoppingLists> {
               ),
             ],
             child: ListTile(
+              leading: Icon(Icons.arrow_right, color: Colors.green,),
               title: Text(list['title'].toString().trim(),
                   style: TextStyle(
-                    fontSize: 14.0,
+                    fontSize: 18.0,
                     fontFamily: 'Montserrat',
                     color: Colors.black,
                   )),
               trailing: GestureDetector(
-                child: Icon(Icons.edit),
+                child: Icon(Icons.edit, color: Colors.black,),
                 onTap: () {
                   setState(() {
                     listController.text = list['title'].toString().trim();

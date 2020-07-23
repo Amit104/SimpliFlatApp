@@ -37,6 +37,7 @@ dependencies:
   fab_circular_menu: ^0.1.5
   table_calendar: ^2.2.3
   upi_pay: ^0.2.0
+  flutter_typeahead: ^1.8.6
 
 dev_dependencies:
   flutter_test:

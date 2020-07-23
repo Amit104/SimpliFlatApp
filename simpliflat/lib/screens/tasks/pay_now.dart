@@ -145,7 +145,7 @@ class _PayNow extends State<PayNow> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(top: 128, bottom: 32),
+                  margin: EdgeInsets.only(top: 65, bottom: 32),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -174,7 +174,7 @@ class _PayNow extends State<PayNow> {
                             children: snapshot.data
                                 .map((it) => Material(
                                       key: ObjectKey(it.upiApplication),
-                                      color: Colors.grey[200],
+                                      color: Colors.white,
                                       child: InkWell(
                                         onTap: () => _onTap(it),
                                         child: Column(
@@ -184,13 +184,17 @@ class _PayNow extends State<PayNow> {
                                           children: <Widget>[
                                             Image.memory(
                                               it.icon,
-                                              width: 64,
-                                              height: 64,
+                                              width: 45,
+                                              height: 45,
                                             ),
                                             Container(
-                                              margin: EdgeInsets.only(top: 4),
+                                              margin: EdgeInsets.only(top: 8),
                                               child: Text(
                                                 it.upiApplication.getAppName(),
+                                                  style: TextStyle(
+                                                      fontSize: 18.0,
+                                                      fontFamily: 'Montserrat',
+                                                      color: Colors.black),
                                               ),
                                             ),
                                           ],

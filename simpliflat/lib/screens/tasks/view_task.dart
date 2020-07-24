@@ -46,6 +46,7 @@ class _ViewTask extends State<ViewTask> {
   String collectionname;
   String listTitle = 'Loading..';
   DocumentReference listRef;
+  var list;
 
   Map<int, String> repeatMsgs = {
     -1: 'Occur Once',
@@ -269,13 +270,12 @@ class _ViewTask extends State<ViewTask> {
   }
 
   Widget _getAttachList(listRef) {
-    var list;
     if (listRef != null) {
       listRef.get().then((listData) {
         setState(() {
           if (listData != null && listData.data != null) {
-            listTitle = listData.data['title'].toString().trim();
             list = listData;
+            listTitle = listData.data['title'].toString().trim();
           } else {
             listTitle = "@@##error##@@";
           }
@@ -296,7 +296,7 @@ class _ViewTask extends State<ViewTask> {
       InkWell(
         splashColor: Colors.indigo[100],
         onTap: () {
-          if (list != null) {
+          if (list != null && list.data!=null) {
             Navigator.push(
               _navigatorContext,
               MaterialPageRoute(builder: (context) {

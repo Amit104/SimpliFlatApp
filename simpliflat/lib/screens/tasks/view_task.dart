@@ -6,6 +6,7 @@ import 'package:simpliflat/screens/lists/list_items.dart';
 import 'package:simpliflat/screens/models/models.dart';
 import 'package:simpliflat/screens/tasks/create_task.dart';
 import 'package:simpliflat/screens/tasks/pay_now.dart';
+import 'package:simpliflat/screens/tasks/paymentHistory.dart';
 import 'package:simpliflat/screens/tasks/taskHistory.dart';
 import 'package:simpliflat/screens/utility.dart';
 import 'package:simpliflat/screens/widgets/common.dart';
@@ -429,20 +430,52 @@ class _ViewTask extends State<ViewTask> {
   }
 
   Widget _getHistoryButton() {
-    return RaisedButton(
-      padding: EdgeInsets.symmetric(vertical: 15.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0.0),
-      ),
-      color: Colors.grey[300],
-      child: Text(
-        "History",
-        style: TextStyle(
-            color: Colors.black, fontSize: 18.0, fontFamily: 'Montserrat'),
-      ),
-      onPressed: () {
-        _navigateToTaskHistory(taskId, _flatId);
-      },
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Expanded(
+          child: RaisedButton(
+            padding: EdgeInsets.all(15.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0.0),
+            ),
+            color: Colors.grey[300],
+            child: Text(
+              "History",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                  fontFamily: 'Montserrat'),
+            ),
+            onPressed: () {
+              _navigateToTaskHistory(taskId, _flatId);
+            },
+          ),
+        ),
+        Container(
+          width: 5.0,
+        ),
+        Expanded(
+          child: RaisedButton(
+            padding: EdgeInsets.all(15.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0.0),
+            ),
+            color: Colors.grey[300],
+            child: Text(
+              "Payment History",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                  fontFamily: 'Montserrat'),
+            ),
+            onPressed: () {
+              _navigateToPayHistory(taskId, _flatId);
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -580,6 +613,15 @@ class _ViewTask extends State<ViewTask> {
       context,
       MaterialPageRoute(builder: (context) {
         return TaskHistory(taskId, _flatId, isTenantPortal);
+      }),
+    );
+  }
+
+  _navigateToPayHistory(taskId, flatId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return PaymentHistory(taskId, _flatId, isTenantPortal);
       }),
     );
   }

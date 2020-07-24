@@ -17,6 +17,7 @@ String landlordName = "landlordName";
 //collection names
 
 String taskHistory = "taskHistory";
+String paymentHistory = "paymentHistory";
 String noticeBoard = "noticeboard";
 String flat = "flat";
 String user = "user";

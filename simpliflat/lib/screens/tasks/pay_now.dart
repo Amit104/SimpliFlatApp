@@ -60,14 +60,38 @@ class _PayNow extends State<PayNow> {
     var amount = '';
     if (_amountController.text != null && _amountController.text != "" && double.tryParse(_amountController.text) != null) {
       amount = double.parse(_amountController.text).toStringAsFixed(2);
-      final a = await UpiPay.initiateTransaction(
+      final response = await UpiPay.initiateTransaction(
           amount: amount,
           app: app.upiApplication,
           receiverUpiAddress: _upiAddressController.text,
           transactionRef: transactionRef,
           receiverName: _upiAddressController.text.split('@')[0].toString()
       );
-      debugPrint(a.toString());
+      if(response.status == UpiTransactionStatus.success) {
+        Utility.createErrorSnackBar(_navigatorContext, error: "Payment successful!");
+        var _userId = await Utility.getUserId();
+        var _userName = await Utility.getUserName();
+        var payHistoryData = {
+          "created_at": DateTime.now(),
+          "completed_by": _userId,
+          "user_name": _userName,
+          "app" : app.upiApplication.toString(),
+          "amount": amount,
+          "receiverUpiAddress": _upiAddressController.text,
+          "rawResponse": response.rawResponse.toString()
+        };
+        Firestore.instance
+            .collection(globals.flat)
+            .document(_flatId)
+            .collection(globals.tasks)
+            .document(_taskId)
+            .collection(globals.paymentHistory)
+            .add(payHistoryData);
+        Navigator.pop(_navigatorContext, true);
+      } else {
+        Utility.createErrorSnackBar(_navigatorContext, error: "Payment failed!");
+      }
+      //debugPrint(a.status.toString() + " " + a.rawResponse.toString() + a.responseCode.toString() + " " + a.approvalRefNo.toString() + " " + a.txnRef.toString() + " " + a.txnId.toString());
     } else {
       Utility.createErrorSnackBar(_navigatorContext, error: "Invalid Amount!");
     }

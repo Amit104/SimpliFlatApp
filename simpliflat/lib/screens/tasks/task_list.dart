@@ -658,13 +658,10 @@ class TaskListState extends State<TaskList> {
                                       child: Tooltip(
                                         key: tooltipKey[position],
                                         decoration: BoxDecoration(
-                                            color: Colors.indigo[100]),
+                                            color: Colors.indigo),
                                         message: taskSnapshot.data
                                                         .documents[position]
-                                                    ["priority"] ==
-                                                0
-                                            ? 'Low Priority'
-                                            : 'High Priority',
+                                                    ["type"],
                                         child: IconButton(
                                           icon: Icon(
                                             (icons[taskSnapshot

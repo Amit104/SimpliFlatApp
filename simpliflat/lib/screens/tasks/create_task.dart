@@ -3,6 +3,7 @@ import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:simpliflat/screens/models/models.dart';
 import 'package:simpliflat/screens/utility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:simpliflat/screens/widgets/common.dart';
 import 'package:simpliflat/screens/widgets/loading_container.dart';
 import 'dart:core';
 import 'package:flutter/cupertino.dart';
@@ -90,6 +91,9 @@ class _CreateTask extends State<CreateTask> {
   bool showConflictsWarningSign = false;
 
   String collectionname;
+
+  DocumentReference listRef;
+  var listTitle = 'Loading...';
 
   _CreateTask(this.taskId, this._flatId, this.typeOfTask, this.isTenantPortal) {
     _isRemindMeOfIssueSelected = false;
@@ -237,6 +241,11 @@ class _CreateTask extends State<CreateTask> {
                               payeecontroller.text =
                                   _payee == null ? '' : _payee;
                               /** get payee ends */
+
+                              /** get list attachments **/
+                              listRef = snapshot.data['listRef'] != null
+                                  ? snapshot.data['listRef']
+                                  : null;
 
                               /** get next due date starts */
                               if (snapshot.data['nextDueDate'] != null)
@@ -435,6 +444,7 @@ class _CreateTask extends State<CreateTask> {
                       "payee": payeetext,
                       "nextDueDate": _nextNewDueDate,
                       "completed": false,
+                      "listRef": listRef
                     };
 
                     Firestore.instance
@@ -481,6 +491,7 @@ class _CreateTask extends State<CreateTask> {
                       "paymentAmount": paymentAmount,
                       "nextDueDate": _nextNewDueDate,
                       "payee": payeetext,
+                      "listRef": listRef
                     };
                     Firestore.instance
                         .collection(globals.flat)
@@ -789,13 +800,18 @@ class _CreateTask extends State<CreateTask> {
                               margin: EdgeInsets.only(right: 5.0),
                               child: Chip(
                                 labelPadding: EdgeInsets.all(5.0),
-                                shape: StadiumBorder(side: BorderSide(color: Colors.grey[400],width: 0.5)),
-                                backgroundColor: selectedUsers.contains(documentID)
-                                    ? Colors.grey[400]
-                                    : Colors.white,
+                                shape: StadiumBorder(
+                                    side: BorderSide(
+                                        color: Colors.grey[400], width: 0.5)),
+                                backgroundColor:
+                                    selectedUsers.contains(documentID)
+                                        ? Colors.grey[400]
+                                        : Colors.white,
                                 avatar: CircleAvatar(
-                                    backgroundColor:
-                                        Colors.primaries[documentID.toString().trim().hashCode % Colors.primaries.length], //: Colors.purple,
+                                    backgroundColor: Colors.primaries[
+                                        documentID.toString().trim().hashCode %
+                                            Colors.primaries.length],
+                                    //: Colors.purple,
                                     child: Text(
                                       getInitials(name),
                                     )),
@@ -993,6 +1009,152 @@ class _CreateTask extends State<CreateTask> {
             ),
           ),
         ]));
+  }
+
+  Widget _getAttachList() {
+    if (listRef != null) {
+      listRef.get().then((listData) {
+        setState(() {
+          if (listData != null && listData.data != null) {
+            listTitle = listData.data['title'].toString().trim();
+          } else {
+            listTitle = "@@##error##@@";
+          }
+        });
+      });
+    }
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      ListTile(
+        dense: true,
+        trailing: Icon(Icons.list, color: Colors.indigo),
+        title: Text('ATTACH LIST',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14.0,
+              fontFamily: 'Montserrat',
+            )),
+      ),
+      Container(
+          padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(width: 1.0, color: Colors.grey[300])),
+          child: ListTile(
+            dense: true,
+            leading:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(
+                Icons.attach_file,
+                color: Colors.black,
+              )
+            ]),
+            title: Text(
+              (listRef == null || listTitle == "@@##error##@@")
+                  ? 'Attach lists here'
+                  : listTitle,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                  fontFamily: 'Montserrat'),
+            ),
+            onTap: () async {
+              if (listRef == null || listTitle == "@@##error##@@") {
+                var selectedListRef = await showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text('Pick a list to attach'),
+                    content: Container(
+                      height:
+                          MediaQuery.of(_navigatorContext).size.height * .80,
+                      width: MediaQuery.of(_navigatorContext).size.width * .95,
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: Firestore.instance
+                            .collection(globals.flat)
+                            .document(_flatId)
+                            .collection(globals.lists)
+                            .snapshots(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          var lists = [];
+                          if (!snapshot.hasData)
+                            return LoadingContainerVertical(3);
+                          if (snapshot.data.documents.length == 0)
+                            return Container(
+                              child: CommonWidgets.textBox(
+                                  "You don't have any lists!", 22),
+                            );
+                          snapshot.data.documents.sort((a, b) =>
+                              b['created_at'].compareTo(a['created_at']));
+                          return ListView.builder(
+                              itemCount: snapshot.data.documents.length,
+                              itemBuilder:
+                                  (BuildContext context, int position) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                      right: 8.0, left: 8.0),
+                                  child: SizedBox(
+                                    width: MediaQuery.of(_navigatorContext)
+                                            .size
+                                            .width *
+                                        0.75,
+                                    child: Card(
+                                      color: Colors.white,
+                                      elevation: 1.0,
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.of(_navigatorContext).pop(
+                                              snapshot
+                                                  .data.documents[position]);
+                                        },
+                                        splashColor: Colors.indigo[100],
+                                        child: ListTile(
+                                          title: Text(
+                                            snapshot.data.documents[position]
+                                                ['title'],
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 15.0,
+                                              fontFamily: 'Montserrat',
+                                            ),
+                                          ),
+                                          leading: Icon(
+                                            Icons.arrow_right,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });
+                        },
+                      ),
+                    ),
+                  ),
+                );
+
+                if (selectedListRef != null) {
+                  setState(() {
+                    listRef = selectedListRef.reference;
+                    listTitle = selectedListRef['title'].toString().trim();
+                    debugPrint("title = " + listTitle);
+                  });
+                }
+              }
+            },
+            trailing: (listRef == null || listTitle == "@@##error##@@")
+                ? Icon(Icons.edit)
+                : GestureDetector(
+                    child: Icon(Icons.close),
+                    onTap: () {
+                      setState(() {
+                        listRef = null;
+                      });
+                    },
+                  ),
+          )),
+    ]);
   }
 
   Widget _getNotesWidget() {
@@ -1229,6 +1391,8 @@ class _CreateTask extends State<CreateTask> {
                   typeOfTask == 'Payment'
                       ? _getPaymentInfoWidget()
                       : Container(),
+                  SizedBox(height: 20.0),
+                  _getAttachList(),
                   SizedBox(height: 20.0),
                   _getNotesWidget(),
                 ],

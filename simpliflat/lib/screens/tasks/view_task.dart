@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simpliflat/screens/Res/strings.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
+import 'package:simpliflat/screens/lists/list_items.dart';
 import 'package:simpliflat/screens/models/models.dart';
 import 'package:simpliflat/screens/tasks/create_task.dart';
 import 'package:simpliflat/screens/tasks/pay_now.dart';
@@ -42,6 +43,8 @@ class _ViewTask extends State<ViewTask> {
   Set<String> selectedUsers = new Set();
   bool isTenantPortal;
   String collectionname;
+  String listTitle = 'Loading..';
+  DocumentReference listRef;
 
   Map<int, String> repeatMsgs = {
     -1: 'Occur Once',
@@ -91,6 +94,7 @@ class _ViewTask extends State<ViewTask> {
                         if (!snapshot.hasData)
                           return LoadingContainerVertical(1);
                         tc.text = taskId == null ? "" : snapshot.data['title'];
+                        listRef = snapshot.data['listRef'];
                         return Column(
                           children: <Widget>[
                             Expanded(child: buildView(snapshot.data)),
@@ -263,6 +267,71 @@ class _ViewTask extends State<ViewTask> {
     );
   }
 
+  Widget _getAttachList(listRef) {
+    var list;
+    if (listRef != null) {
+      listRef.get().then((listData) {
+        setState(() {
+          if (listData != null && listData.data != null) {
+            listTitle = listData.data['title'].toString().trim();
+            list = listData;
+          } else {
+            listTitle = "@@##error##@@";
+          }
+        });
+      });
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      ListTile(
+        dense: true,
+        trailing: Icon(Icons.list, color: Colors.indigo),
+        title: Text('ATTACHED LIST',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14.0,
+              fontFamily: 'Montserrat',
+            )),
+      ),
+      InkWell(
+        splashColor: Colors.indigo[100],
+        onTap: () {
+          if (list != null) {
+            Navigator.push(
+              _navigatorContext,
+              MaterialPageRoute(builder: (context) {
+                return ListItems(list.data, _flatId);
+              }),
+            );
+          }
+        },
+        child: Container(
+            padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(width: 1.0, color: Colors.grey[300])),
+            child: ListTile(
+              dense: true,
+              leading: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.attach_file,
+                      color: Colors.black,
+                    )
+                  ]),
+              title: Text(
+                listTitle,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14.0,
+                    fontFamily: 'Montserrat'),
+              ),
+              trailing: Icon(Icons.arrow_right),
+            )),
+      ),
+    ]);
+  }
+
   Widget _getNotesWidget(String notes) {
     return Container(
       padding: EdgeInsets.all(5.0),
@@ -337,6 +406,12 @@ class _ViewTask extends State<ViewTask> {
               : Container(),
           SizedBox(height: 30.0),
           _getAssigneesLayout('Assigned To', data['assignee']),
+          listRef != null && listTitle != "@@##error##@@"
+              ? SizedBox(height: 20.0)
+              : Container(),
+          listRef != null && listTitle != "@@##error##@@"
+              ? _getAttachList(listRef)
+              : Container(),
           SizedBox(height: 20.0),
           _getNotesWidget(data['notes']),
           SizedBox(height: 20.0),
@@ -466,7 +541,8 @@ class _ViewTask extends State<ViewTask> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) {
-                      return PayNow(taskId, _flatId, payee, paymentAmount.toString());
+                      return PayNow(
+                          taskId, _flatId, payee, paymentAmount.toString());
                     }),
                   );
                 },

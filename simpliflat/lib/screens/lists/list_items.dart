@@ -44,6 +44,12 @@ class ListItemsState extends State<ListItems> {
 
   void _addItem() {
     String item = inputController.text;
+
+    if(_items.length > 200) {
+      Utility.createErrorSnackBar(_navigatorContext, error: "List limit of 200 reached. Please delete some items!");
+      return;
+    }
+
     if (item.length > 0 && item.length < 100) {
       setState(() {
         if (_items == null) _items = new List();
@@ -91,9 +97,12 @@ class ListItemsState extends State<ListItems> {
             ),
           ],*/
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _addItem,
-          child: Icon(Icons.add),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: FloatingActionButton(
+            onPressed: _addItem,
+            child: Icon(Icons.add),
+          ),
         ),
         body: Builder(builder: (BuildContext scaffoldC) {
           _navigatorContext = scaffoldC;
@@ -293,15 +302,22 @@ class ListItemsState extends State<ListItems> {
               title: Text(
                 listitem['item'].toString().trim(),
                 style: TextStyle(
-                  fontSize: 18.0,
-                  fontFamily: 'Montserrat',
-                  color: listitem['completed'] ? Colors.black54 : Colors.black,
-                  decoration: listitem['completed'] ? TextDecoration.lineThrough : null
-                ),
+                    fontSize: 18.0,
+                    fontFamily: 'Montserrat',
+                    color:
+                        listitem['completed'] ? Colors.black54 : Colors.black,
+                    decoration: listitem['completed']
+                        ? TextDecoration.lineThrough
+                        : null),
               ),
               leading: const Icon(Icons.drag_handle),
               trailing: GestureDetector(
-                child: listitem['completed'] ? Icon(Icons.check_circle, color: Colors.indigo,) : Icon(Icons.check_circle_outline),
+                child: listitem['completed']
+                    ? Icon(
+                        Icons.check_circle,
+                        color: Colors.indigo,
+                      )
+                    : Icon(Icons.check_circle_outline),
                 onTap: () {
                   listitem['completed'] = !listitem['completed'];
                   var newIndex = listitem['completed'] ? _items.length : 0;

@@ -28,7 +28,7 @@ class _TaskHistory extends State<TaskHistory> {
 
   _TaskHistory(this.taskId, this._flatId, this.isTenantPortal) {
     collectionname = isTenantPortal
-        ? 'tasks_' + globals.landlordIdValue
+        ? 'tasks_landlord'
         : collectionname = 'tasks';
   }
 

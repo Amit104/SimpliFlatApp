@@ -298,6 +298,13 @@ class _Home extends State<Home> {
           debugPrint("online empty landlord ");
           Utility.removeLandlordId();
         }
+        String apartmentName = flat.data['apartment_name'];
+        String apartmentNumber = flat.data['apartment_number'];
+        String zipcode = flat.data['zipcode'];
+        Utility.addToSharedPref(
+            apartmentName: apartmentName,
+            apartmentNumber: apartmentNumber,
+            zipcode: zipcode);
       });
     } catch (e) {}
   }

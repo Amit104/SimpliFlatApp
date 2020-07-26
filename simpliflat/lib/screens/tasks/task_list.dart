@@ -176,9 +176,8 @@ class TaskListState extends State<TaskList> {
   final flatId;
 
   TaskListState(this.flatId, this.isTenantPortal) {
-    collectionname = isTenantPortal
-        ? 'tasks_' + globals.landlordIdValue
-        : collectionname = 'tasks';
+    collectionname =
+        isTenantPortal ? 'tasks_landlord' : collectionname = 'tasks';
   }
 
   Future<void> onSelectNotification(String payload) async {
@@ -298,6 +297,19 @@ class TaskListState extends State<TaskList> {
     );
   }
 
+  Stream<QuerySnapshot> getTasksStream(bool isCompleted) {
+    Query q = Firestore.instance
+        .collection(globals.flat)
+        .document(flatId)
+        .collection(collectionname)
+        .where("completed", isEqualTo: isCompleted);
+
+    if (isTenantPortal) {
+      q = q.where("landlord_id", isEqualTo: globals.landlordIdValue);
+    }
+    return q.snapshots();
+  }
+
   Widget getTaskListView(bool isCompleted) {
     return StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
@@ -307,12 +319,7 @@ class TaskListState extends State<TaskList> {
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot1) {
           if (!snapshot1.hasData) return LoadingContainerVertical(7);
           return StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance
-                  .collection(globals.flat)
-                  .document(flatId)
-                  .collection(collectionname)
-                  .where("completed", isEqualTo: isCompleted)
-                  .snapshots(),
+              stream: getTasksStream(isCompleted),
               builder: (context, AsyncSnapshot<QuerySnapshot> taskSnapshot) {
                 if (!taskSnapshot.hasData) return LoadingContainerVertical(7);
                 if (isCompleted == false)
@@ -474,7 +481,10 @@ class TaskListState extends State<TaskList> {
                                   var _repeat = taskSnapshot
                                       .data.documents[position]['repeat'];
                                   var _due = DateTime.now();
-                                  if (_repeat != -1) {
+                                  if (_repeat != -1 &&
+                                      taskSnapshot.data.documents[position]
+                                              ['type'] !=
+                                          'Complaint') {
                                     debugPrint('datetime --- ' +
                                         datetime.toIso8601String());
                                     DateTime nextDueDate = getNextDueDateTime(
@@ -657,11 +667,10 @@ class TaskListState extends State<TaskList> {
                                     leading: Container(
                                       child: Tooltip(
                                         key: tooltipKey[position],
-                                        decoration: BoxDecoration(
-                                            color: Colors.indigo),
-                                        message: taskSnapshot.data
-                                                        .documents[position]
-                                                    ["type"],
+                                        decoration:
+                                            BoxDecoration(color: Colors.indigo),
+                                        message: taskSnapshot
+                                            .data.documents[position]["type"],
                                         child: IconButton(
                                           icon: Icon(
                                             (icons[taskSnapshot
@@ -713,6 +722,7 @@ class TaskListState extends State<TaskList> {
 
   DateTime getNextDueDateTime(
       DateTime nowDueDate, DateTime due, int repeat, String frequency) {
+    DateTime now = DateTime.now();
     debugPrint('nowduedate = ' + nowDueDate.toIso8601String());
     switch (repeat) {
       case -1:
@@ -774,17 +784,31 @@ class TaskListState extends State<TaskList> {
           if (month == 12) {
             month = 1;
             year++;
+          } else {
+            month++;
           }
 
-          return new DateTime(year, month, due.day, due.hour, due.minute);
+          debugPrint("new month: " + month.toString());
+
+          int lastDay = getLastDayForMonth(month, year);
+          int taskDay;
+          if (lastDay < due.day) {
+            taskDay = lastDay;
+          } else {
+            taskDay = due.day;
+          }
+
+          return new DateTime(year, month, taskDay, due.hour, due.minute);
         }
       case 5:
         {
+          debugPrint("frequencies in repeat 5: " + frequency);
           List<int> taskFreq =
               frequency.split(',').map(int.parse).toSet().toList();
           taskFreq.sort();
           int taskDay = -1;
           for (int i = 0; i < taskFreq.length; i++) {
+            debugPrint("date = " + taskFreq[i].toString());
             if (taskFreq[i] > nowDueDate.day) {
               taskDay = taskFreq[i];
               break;
@@ -796,18 +820,68 @@ class TaskListState extends State<TaskList> {
 
           if (taskDay == -1) {
             taskDay = taskFreq[0];
-            month++;
             if (month == 12) {
               month = 1;
               year++;
+            } else {
+              month++;
             }
           }
 
+          debugPrint("new month = " + month.toString());
+          debugPrint("taskday = " + taskDay.toString());
+
+          int lastDay = getLastDayForMonth(month, year);
+          if (lastDay < taskDay) {
+            debugPrint("in if = ");
+
+            taskDay = lastDay;
+            if (taskDay == nowDueDate.day &&
+                month == nowDueDate.month &&
+                year == nowDueDate.year) {
+              taskDay = taskFreq[0];
+              if (month == 12) {
+                month = 1;
+                year++;
+              } else {
+                month++;
+              }
+              lastDay = getLastDayForMonth(month, year);
+              if (lastDay < taskDay) {
+                taskDay = lastDay;
+              }
+            }
+          }
+
+          debugPrint("before returning values = " +
+              month.toString() +
+              " - " +
+              taskDay.toString());
           return new DateTime(year, month, taskDay, due.hour, due.minute);
         }
     }
 
     return nowDueDate;
+  }
+
+  int getLastDayForMonth(int month, int year) {
+    if (month == 1 ||
+        month == 3 ||
+        month == 5 ||
+        month == 7 ||
+        month == 8 ||
+        month == 10 ||
+        month == 12) {
+      return 31;
+    } else if (month == 4 || month == 6 || month == 9 || month == 11) {
+      return 30;
+    } else {
+      if (year % 4 == 0) {
+        return 29;
+      } else {
+        return 28;
+      }
+    }
   }
 
   DateTime getNextDueDateTimeAfterToday(
@@ -851,28 +925,16 @@ class TaskListState extends State<TaskList> {
         }
       case 3:
         {
-          List<int> taskFreq =
-              frequency.split(',').map(int.parse).toSet().toList();
-          taskFreq.sort();
-          int taskDay = -1;
-          for (int i = 0; i < taskFreq.length; i++) {
-            if ((taskFreq[i] == now.weekday && nowTime < dueTime) ||
-                taskFreq[i] > now.weekday) {
-              taskDay = taskFreq[i];
-              break;
-            }
-          }
-
-          if (taskDay == -1) {
-            taskDay = taskFreq[0];
+          if (due.weekday == now.weekday && nowTime < dueTime) {
+            return new DateTime(
+                now.year, now.month, now.day, due.hour, due.minute);
           }
 
           DateTime tempNow = DateTime.now();
 
-          while (tempNow.weekday != taskDay) {
+          while (tempNow.weekday != due.weekday) {
             tempNow = tempNow.add(new Duration(days: 1));
           }
-
           return new DateTime(
               tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
         }
@@ -883,44 +945,54 @@ class TaskListState extends State<TaskList> {
                 now.year, now.month, now.day, due.hour, due.minute);
           }
 
-          DateTime tempNow = DateTime.now();
-          if (due.day == now.day) {
-            tempNow = tempNow.add(new Duration(days: 1));
+          int month = now.month;
+          int year = now.year;
+          if (month == 12) {
+            month = 1;
+            year++;
+          } else {
+            month++;
           }
-          while (tempNow.day != due.day) {
-            tempNow = tempNow.add(new Duration(days: 1));
+
+          debugPrint("new month: " + month.toString());
+
+          int lastDay = getLastDayForMonth(month, year);
+          int taskDay;
+          if (lastDay < due.day) {
+            taskDay = lastDay;
+          } else {
+            taskDay = due.day;
           }
-          return new DateTime(
-              tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+
+          return new DateTime(year, month, taskDay, due.hour, due.minute);
         }
       case 5:
         {
-          List<int> taskFreq =
-              frequency.split(',').map(int.parse).toSet().toList();
-          taskFreq.sort();
-          int taskDay = -1;
-          for (int i = 0; i < taskFreq.length; i++) {
-            if ((taskFreq[i] == now.day && nowTime < dueTime) ||
-                taskFreq[i] > now.day) {
-              taskDay = taskFreq[i];
-              break;
-            }
-          }
-
-          if (taskDay == -1) {
-            taskDay = taskFreq[0];
-          }
-
-          DateTime tempNow = DateTime.now();
           if (due.day == now.day && nowTime < dueTime) {
-            tempNow = tempNow.add(new Duration(days: 1));
-          }
-          while (tempNow.day != taskDay) {
-            tempNow = tempNow.add(new Duration(days: 1));
+            return new DateTime(
+                now.year, now.month, now.day, due.hour, due.minute);
           }
 
-          return new DateTime(
-              tempNow.year, tempNow.month, tempNow.day, due.hour, due.minute);
+          int month = now.month;
+          int year = now.year;
+          if (month == 12) {
+            month = 1;
+            year++;
+          } else {
+            month++;
+          }
+
+          debugPrint("new month: " + month.toString());
+
+          int lastDay = getLastDayForMonth(month, year);
+          int taskDay;
+          if (lastDay < due.day) {
+            taskDay = lastDay;
+          } else {
+            taskDay = due.day;
+          }
+
+          return new DateTime(year, month, taskDay, due.hour, due.minute);
         }
     }
 
@@ -974,11 +1046,6 @@ class TaskListState extends State<TaskList> {
   bool userDetailsObtained = false;
 
   Widget getUsersAssignedView(users, AsyncSnapshot<QuerySnapshot> snapshot1) {
-    //get user color id
-    List userList = users.toString().trim().split(';');
-    var overflowAddition = 0.0;
-    if (userList.length > 3) overflowAddition = 8.0;
-
     return new Container(
       margin: EdgeInsets.only(right: 5.0),
       child: Stack(
@@ -992,7 +1059,10 @@ class TaskListState extends State<TaskList> {
 
   List<Widget> _getPositionedOverlappingUsers(
       users, List<DocumentSnapshot> flatUsers) {
-    List<String> userList = users.toString().trim().split(',').toList();
+    List<String> userList;
+
+    userList = users.toString().trim().split(',').toList();
+
     var overflowAddition = 0.0;
     if (userList.length > 3) overflowAddition = 8.0;
 
@@ -1011,8 +1081,15 @@ class TaskListState extends State<TaskList> {
     userList.sort();
     int length = userList.length > 3 ? 3 : userList.length;
     debugPrint("length == " + userList.length.toString());
+
+    int availableUsers = 0;
     for (int i = 0; i < length; i++) {
       debugPrint("i == " + i.toString());
+      String initial = getInitial(userList[i], flatUsers);
+      if (initial == '') {
+        continue;
+      }
+      availableUsers++;
       var color = userList[i].toString().trim().hashCode;
       overlappingUsers.add(new Positioned(
         right: (i * 20.0) + overflowAddition,
@@ -1020,7 +1097,20 @@ class TaskListState extends State<TaskList> {
           maxRadius: 14.0,
           backgroundColor: Colors.primaries[color % Colors.primaries.length]
               [300],
-          child: Text(getInitial(userList[i], flatUsers)),
+          child: Text(initial),
+        ),
+      ));
+    }
+    if (userList.contains(globals.landlordIdValue)) {
+      var colorL = globals.landlordIdValue.toString().trim().hashCode;
+
+      overlappingUsers.add(new Positioned(
+        right: (availableUsers * 20) + overflowAddition,
+        child: new CircleAvatar(
+          maxRadius: 14.0,
+          backgroundColor: Colors.primaries[colorL % Colors.primaries.length]
+              [300],
+          child: Text(globals.landlordNameValue[0]),
         ),
       ));
     }
@@ -1031,11 +1121,9 @@ class TaskListState extends State<TaskList> {
     for (int i = 0; i < flatUsers.length; i++) {
       if (flatUsers[i].documentID == documentId) {
         return flatUsers[i].data['name'][0];
-      } else if (documentId == globals.landlordIdValue) {
-        return globals.landlordNameValue[0];
       }
     }
-    return 'U';
+    return '';
   }
 
   void openActionMenu() {

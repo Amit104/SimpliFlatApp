@@ -35,3 +35,7 @@ String landlordNameValue;
 
 String lists="lists";
 String listItems="items";
+
+String apartmentName = "apartmentName";
+String apartmentNumber = "apartmentNumber";
+String zipcode = "zipcode";

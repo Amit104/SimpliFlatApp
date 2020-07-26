@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:simpliflat/main.dart';
 import 'package:share/share.dart';
+import 'package:simpliflat/screens/widgets/loading_container.dart';
 
 class ProfileOptions extends StatefulWidget {
   var userName;
@@ -31,6 +32,9 @@ class _ProfileOptions extends State<ProfileOptions> {
   TextEditingController textField = TextEditingController();
   var userName;
   var userPhone;
+  String apartmentName;
+  String apartmentNumber;
+  String zipCode;
 
   void initPrefs() async {
     await _getFromSharedPref();
@@ -38,6 +42,7 @@ class _ProfileOptions extends State<ProfileOptions> {
       userName = widget.userName;
       userPhone = widget.userPhone;
     }
+
     _updateUserDetails();
   }
 
@@ -50,17 +55,18 @@ class _ProfileOptions extends State<ProfileOptions> {
         _userPhone == null ||
         _userPhone == "") {
       Firestore.instance.collection("user").document(_userId).get().then(
-              (snapshot) {
-            if (snapshot.exists) {
-              setState(() {
-                userName = snapshot.data['name'];
-                userPhone = snapshot.data['phone'];
-              });
-              Utility.addToSharedPref(userName: userName);
-              Utility.addToSharedPref(userPhone: userPhone);
-            }
-          }, onError: (e) {
-      });
+          (snapshot) {
+        if (snapshot.exists) {
+          if (mounted) {
+            setState(() {
+              userName = snapshot.data['name'];
+              userPhone = snapshot.data['phone'];
+            });
+          }
+          Utility.addToSharedPref(userName: userName);
+          Utility.addToSharedPref(userPhone: userPhone);
+        }
+      }, onError: (e) {});
     } else {
       userName = await Utility.getUserName();
       userPhone = await Utility.getUserPhone();
@@ -83,61 +89,230 @@ class _ProfileOptions extends State<ProfileOptions> {
             ),
             body: Builder(builder: (BuildContext scaffoldC) {
               _scaffoldContext = scaffoldC;
-              return userName != null ? Center(
-                  child: ListView(children: <Widget>[
-                Card(
-                  color: Colors.white,
-                  elevation: 2.0,
-                  child: ListTile(
-                      title: Text(
-                        widget.flatName,
+              return userName != null
+                  ? Center(
+                      child: ListView(children: <Widget>[
+                      Card(
+                        color: Colors.white,
+                        elevation: 2.0,
+                        child: ListTile(
+                            title: Text(
+                              widget.flatName,
+                            ),
+                            leading: Icon(
+                              Icons.home,
+                              color: Colors.redAccent,
+                            ),
+                            trailing: Text(
+                              "EDIT",
+                              style: TextStyle(
+                                  color: Colors.indigo[900],
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 14.0),
+                            ),
+                            onTap: () {}),
                       ),
-                      leading: Icon(
-                        Icons.home,
-                        color: Colors.redAccent,
+                      Card(
+                        color: Colors.white,
+                        elevation: 2.0,
+                        child: ListTile(
+                            title: Text(
+                              widget.displayId,
+                            ),
+                            leading: GestureDetector(
+                              child: Icon(
+                                Icons.share,
+                                color: Colors.indigo[900],
+                              ),
+                              onTap: () {
+                                Share.share(
+                                    'Check out Simpliflat. You can join my flat with using ID - ' +
+                                        widget.displayId,
+                                    subject: 'Check out Simpliflat!');
+                              },
+                            ),
+                            onTap: () {}),
                       ),
-                      trailing: Text(
-                        "EDIT",
-                        style: TextStyle(
-                            color: Colors.indigo[900],
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Montserrat',
-                            fontSize: 14.0),
-                      ),
-                      onTap: () {}),
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 2.0,
-                  child: ListTile(
-                      title: Text(
-                        widget.displayId,
-                      ),
-                      leading: GestureDetector(
-                        child: Icon(
-                          Icons.share,
-                          color: Colors.indigo[900],
+                      Card(
+                        color: Colors.white,
+                        elevation: 2.0,
+                        child: ListTile(
+                          title: Text(
+                            userName,
+                          ),
+                          leading: Icon(
+                            Icons.account_circle,
+                            color: Colors.orange,
+                          ),
+                          trailing: GestureDetector(
+                              child: Text(
+                                "EDIT",
+                                style: TextStyle(
+                                    color: Colors.indigo[900],
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 14.0),
+                              ),
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (_) => _getEditPrompt(
+                                        textStyle,
+                                        "Name",
+                                        _changeUserName,
+                                        _userNameValidator,
+                                        TextInputType.text,
+                                        userName));
+                              }),
                         ),
-                        onTap: () {
-                          Share.share(
-                              'Check out Simpliflat. You can join my flat with using ID - ' +
-                                  widget.displayId,
-                              subject: 'Check out Simpliflat!');
-                        },
                       ),
-                      onTap: () {}),
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 2.0,
-                  child: ListTile(
-                    title: Text(
-                      userName,
-                    ),
-                    leading: Icon(
-                      Icons.account_circle,
-                      color: Colors.orange,
-                    ),
+                      Card(
+                        color: Colors.white,
+                        elevation: 2.0,
+                        child: ListTile(
+                            title: Text(
+                              userPhone,
+                            ),
+                            leading: Icon(
+                              Icons.phone,
+                              color: Colors.blue,
+                            ),
+                            onTap: () {}),
+                      ),
+                      getFlatDetailsWidget(),
+                      Padding(
+                        padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                        child: RaisedButton(
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(40.0),
+                            side: BorderSide(
+                              width: 0.5,
+                              color: Colors.indigo[900],
+                            ),
+                          ),
+                          color: Colors.white,
+                          textColor: Colors.indigo[900],
+                          onPressed: () {
+                            showDialog<bool>(
+                              context: context,
+                              builder: (context) {
+                                return new AlertDialog(
+                                  title: new Text('Leave Flat'),
+                                  content: new Text(
+                                      'Are you sure you want to leave this flat?'),
+                                  actions: <Widget>[
+                                    new FlatButton(
+                                      child: new Text('Cancel'),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                    ),
+                                    new FlatButton(
+                                        child: new Text('Yes'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                          _exitFlat();
+                                        }),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Text('Exit Flat'),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                        child: RaisedButton(
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(40.0),
+                            side: BorderSide(
+                              width: 0.5,
+                              color: Colors.indigo[900],
+                            ),
+                          ),
+                          color: Colors.white,
+                          textColor: Colors.indigo[900],
+                          onPressed: () {
+                            showDialog<bool>(
+                              context: context,
+                              builder: (context) {
+                                return new AlertDialog(
+                                  title: new Text('Log out'),
+                                  content: new Text(
+                                      'Are you sure you want to log out?'),
+                                  actions: <Widget>[
+                                    new FlatButton(
+                                      child: new Text('Cancel'),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                    ),
+                                    new FlatButton(
+                                        child: new Text('Yes'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                          _signOut();
+                                        }),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Text('Logout'),
+                        ),
+                      ),
+                    ]))
+                  : Center(child: CircularProgressIndicator());
+            })));
+  }
+
+  bool firstCall = false;
+  Future<Map> getFlatData() async {
+    if (!firstCall) {
+      apartmentName = await Utility.getApartmentName();
+      apartmentNumber = await Utility.getApartmentNumber();
+      zipCode = await Utility.getZipcode();
+
+      firstCall = true;
+    }
+
+    return {
+      'apartmentName': apartmentName,
+      'apartmentNumber': apartmentNumber,
+      'zipCode': zipCode
+    };
+  }
+
+  Widget getFlatDetailsWidget() {
+    TextStyle textStyle = Theme.of(context).textTheme.title;
+    return Card(
+      color: Colors.white,
+      child: Column(
+        children: <Widget>[
+          Container(
+              color: Colors.blue[100],
+              child: ListTile(
+                title: Text('Flat Details'),
+                trailing: Icon(Icons.pin_drop),
+              )),
+          FutureBuilder(
+            future: getFlatData(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return LoadingContainerVertical(1);
+              }
+              Map data = snapshot.data;
+
+              return Column(
+                children: [
+                  ListTile(
+                    title: data['apartmentName'] == null ||
+                            data['apartmentName'] == ''
+                        ? Text(
+                            'Building/Flat Name',
+                            style: TextStyle(color: Colors.grey[400]),
+                          )
+                        : Text(data['apartmentName']),
                     trailing: GestureDetector(
                         child: Text(
                           "EDIT",
@@ -152,109 +327,77 @@ class _ProfileOptions extends State<ProfileOptions> {
                               context: context,
                               builder: (_) => _getEditPrompt(
                                   textStyle,
-                                  "Name",
-                                  _changeUserName,
-                                  _userNameValidator,
+                                  "Building/Flat Name",
+                                  _changeApartmentName,
+                                  null,
                                   TextInputType.text,
-                                  userName));
+                                  apartmentName));
                         }),
                   ),
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 2.0,
-                  child: ListTile(
-                      title: Text(
-                        userPhone,
-                      ),
-                      leading: Icon(
-                        Icons.phone,
-                        color: Colors.blue,
-                      ),
-                      onTap: () {}),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                  child: RaisedButton(
-                    shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(40.0),
-                      side: BorderSide(
-                        width: 0.5,
-                        color: Colors.indigo[900],
-                      ),
-                    ),
-                    color: Colors.white,
-                    textColor: Colors.indigo[900],
-                    onPressed: () {
-                      showDialog<bool>(
-                        context: context,
-                        builder: (context) {
-                          return new AlertDialog(
-                            title: new Text('Leave Flat'),
-                            content: new Text(
-                                'Are you sure you want to leave this flat?'),
-                            actions: <Widget>[
-                              new FlatButton(
-                                child: new Text('Cancel'),
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                              ),
-                              new FlatButton(
-                                  child: new Text('Yes'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(true);
-                                    _exitFlat();
-                                  }),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Text('Exit Flat'),
+                  ListTile(
+                    title: data['apartmentNumber'] == null ||
+                            data['apartmentNumber'] == ''
+                        ? Text(
+                            'Flat Number',
+                            style: TextStyle(color: Colors.grey[400]),
+                          )
+                        : Text(data['apartmentNumber']),
+                    trailing: GestureDetector(
+                        child: Text(
+                          "EDIT",
+                          style: TextStyle(
+                              color: Colors.indigo[900],
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Montserrat',
+                              fontSize: 14.0),
+                        ),
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (_) => _getEditPrompt(
+                                  textStyle,
+                                  "Apartment Number",
+                                  _changeApartmentNumber,
+                                  null,
+                                  TextInputType.text,
+                                  apartmentNumber));
+                        }),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                  child: RaisedButton(
-                    shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(40.0),
-                      side: BorderSide(
-                        width: 0.5,
-                        color: Colors.indigo[900],
-                      ),
-                    ),
-                    color: Colors.white,
-                    textColor: Colors.indigo[900],
-                    onPressed: () {
-                      showDialog<bool>(
-                        context: context,
-                        builder: (context) {
-                          return new AlertDialog(
-                            title: new Text('Log out'),
-                            content:
-                                new Text('Are you sure you want to log out?'),
-                            actions: <Widget>[
-                              new FlatButton(
-                                child: new Text('Cancel'),
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                              ),
-                              new FlatButton(
-                                  child: new Text('Yes'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(true);
-                                    _signOut();
-                                  }),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Text('Logout'),
+                  ListTile(
+                    title: data['zipCode'] == null || data['zipCode'] == ''
+                        ? Text(
+                            'Zipcode',
+                            style: TextStyle(color: Colors.grey[400]),
+                          )
+                        : Text(data['zipCode']),
+                    trailing: GestureDetector(
+                        child: Text(
+                          "EDIT",
+                          style: TextStyle(
+                              color: Colors.indigo[900],
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Montserrat',
+                              fontSize: 14.0),
+                        ),
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (_) => _getEditPrompt(
+                                  textStyle,
+                                  "Zipcode",
+                                  _changeZipcode,
+                                  null,
+                                  TextInputType.text,
+                                  zipCode));
+                        }),
                   ),
-                ),
-              ])) : Center(child: CircularProgressIndicator());
-            })));
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   _moveToLastScreen(BuildContext _navigatorContext) {
@@ -313,7 +456,6 @@ class _ProfileOptions extends State<ProfileOptions> {
         }).catchError((e) {
           _setErrorState(_scaffoldContext, "SERVER ERROR");
         });
-
       } else {
         var userRef = Firestore.instance.collection(globals.user).document(uID);
         batch.updateData(userRef, {"flat_id": null});
@@ -332,12 +474,7 @@ class _ProfileOptions extends State<ProfileOptions> {
           _setErrorState(_scaffoldContext, "SERVER ERROR");
         });
       }
-    }, onError: (e) {
-
-    }).catchError((e) {
-
-    });
-
+    }, onError: (e) {}).catchError((e) {});
   }
 
   void _setErrorState(scaffoldContext, error, {textToSend}) {
@@ -468,6 +605,72 @@ class _ProfileOptions extends State<ProfileOptions> {
       return "Cannot be the same name";
     }
     return null;
+  }
+
+  _changeApartmentName(textField) async {
+    String name = textField.text;
+    setState(() {
+      apartmentName = name;
+    });
+    var data = {"apartment_name": name};
+    Firestore.instance
+        .collection("flat")
+        .document(flatId)
+        .updateData(data)
+        .then((updated) {
+      apartmentName = name;
+
+      Utility.addToSharedPref(apartmentName: name);
+    });
+    textField.clear();
+    Navigator.of(context, rootNavigator: true).pop();
+    setState(() {
+      debugPrint("Apartment name changed");
+    });
+  }
+
+  _changeApartmentNumber(textField) async {
+    String number = textField.text;
+    setState(() {
+      apartmentNumber = number;
+    });
+    var data = {"apartment_number": number};
+    Firestore.instance
+        .collection("flat")
+        .document(flatId)
+        .updateData(data)
+        .then((updated) {
+      apartmentNumber = number;
+
+      Utility.addToSharedPref(apartmentNumber: number);
+    });
+    textField.clear();
+    Navigator.of(context, rootNavigator: true).pop();
+    setState(() {
+      debugPrint("Apartment number changed");
+    });
+  }
+
+  _changeZipcode(textField) async {
+    String zcode = textField.text;
+    setState(() {
+      zipCode = zcode;
+    });
+    var data = {"zipcode": zcode};
+    Firestore.instance
+        .collection("flat")
+        .document(flatId)
+        .updateData(data)
+        .then((updated) {
+      zipCode = zcode;
+
+      Utility.addToSharedPref(zipcode: zcode);
+    });
+    textField.clear();
+    Navigator.of(context, rootNavigator: true).pop();
+    setState(() {
+      debugPrint("zipcode changed");
+    });
   }
 
   _changeUserName(textField) async {

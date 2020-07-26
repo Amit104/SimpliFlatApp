@@ -5,6 +5,7 @@ import 'package:simpliflat/screens/utility.dart';
 import 'package:simpliflat/screens/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpName extends StatefulWidget {
   final phone;
@@ -59,7 +60,7 @@ class _SignUpNameUser extends State<SignUpName> {
                               child: new Card(
                                   shape: RoundedRectangleBorder(
                                       borderRadius:
-                                      BorderRadius.circular(10.0)),
+                                          BorderRadius.circular(10.0)),
                                   color: Colors.white,
                                   elevation: 2.0,
                                   child: Column(children: <Widget>[
@@ -121,7 +122,7 @@ class _SignUpNameUser extends State<SignUpName> {
                                               _submitForm();
                                             },
                                             decoration: InputDecoration(
-                                              //labelText: "Name",
+                                                //labelText: "Name",
                                                 hintText: "Rahul",
                                                 //labelStyle: TextStyle(
                                                 //    color: Colors.white),
@@ -132,7 +133,7 @@ class _SignUpNameUser extends State<SignUpName> {
                                                     fontSize: 12.0,
                                                     fontFamily: 'Montserrat',
                                                     fontWeight:
-                                                    FontWeight.w700),
+                                                        FontWeight.w700),
                                                 border: InputBorder.none),
                                           ),
                                         ),
@@ -157,10 +158,10 @@ class _SignUpNameUser extends State<SignUpName> {
                                               height: 40.0,
                                               child: RaisedButton(
                                                   shape:
-                                                  new RoundedRectangleBorder(
+                                                      new RoundedRectangleBorder(
                                                     borderRadius:
-                                                    new BorderRadius
-                                                        .circular(10.0),
+                                                        new BorderRadius
+                                                            .circular(10.0),
                                                     side: BorderSide(
                                                       width: 1.0,
                                                       color: Colors.indigo[900],
@@ -220,8 +221,13 @@ class _SignUpNameUser extends State<SignUpName> {
     });
   }
 
-  void _addUserHandler(scaffoldContext) {
+  void _addUserHandler(scaffoldContext) async {
     var timeNow = DateTime.now();
+
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final Firestore _firestore = Firestore.instance;
+
+    FirebaseUser user = await _auth.currentUser();
     var userData = {
       'phone': phone,
       'name': name.text,
@@ -239,9 +245,10 @@ class _SignUpNameUser extends State<SignUpName> {
         .then((snapshot) {
       if (snapshot == null || snapshot.documents.length == 0) {
         debugPrint("IN NEW USER");
-        Firestore.instance.collection("user").add(userData).then((addedUser) {
-          debugPrint(addedUser.toString());
-          var userId = addedUser.documentID;
+        DocumentReference ref =
+            _firestore.collection("user").document(user.uid);
+        ref.setData(userData).then((addedUser) {
+          var userId = user.uid;
           _onSuccess(userId: userId);
           navigateToCreateOrJoin();
         }, onError: (e) {

@@ -1392,8 +1392,10 @@ class _CreateTask extends State<CreateTask> {
                   typeOfTask == 'Payment'
                       ? _getPaymentInfoWidget()
                       : Container(),
-                  SizedBox(height: 20.0),
-                  _getAttachList(),
+                  !isTenantPortal?
+                  SizedBox(height: 20.0):Container(),
+                  !isTenantPortal?
+                  _getAttachList():Container(),
                   SizedBox(height: 20.0),
                   _getNotesWidget(),
                 ],

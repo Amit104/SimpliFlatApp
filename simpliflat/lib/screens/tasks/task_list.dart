@@ -1437,29 +1437,6 @@ class TaskListState extends State<TaskList> {
                     Navigator.pop(context);
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.priority_high),
-                  title: Text(
-                    "Priority",
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 12.0,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w700),
-                  ),
-                  trailing: sortBy == sortingValues.PRIORITY
-                      ? Icon(
-                          Icons.check,
-                          color: Colors.green,
-                        )
-                      : null,
-                  onTap: () {
-                    setState(() {
-                      sortBy = sortingValues.PRIORITY;
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
               ],
             ),
           ),

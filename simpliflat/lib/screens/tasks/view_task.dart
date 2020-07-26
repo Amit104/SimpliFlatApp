@@ -416,7 +416,7 @@ class _ViewTask extends State<ViewTask> {
           SizedBox(height: 20.0),
           _getNotesWidget(data['notes']),
           SizedBox(height: 20.0),
-          _getHistoryButton(),
+          _getHistoryButton(data['type']),
           SizedBox(height: 20.0),
 
           // type == 'Payment'?
@@ -429,7 +429,7 @@ class _ViewTask extends State<ViewTask> {
     );
   }
 
-  Widget _getHistoryButton() {
+  Widget _getHistoryButton(String typeOfTask) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -453,9 +453,11 @@ class _ViewTask extends State<ViewTask> {
             },
           ),
         ),
+        typeOfTask == 'Payment'?
         Container(
           width: 5.0,
-        ),
+        ):Container(),
+        typeOfTask == 'Payment'?
         Expanded(
           child: RaisedButton(
             padding: EdgeInsets.all(15.0),
@@ -474,7 +476,7 @@ class _ViewTask extends State<ViewTask> {
               _navigateToPayHistory(taskId, _flatId);
             },
           ),
-        ),
+        ):Container(),
       ],
     );
   }

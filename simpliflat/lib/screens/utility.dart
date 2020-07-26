@@ -4,7 +4,6 @@ import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:simpliflat/screens/profile/profile_options.dart';
 
 class Utility {
-
   static void navigateToProfileOptions(context) async {
     var userName = await Utility.getUserName();
     var userPhone = await Utility.getUserPhone();
@@ -33,7 +32,18 @@ class Utility {
   }
 
   static void addToSharedPref(
-      {userName: 'null', userPhone: '',userId: 'null', flatId: 'null', displayId: 'null', notificationToken: 'null', flatName: 'null', landlordId: 'null', landlordName: 'null'}) async {
+      {userName: 'null',
+      userPhone: '',
+      userId: 'null',
+      flatId: 'null',
+      displayId: 'null',
+      notificationToken: 'null',
+      flatName: 'null',
+      landlordId: 'null',
+      landlordName: 'null',
+      apartmentName: 'null',
+      apartmentNumber: 'null',
+      zipcode: 'null'}) async {
     final prefs = await SharedPreferences.getInstance();
     if (userName != 'null')
       await prefs.setString(globals.userName, userName.toString());
@@ -47,12 +57,16 @@ class Utility {
       await prefs.setString(globals.flatId, flatId.toString());
     if (notificationToken != 'null')
       await prefs.setString(globals.notificationToken, notificationToken);
-    if (flatName != 'null')
-      await prefs.setString(globals.flatName, flatName);
+    if (flatName != 'null') await prefs.setString(globals.flatName, flatName);
     if (landlordId != 'null')
       await prefs.setString(globals.landlordId, landlordId);
     if (landlordName != 'null')
       await prefs.setString(globals.landlordName, landlordName);
+    if (apartmentName != 'null')
+      await prefs.setString(globals.apartmentName, apartmentName);
+    if (apartmentNumber != 'null')
+      await prefs.setString(globals.apartmentNumber, apartmentNumber);
+    if (zipcode != 'null') await prefs.setString(globals.zipcode, zipcode);
   }
 
   static Future<String> getUserName() async {
@@ -60,11 +74,13 @@ class Utility {
     // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.userName);
   }
+
   static Future<String> getUserPhone() async {
     final prefs = await SharedPreferences.getInstance();
     // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.userPhone);
   }
+
   static Future<String> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     // Try reading data from the counter key. If it does not exist, return 0.
@@ -107,13 +123,30 @@ class Utility {
     return await prefs.get(globals.landlordName);
   }
 
+  static Future<String> getApartmentName() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Try reading data from the counter key. If it does not exist, return 0.
+    return await prefs.get(globals.apartmentName);
+  }
+
+  static Future<String> getApartmentNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Try reading data from the counter key. If it does not exist, return 0.
+    return await prefs.get(globals.apartmentNumber);
+  }
+
+  static Future<String> getZipcode() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Try reading data from the counter key. If it does not exist, return 0.
+    return await prefs.get(globals.zipcode);
+  }
+
   static removeLandlordId() async {
     final prefs = await SharedPreferences.getInstance();
     // Try reading data from the counter key. If it does not exist, return 0.
     await prefs.remove(globals.landlordId);
     await prefs.remove(globals.landlordName);
   }
-
 
   static double getAdjustedHeight(double height, BuildContext context) {
     return height * MediaQuery.of(context).size.height / 640.0;
@@ -124,4 +157,3 @@ class Utility {
     return Colors.primaries[color % Colors.primaries.length];
   }
 }
-

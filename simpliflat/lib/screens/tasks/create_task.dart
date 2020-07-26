@@ -97,9 +97,8 @@ class _CreateTask extends State<CreateTask> {
 
   _CreateTask(this.taskId, this._flatId, this.typeOfTask, this.isTenantPortal) {
     _isRemindMeOfIssueSelected = false;
-    collectionname = isTenantPortal
-        ? 'tasks_' + globals.landlordIdValue
-        : collectionname = 'tasks';
+    collectionname =
+        isTenantPortal ? 'tasks_landlord' : collectionname = 'tasks';
   }
 
   void initUsers() {
@@ -444,7 +443,9 @@ class _CreateTask extends State<CreateTask> {
                       "payee": payeetext,
                       "nextDueDate": _nextNewDueDate,
                       "completed": false,
-                      "listRef": listRef
+                      "listRef": listRef,
+                      "landlord_id": globals.landlordIdValue,
+                      "assigned_to_flat": false
                     };
 
                     Firestore.instance
@@ -1709,7 +1710,8 @@ class _CreateTask extends State<CreateTask> {
     QuerySnapshot tasks1 = await Firestore.instance
         .collection(globals.flat)
         .document(_flatId)
-        .collection("flat_" + globals.landlordIdValue)
+        .collection("tasks_landlord")
+        .where("landlord_id", isEqualTo: globals.landlordIdValue)
         .where("completed", isEqualTo: false)
         .getDocuments();
     tasks.documents.addAll(tasks1.documents);
@@ -1762,11 +1764,31 @@ class _CreateTask extends State<CreateTask> {
             (tasksList[i].data['due'] as Timestamp).toDate();
         DateTime existingtoduedatetime =
             existingduedatetime.add(new Duration(hours: 0, minutes: 1));
+        DateTime relativeExistingToDueDateTime = new DateTime(
+                duedatetime.year,
+                duedatetime.month,
+                duedatetime.day,
+                existingduedatetime.hour,
+                existingduedatetime.minute)
+            .add(new Duration(hours: 0, minutes: 1));
 
+        DateTime relativeExistingDateTime = new DateTime(
+            duedatetime.year,
+            duedatetime.month,
+            duedatetime.day,
+            existingduedatetime.hour,
+            existingduedatetime.minute);
         if (tasksList[i].data['duration'] != '') {
           int hours = int.parse(tasksList[i].data['duration'].split(':')[0]);
           int minutes = int.parse(tasksList[i].data['duration'].split(':')[1]);
           existingtoduedatetime = existingduedatetime
+              .add(new Duration(hours: hours, minutes: minutes));
+          relativeExistingToDueDateTime = new DateTime(
+                  duedatetime.year,
+                  duedatetime.month,
+                  duedatetime.day,
+                  existingduedatetime.hour,
+                  existingduedatetime.minute)
               .add(new Duration(hours: hours, minutes: minutes));
         }
 
@@ -1775,43 +1797,43 @@ class _CreateTask extends State<CreateTask> {
           List<int> frequency =
               tasksList[i].data['frequency'].split(',').map(int.parse).toList();
           if (frequency.contains(duedatetime.weekday) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 2 && _repeat == 3) {
           List<int> frequency = _selectedFrequencies.toList();
           if (frequency.contains(existingduedatetime.weekday) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 5 && _repeat == 4) {
           List<int> frequency =
               tasksList[i].data['frequency'].split(',').map(int.parse).toList();
           if (frequency.contains(duedatetime.day) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 4 && _repeat == 5) {
           List<int> frequency = _selectedFrequencies.toList();
 
           if (frequency.contains(existingduedatetime.day) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 2 && _repeat == 2) {
           if (duedatetime.weekday == existingduedatetime.weekday &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 4 && _repeat == 4) {
           if (duedatetime.day == existingduedatetime.day &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 3 && _repeat == 3) {
@@ -1822,8 +1844,8 @@ class _CreateTask extends State<CreateTask> {
               .toSet();
 
           if (frequency1.intersection(_selectedFrequencies).isNotEmpty &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 5 && _repeat == 5) {
@@ -1834,38 +1856,38 @@ class _CreateTask extends State<CreateTask> {
               .toList()
               .toSet();
           if (frequency1.intersection(_selectedFrequencies).isNotEmpty &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == -1 && _repeat == 2) {
           if (duedatetime.weekday == existingduedatetime.weekday &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == -1 && _repeat == 3) {
           if (_selectedFrequencies.contains(existingduedatetime.weekday) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == -1 && _repeat == 4) {
           if (duedatetime.day == existingduedatetime.day &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == -1 && _repeat == 5) {
           if (_selectedFrequencies.contains(existingduedatetime.day) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 2 && _repeat == -1) {
           if (duedatetime.weekday == existingduedatetime.weekday &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 3 && _repeat == -1) {
@@ -1877,14 +1899,14 @@ class _CreateTask extends State<CreateTask> {
               .toSet();
 
           if (frequency1.contains(duedatetime.weekday) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 4 && _repeat == -1) {
           if (duedatetime.day == existingduedatetime.day &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 5 && _repeat == -1) {
@@ -1896,14 +1918,19 @@ class _CreateTask extends State<CreateTask> {
               .toSet();
 
           if (frequency1.contains(duedatetime.day) &&
-              _overlap(duedatetime, toduedatetime, existingduedatetime,
-                  existingtoduedatetime)) {
+              _overlap(duedatetime, toduedatetime, relativeExistingDateTime,
+                  relativeExistingToDueDateTime)) {
             tasksWithConflicts.add(tasksList[i].data);
           }
         } else if (taskRepeat == 1) {
           tasksWithConflicts.add(tasksList[i].data);
-        } else if (_overlap(duedatetime, toduedatetime, existingduedatetime,
-            existingtoduedatetime)) {
+        } else if (taskRepeat == -1 &&
+            _repeat == -1 &&
+            _overlap(duedatetime, toduedatetime, existingduedatetime,
+                existingtoduedatetime)) {
+          tasksWithConflicts.add(tasksList[i].data);
+        } else if (_overlap(duedatetime, toduedatetime,
+            relativeExistingDateTime, relativeExistingToDueDateTime)) {
           debugPrint(tasksList[i].data['title']);
           tasksWithConflicts.add(tasksList[i].data);
         }
@@ -1929,10 +1956,6 @@ class _CreateTask extends State<CreateTask> {
   ///check if the two tasks overlap with respect to time
   bool _overlap(DateTime newTaskFrom, DateTime newTaskTo,
       DateTime existingTaskFrom, DateTime existingTaskTo) {
-    existingTaskFrom = new DateTime(newTaskFrom.year, newTaskFrom.month,
-        newTaskFrom.day, existingTaskFrom.hour, existingTaskFrom.minute);
-    existingTaskTo = new DateTime(newTaskTo.year, newTaskTo.month,
-        newTaskTo.day, existingTaskTo.hour, existingTaskTo.minute);
     debugPrint(newTaskFrom.toIso8601String() +
         ' -- ' +
         newTaskTo.toIso8601String() +

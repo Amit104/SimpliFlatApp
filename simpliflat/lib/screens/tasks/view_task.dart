@@ -60,7 +60,7 @@ class _ViewTask extends State<ViewTask> {
 
   _ViewTask(this.taskId, this._flatId, this.isTenantPortal) {
     collectionname = isTenantPortal
-        ? 'tasks_' + globals.landlordIdValue
+        ? 'tasks_landlord'
         : collectionname = 'tasks';
   }
 

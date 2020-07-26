@@ -38,6 +38,7 @@ dependencies:
   table_calendar: ^2.2.3
   upi_pay: ^0.2.0
   flutter_typeahead: ^1.8.6
+  flutter_html: ^1.0.0-pre.1
 
 dev_dependencies:
   flutter_test:

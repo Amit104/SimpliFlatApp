@@ -57,7 +57,6 @@ class ListItemsState extends State<ListItems> {
         m['item'] = item.trim();
         m['completed'] = false;
         _items.insert(0, m);
-        _suggestions.add(item.trim());
         inputController.text = "";
       });
       Firestore.instance

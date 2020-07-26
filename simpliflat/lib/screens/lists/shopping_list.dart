@@ -20,6 +20,7 @@ class ShoppingLists extends StatefulWidget {
   }
 }
 
+
 class ShoppingListsState extends State<ShoppingLists> {
   var _navigatorContext;
   List lists;
@@ -50,7 +51,9 @@ class ShoppingListsState extends State<ShoppingLists> {
         if (!snapshot.hasData) return LoadingContainerVertical(3);
         if (snapshot.data.documents.length == 0)
           return Container(
-            child: CommonWidgets.textBox("Add Lists here", 22),
+            child: Center(
+              child: CommonWidgets.textBox("Add Lists here!", 22),
+            ),
           );
         snapshot.data.documents
             .sort((a, b) => b['created_at'].compareTo(a['created_at']));
@@ -146,7 +149,10 @@ class ShoppingListsState extends State<ShoppingLists> {
               ),
             ],
             child: ListTile(
-              leading: Icon(Icons.arrow_right, color: Colors.green,),
+              leading: Icon(
+                Icons.arrow_right,
+                color: Colors.green,
+              ),
               title: Text(list['title'].toString().trim(),
                   style: TextStyle(
                     fontSize: 18.0,
@@ -154,7 +160,10 @@ class ShoppingListsState extends State<ShoppingLists> {
                     color: Colors.black,
                   )),
               trailing: GestureDetector(
-                child: Icon(Icons.edit, color: Colors.black,),
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.black,
+                ),
                 onTap: () {
                   setState(() {
                     listController.text = list['title'].toString().trim();

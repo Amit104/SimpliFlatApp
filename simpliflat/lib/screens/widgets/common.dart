@@ -17,7 +17,7 @@ class CommonWidgets {
   }
 
   static Widget textBox(String text, double fontSize,
-      {String fontFamily = 'Montserrat', fontStyle = FontStyle.normal, color: Colors.blue}) {
+      {String fontFamily = 'Montserrat', fontStyle = FontStyle.normal, color: Colors.indigo}) {
     return Text(
       text,
       style: TextStyle(

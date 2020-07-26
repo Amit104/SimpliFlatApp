@@ -26,6 +26,7 @@ String flatContacts = "flatContacts";
 String requests = "joinflat";
 String requestsLandlord = "joinflat_landlord";
 String landlord = "landlord";
+String about = "about";
 
 String messageBoard = "messageboard";
 String documentManager = "documentmanager";

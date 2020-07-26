@@ -12,6 +12,8 @@ import 'package:simpliflat/screens/widgets/loading_container.dart';
 import 'package:simpliflat/screens/profile/profile_options.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../about.dart';
+
 class UserProfile extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -111,6 +113,20 @@ class _UserProfile extends State<UserProfile> {
                 Utility.navigateToProfileOptions(context);
               },
             ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.info,
+                  color: Colors.indigo,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => About()),
+                  );
+                },
+              ),
+            ],
           ),
           body: Builder(builder: (BuildContext scaffoldC) {
             _navigatorContext = scaffoldC;
@@ -388,37 +404,6 @@ class _UserProfile extends State<UserProfile> {
                         // options list
                         SizedBox(
                           height: 15.0,
-                        ),
-                        Column(
-                          children: <Widget>[
-                            Card(
-                              child: ListTile(
-                                leading: Icon(
-                                  Icons.credit_card,
-                                  color: Colors.green,
-                                ),
-                                title: Text('Transaction History'),
-                              ),
-                              color: Colors.white,
-                              elevation: 2.0,
-                            ),
-                            Card(
-                              child: ListTile(
-                                leading: Icon(
-                                  Icons.info,
-                                  color: Colors.indigo,
-                                ),
-                                title: Text('About'),
-                              ),
-                              color: Colors.white,
-                              elevation: 2.0,
-                            ),
-                          ],
-                        ),
-
-                        // Contacts List
-                        SizedBox(
-                          height: 25.0,
                         ),
                         Row(
                           children: <Widget>[

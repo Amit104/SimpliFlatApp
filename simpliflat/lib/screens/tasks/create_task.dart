@@ -808,7 +808,7 @@ class _CreateTask extends State<CreateTask> {
                                     selectedUsers.contains(documentID)
                                         ? Colors.grey[400]
                                         : Colors.white,
-                                avatar: CircleAvatar(
+                                avatar: name==null? null : CircleAvatar(
                                     backgroundColor: Colors.primaries[
                                         documentID.toString().trim().hashCode %
                                             Colors.primaries.length],

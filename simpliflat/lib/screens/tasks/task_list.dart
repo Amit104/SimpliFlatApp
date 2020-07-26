@@ -248,12 +248,18 @@ class TaskListState extends State<TaskList> {
           elevation: 0.0,
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(
+            icon: isTenantPortal ?  Icon(
+              Icons.arrow_back,
+              color: Colors.indigo,
+            ) : Icon(
               Icons.settings,
               color: Colors.indigo,
             ),
             onPressed: () {
-              Utility.navigateToProfileOptions(context);
+              if(!isTenantPortal)
+                Utility.navigateToProfileOptions(context);
+              else
+                Navigator.of(context).pop();
             },
           ),
           actions: <Widget>[

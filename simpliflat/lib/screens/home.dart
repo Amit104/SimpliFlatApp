@@ -140,8 +140,9 @@ class _Home extends State<Home> {
                   icon: Icon(Icons.home), title: Text('My Flat')),
             ],
             currentIndex: _selectedIndex,
-            unselectedItemColor: Colors.indigo[900],
-            fixedColor: Colors.red[900],
+            unselectedItemColor: Colors.black87,
+            backgroundColor: Colors.white,
+            fixedColor: Colors.indigo,
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed,
           ),
@@ -156,7 +157,7 @@ class _Home extends State<Home> {
               navigateToNotice(_flatId, offlineDocuments);
             },
             tooltip: 'Noticeboard',
-            backgroundColor: Colors.red[900],
+            backgroundColor: Colors.indigo,
             child: new Icon(Icons.arrow_drop_up),
           ),
         ));

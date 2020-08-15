@@ -118,9 +118,9 @@ class _CreateTask extends State<CreateTask> {
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            backgroundColor: Colors.grey[300],
+            backgroundColor: Colors.white,
             title: taskId == null ? Text("Add Task") : Text("Edit Task"),
-            elevation: 0.0,
+            elevation: 2.0,
             centerTitle: true,
           ),
           body: Builder(builder: (BuildContext scaffoldC) {
@@ -306,7 +306,7 @@ class _CreateTask extends State<CreateTask> {
   Widget _getDeleteButtonWidget() {
     return Expanded(
       child: Opacity(
-        opacity: 0.6,
+        opacity: 1.0,
         child: Container(
           padding: const EdgeInsets.only(top: 1.0, right: 1.0, left: 0.0),
           child: RaisedButton(
@@ -314,7 +314,7 @@ class _CreateTask extends State<CreateTask> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(0.0),
               ),
-              color: Colors.grey[200],
+              color: Colors.red[200],
               child: Text(
                 "Delete",
                 style: TextStyle(
@@ -343,12 +343,12 @@ class _CreateTask extends State<CreateTask> {
   Widget _getSaveButtonWidget() {
     return Expanded(
       child: Opacity(
-        opacity: 0.6,
+        opacity: 1.0,
         child: Container(
           padding: const EdgeInsets.only(top: 1.0, right: 1.0, left: 0.0),
           child: RaisedButton(
               padding: EdgeInsets.symmetric(vertical: 15.0),
-              color: Colors.grey[200],
+              color: Colors.green[200],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(0.0),
               ),
@@ -571,6 +571,13 @@ class _CreateTask extends State<CreateTask> {
       decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(5.0),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.25),
+              blurRadius: 4,
+              offset: Offset(0, 4), // changes position of shadow
+            ),
+          ],
           border: Border.all(width: 1.0, color: Colors.grey[300])),
       child: ListTile(
           dense: true,
@@ -663,7 +670,16 @@ class _CreateTask extends State<CreateTask> {
         padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.0),
-            border: Border.all(width: 1.0, color: Colors.grey[300])),
+            color: Colors.white,
+            border: Border.all(width: 1.0, color: Colors.grey[300]),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.25),
+              blurRadius: 4,
+              offset: Offset(0, 4), // changes position of shadow
+            ),
+          ],
+        ),
         child: ListTile(
           dense: true,
           leading: Column(
@@ -801,6 +817,7 @@ class _CreateTask extends State<CreateTask> {
                               margin: EdgeInsets.only(right: 5.0),
                               child: Chip(
                                 labelPadding: EdgeInsets.all(5.0),
+                                elevation: 1.0,
                                 shape: StadiumBorder(
                                     side: BorderSide(
                                         color: Colors.grey[400], width: 0.5)),
@@ -897,6 +914,14 @@ class _CreateTask extends State<CreateTask> {
         padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.0),
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.25),
+                blurRadius: 4,
+                offset: Offset(0, 4), // changes position of shadow
+              ),
+            ],
+            color: Colors.white,
             border: Border.all(width: 1.0, color: Colors.grey[300])),
         child: ListTile(
             dense: true,
@@ -1040,6 +1065,14 @@ class _CreateTask extends State<CreateTask> {
           padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5.0),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.25),
+                  blurRadius: 4,
+                  offset: Offset(0, 4), // changes position of shadow
+                ),
+              ],
               border: Border.all(width: 1.0, color: Colors.grey[300])),
           child: ListTile(
             dense: true,

@@ -207,8 +207,8 @@ class TaskListState extends State<TaskList> {
     _taskItems = <TaskItem<dynamic>>[
       TaskItem<String>(
         name: 'To-Do',
-        value: 'What you do',
-        hint: 'Do these items',
+        value: '',
+        hint: '',
         valueToString: (String value) => value,
         isExpanded: true,
         builder: (TaskItem<String> item) {
@@ -219,8 +219,8 @@ class TaskListState extends State<TaskList> {
       ),
       TaskItem<String>(
         name: 'Completed',
-        value: 'These you did',
-        hint: 'Items here are done',
+        value: '',
+        hint: '',
         valueToString: (String value) => value,
         isExpanded: false,
         builder: (TaskItem<String> item) {
@@ -243,7 +243,7 @@ class TaskListState extends State<TaskList> {
         appBar: AppBar(
           title: Text(
             "Tasks",
-            style: TextStyle(color: Colors.indigo[900]),
+            style: TextStyle(color: Colors.indigo),
           ),
           elevation: 0.0,
           centerTitle: true,
@@ -608,7 +608,7 @@ class TaskListState extends State<TaskList> {
                                             BorderRadius.circular(3))),
                                 child: Container(
                                   padding:
-                                      EdgeInsets.only(top: 7.0, bottom: 7.0),
+                                      EdgeInsets.only(top: 0.0, bottom: 0.0),
                                   decoration: BoxDecoration(
                                     border: Border(
                                         left: BorderSide(
@@ -628,7 +628,7 @@ class TaskListState extends State<TaskList> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        SizedBox(height: 10.0),
+                                        SizedBox(height: 6.0),
                                         taskSnapshot.data.documents[position]
                                                     ["repeat"] ==
                                                 1
@@ -1126,6 +1126,7 @@ class TaskListState extends State<TaskList> {
   String getInitial(documentId, flatUsers) {
     for (int i = 0; i < flatUsers.length; i++) {
       if (flatUsers[i].documentID == documentId) {
+        debugPrint('name = ' + flatUsers[i].data['name']);
         return flatUsers[i].data['name'][0];
       }
     }
@@ -1136,11 +1137,11 @@ class TaskListState extends State<TaskList> {
     final action = CupertinoActionSheet(
       title: Text(
         "Tasks",
-        style: TextStyle(fontSize: 30),
+        style: TextStyle(fontSize: 30, color: Colors.black87),
       ),
       message: Text(
         "Select the type of task to be created",
-        style: TextStyle(fontSize: 15.0),
+        style: TextStyle(fontSize: 15.0, color: Colors.black87),
       ),
       actions: <Widget>[
         CupertinoActionSheetAction(
@@ -1166,6 +1167,7 @@ class TaskListState extends State<TaskList> {
         )
       ],
       cancelButton: CupertinoActionSheetAction(
+        isDestructiveAction: true,
         child: Text("Cancel"),
         onPressed: () {
           Navigator.pop(context);
@@ -1200,14 +1202,14 @@ class TaskListState extends State<TaskList> {
           Column(
             children: <Widget>[
               Material(
-                borderRadius: BorderRadius.circular(31),
+                borderRadius: BorderRadius.circular(25),
                 color: peopleFilterAllSelected ? Colors.black12 : Colors.white,
                 child: InkWell(
                   customBorder: CircleBorder(),
                   child: IconButton(
                       icon: Icon(
                         Icons.home,
-                        color: Colors.black,
+                        color: Colors.black87,
                       ),
                       onPressed: null),
                   onTap: () {
@@ -1223,7 +1225,7 @@ class TaskListState extends State<TaskList> {
               Text(
                 "All",
                 style: const TextStyle(
-                    color: Colors.black,
+                    color: Colors.black87,
                     fontSize: 12.0,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w700),
@@ -1245,7 +1247,7 @@ class TaskListState extends State<TaskList> {
                   child: IconButton(
                       icon: Icon(
                         Icons.person,
-                        color: Colors.black,
+                        color: Colors.black87,
                       ),
                       onPressed: null),
                   onTap: () {
@@ -1261,7 +1263,7 @@ class TaskListState extends State<TaskList> {
               Text(
                 "Me",
                 style: const TextStyle(
-                    color: Colors.black,
+                    color: Colors.black87,
                     fontSize: 12.0,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w700),
@@ -1282,7 +1284,7 @@ class TaskListState extends State<TaskList> {
                   child: IconButton(
                       icon: Icon(
                         Icons.filter_list,
-                        color: Colors.black,
+                        color: Colors.black87,
                       ),
                       onPressed: null),
                   onTap: () {
@@ -1296,7 +1298,7 @@ class TaskListState extends State<TaskList> {
               Text(
                 "Filter",
                 style: const TextStyle(
-                    color: Colors.black,
+                    color: Colors.black87,
                     fontSize: 12.0,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w700),
@@ -1317,7 +1319,7 @@ class TaskListState extends State<TaskList> {
                   child: IconButton(
                       icon: Icon(
                         Icons.sort,
-                        color: Colors.black,
+                        color: Colors.black87,
                       ),
                       onPressed: null),
                   onTap: () {
@@ -1331,7 +1333,7 @@ class TaskListState extends State<TaskList> {
               Text(
                 "Sort",
                 style: const TextStyle(
-                    color: Colors.black,
+                    color: Colors.black87,
                     fontSize: 12.0,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w700),

@@ -71,56 +71,35 @@ class ShoppingListsState extends State<ShoppingLists> {
     TextStyle textStyle = Theme.of(_navigatorContext).textTheme.subhead;
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+      padding: const EdgeInsets.only(right: 8.0, left: 8.0, bottom: 5.0,),
       child: SizedBox(
         width: MediaQuery.of(_navigatorContext).size.width * 0.85,
-        child: Card(
-          color: Colors.white,
-          elevation: 1.0,
-          child: Slidable(
-            key: new Key(index.toString()),
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            dismissal: SlidableDismissal(
-              child: SlidableDrawerDismissal(),
-              closeOnCanceled: true,
-              dismissThresholds: <SlideActionType, double>{
-                SlideActionType.primary: 1.0
-              },
-              onWillDismiss: (actionType) {
-                return showDialog<bool>(
-                  context: context,
-                  builder: (context) {
-                    return new AlertDialog(
-                      title: new Text('Delete'),
-                      content: new Text(
-                          'Are you sure you want to delete this list?'),
-                      actions: <Widget>[
-                        new FlatButton(
-                          child: new Text('Cancel'),
-                          onPressed: () => Navigator.of(context).pop(false),
-                        ),
-                        new FlatButton(
-                          child: new Text('Ok'),
-                          onPressed: () => Navigator.of(context).pop(true),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              onDismissed: (actionType) {
-                _deleteList(_navigatorContext, list.reference);
-              },
-            ),
-            secondaryActions: <Widget>[
-              new IconSlideAction(
-                caption: 'Delete',
-                color: Colors.red,
-                icon: Icons.delete,
-                onTap: () async {
-                  var state = Slidable.of(context);
-                  var dismiss = await showDialog<bool>(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.4),
+                blurRadius: 1,
+                offset: Offset(0, 4), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Card(
+            color: Colors.white,
+            elevation: 0.0,
+            child: Slidable(
+              key: new Key(index.toString()),
+              actionPane: SlidableDrawerActionPane(),
+              actionExtentRatio: 0.25,
+              dismissal: SlidableDismissal(
+                child: SlidableDrawerDismissal(),
+                closeOnCanceled: true,
+                dismissThresholds: <SlideActionType, double>{
+                  SlideActionType.primary: 1.0
+                },
+                onWillDismiss: (actionType) {
+                  return showDialog<bool>(
                     context: context,
                     builder: (context) {
                       return new AlertDialog(
@@ -140,169 +119,204 @@ class ShoppingListsState extends State<ShoppingLists> {
                       );
                     },
                   );
-
-                  if (dismiss) {
-                    _deleteList(_navigatorContext, list.reference);
-                    state.dismiss();
-                  }
+                },
+                onDismissed: (actionType) {
+                  _deleteList(_navigatorContext, list.reference);
                 },
               ),
-            ],
-            child: ListTile(
-              leading: Icon(
-                Icons.arrow_right,
-                color: Colors.green,
-              ),
-              title: Text(list['title'].toString().trim(),
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: 'Montserrat',
-                    color: Colors.black,
-                  )),
-              trailing: GestureDetector(
-                child: Icon(
-                  Icons.edit,
-                  color: Colors.black,
+              secondaryActions: <Widget>[
+                new IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.red,
+                  icon: Icons.delete,
+                  onTap: () async {
+                    var state = Slidable.of(context);
+                    var dismiss = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return new AlertDialog(
+                          title: new Text('Delete'),
+                          content: new Text(
+                              'Are you sure you want to delete this list?'),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text('Cancel'),
+                              onPressed: () => Navigator.of(context).pop(false),
+                            ),
+                            new FlatButton(
+                              child: new Text('Ok'),
+                              onPressed: () => Navigator.of(context).pop(true),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (dismiss) {
+                      _deleteList(_navigatorContext, list.reference);
+                      state.dismiss();
+                    }
+                  },
                 ),
-                onTap: () {
-                  setState(() {
-                    listController.text = list['title'].toString().trim();
-                  });
-                  showDialog(
-                    context: context,
-                    builder: (_) => new Form(
-                      key: _formKey2,
-                      child: AlertDialog(
-                        shape: new RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(10.0),
-                          side: BorderSide(
-                            width: 1.0,
-                            color: Colors.indigo[900],
+              ],
+              child: ListTile(
+                leading: Icon(
+                  Icons.arrow_right,
+                  color: Colors.green,
+                ),
+                title: Text(list['title'].toString().trim(),
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'Montserrat',
+                      fontStyle: FontStyle.normal,
+                      color: Colors.black,
+                    )),
+                trailing: GestureDetector(
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.black,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      listController.text = list['title'].toString().trim();
+                    });
+                    showDialog(
+                      context: context,
+                      builder: (_) => new Form(
+                        key: _formKey2,
+                        child: AlertDialog(
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(10.0),
+                            side: BorderSide(
+                              width: 1.0,
+                              color: Colors.indigo[900],
+                            ),
                           ),
-                        ),
-                        title: new Text("Edit List Title",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: 'Montserrat',
-                                fontSize: 16.0)),
-                        content: Container(
-                          width: double.maxFinite,
-                          height: MediaQuery.of(context).size.height / 3,
-                          child: Column(
-                            children: <Widget>[
-                              Padding(
-                                  padding: EdgeInsets.only(
-                                      top: _minimumPadding,
-                                      bottom: _minimumPadding),
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.text,
-                                    style: textStyle,
-                                    controller: listController,
-                                    validator: (String value) {
-                                      if (value.isEmpty)
-                                        return "Cannot add empty name!";
-                                      if (value.length > 25) return "Too long!";
-                                      return null;
-                                    },
-                                    decoration: InputDecoration(
-                                        labelText: "Title",
-                                        hintText: "Eg. Groceries",
-                                        hintStyle:
-                                            TextStyle(color: Colors.grey),
-                                        labelStyle: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16.0,
-                                            fontFamily: 'Montserrat',
-                                            fontWeight: FontWeight.w700),
-                                        errorStyle: TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 12.0,
-                                            fontFamily: 'Montserrat',
-                                            fontWeight: FontWeight.w700),
-                                        border: InputBorder.none),
-                                  )),
-                              Padding(
-                                  padding: EdgeInsets.only(
-                                      top: _minimumPadding,
-                                      bottom: _minimumPadding),
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        OutlineButton(
-                                            shape: new RoundedRectangleBorder(
-                                              borderRadius:
-                                                  new BorderRadius.circular(
-                                                      10.0),
-                                              side: BorderSide(
-                                                width: 1.0,
-                                                color: Colors.indigo[900],
+                          title: new Text("Edit List Title",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 16.0)),
+                          content: Container(
+                            width: double.maxFinite,
+                            height: MediaQuery.of(context).size.height / 4,
+                            child: Column(
+                              children: <Widget>[
+                                Padding(
+                                    padding: EdgeInsets.only(
+                                        top: _minimumPadding,
+                                        bottom: _minimumPadding),
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.text,
+                                      autofocus: true,
+                                      style: textStyle,
+                                      controller: listController,
+                                      validator: (String value) {
+                                        if (value.isEmpty)
+                                          return "Cannot add empty name!";
+                                        if (value.length > 25) return "Too long!";
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                          labelText: "Title",
+                                          hintText: "Eg. Groceries",
+                                          hintStyle:
+                                          TextStyle(color: Colors.grey),
+                                          labelStyle: TextStyle(
+                                              color: Colors.black45,
+                                              fontSize: 16.0,
+                                              fontFamily: 'Montserrat',
+                                              fontWeight: FontWeight.w700),
+                                          errorStyle: TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 12.0,
+                                              fontFamily: 'Montserrat',
+                                              fontWeight: FontWeight.w700),
+                                          border: InputBorder.none),
+                                    )),
+                                Padding(
+                                    padding: EdgeInsets.only(
+                                        top: _minimumPadding,
+                                        bottom: _minimumPadding),
+                                    child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          OutlineButton(
+                                              shape: new RoundedRectangleBorder(
+                                                borderRadius:
+                                                new BorderRadius.circular(
+                                                    10.0),
+                                                side: BorderSide(
+                                                  width: 1.0,
+                                                  color: Colors.indigo[900],
+                                                ),
                                               ),
-                                            ),
-                                            padding: const EdgeInsets.all(8.0),
-                                            textColor: Colors.black,
-                                            child: Text('Save',
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 14.0,
-                                                    fontFamily: 'Montserrat',
-                                                    fontWeight:
-                                                        FontWeight.w700)),
-                                            onPressed: () {
-                                              debugPrint("UPDATE");
-                                              if (_formKey2.currentState
-                                                  .validate()) {
-                                                debugPrint("LISTID IS" +
-                                                    list.documentID.toString());
-                                                _addOrUpdateList(context, 2,
-                                                    listReference:
-                                                        list.reference);
-                                                Navigator.of(context,
-                                                        rootNavigator: true)
-                                                    .pop();
-                                              }
-                                            }),
-                                        OutlineButton(
-                                            shape: new RoundedRectangleBorder(
-                                              borderRadius:
-                                                  new BorderRadius.circular(
-                                                      10.0),
-                                              side: BorderSide(
-                                                width: 1.0,
-                                                color: Colors.indigo[900],
-                                              ),
-                                            ),
-                                            padding: const EdgeInsets.all(8.0),
-                                            textColor: Colors.black,
-                                            child: Text('Cancel',
-                                                style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontSize: 14.0,
-                                                    fontFamily: 'Montserrat',
-                                                    fontWeight:
-                                                        FontWeight.w700)),
-                                            onPressed: () {
-                                              Navigator.of(context,
+                                              padding: const EdgeInsets.all(8.0),
+                                              textColor: Colors.black,
+                                              child: Text('Save',
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 14.0,
+                                                      fontFamily: 'Montserrat',
+                                                      fontWeight:
+                                                      FontWeight.w700)),
+                                              onPressed: () {
+                                                debugPrint("UPDATE");
+                                                if (_formKey2.currentState
+                                                    .validate()) {
+                                                  debugPrint("LISTID IS" +
+                                                      list.documentID.toString());
+                                                  _addOrUpdateList(context, 2,
+                                                      listReference:
+                                                      list.reference);
+                                                  Navigator.of(context,
                                                       rootNavigator: true)
-                                                  .pop();
-                                            })
-                                      ]))
-                            ],
+                                                      .pop();
+                                                }
+                                              }),
+                                          OutlineButton(
+                                              shape: new RoundedRectangleBorder(
+                                                borderRadius:
+                                                new BorderRadius.circular(
+                                                    10.0),
+                                                side: BorderSide(
+                                                  width: 1.0,
+                                                  color: Colors.indigo[900],
+                                                ),
+                                              ),
+                                              padding: const EdgeInsets.all(8.0),
+                                              textColor: Colors.black,
+                                              child: Text('Cancel',
+                                                  style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontSize: 14.0,
+                                                      fontFamily: 'Montserrat',
+                                                      fontWeight:
+                                                      FontWeight.w700)),
+                                              onPressed: () {
+                                                Navigator.of(context,
+                                                    rootNavigator: true)
+                                                    .pop();
+                                              })
+                                        ]))
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    );
+                  },
+                ),
+                onTap: () {
+                  Navigator.push(
+                    _navigatorContext,
+                    MaterialPageRoute(builder: (context) {
+                      return ListItems(list, flatId);
+                    }),
                   );
                 },
               ),
-              onTap: () {
-                Navigator.push(
-                  _navigatorContext,
-                  MaterialPageRoute(builder: (context) {
-                    return ListItems(list, flatId);
-                  }),
-                );
-              },
             ),
           ),
         ),
@@ -408,9 +422,9 @@ class ShoppingListsState extends State<ShoppingLists> {
         appBar: AppBar(
           title: Text(
             "Lists",
-            style: TextStyle(color: Colors.indigo[900]),
+            style: TextStyle(color: Colors.indigo),
           ),
-          elevation: 0.0,
+          elevation: 2.0,
           centerTitle: true,
           leading: IconButton(
             icon: Icon(
@@ -434,6 +448,9 @@ class ShoppingListsState extends State<ShoppingLists> {
           _navigatorContext = scaffoldC;
           return Column(
             children: <Widget>[
+              Container(
+                height: 10.0,
+              ),
               Expanded(
                 child: getLists(),
               ),
@@ -472,7 +489,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                   fontSize: 16.0)),
           content: Container(
             width: double.maxFinite,
-            height: MediaQuery.of(context).size.height / 3,
+            height: MediaQuery.of(context).size.height / 4,
             child: Column(
               children: <Widget>[
                 Padding(
@@ -481,6 +498,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                     child: TextFormField(
                       keyboardType: TextInputType.text,
                       style: textStyle,
+                      autofocus: true,
                       controller: addListController,
                       validator: (String value) {
                         if (value.isEmpty) return "Cannot add empty name!";
@@ -492,7 +510,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                           hintText: "Eg. Groceries",
                           hintStyle: TextStyle(color: Colors.grey),
                           labelStyle: TextStyle(
-                              color: Colors.black,
+                              color: Colors.black54,
                               fontSize: 16.0,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w700),

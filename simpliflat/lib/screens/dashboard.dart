@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
+import 'package:simpliflat/screens/tasks/task_list.dart';
 import 'package:simpliflat/screens/tasks/view_task.dart';
 import 'package:simpliflat/screens/tenant_portal/add_landlord.dart';
 import 'package:simpliflat/screens/tenant_portal/tenant_portal.dart';
@@ -85,7 +86,7 @@ class DashboardState extends State<Dashboard> {
             "SimpliFlat",
             style: TextStyle(color: Colors.indigo[900]),
           ),
-          elevation: 0.0,
+          elevation: 2.0,
           centerTitle: true,
           leading: IconButton(
             icon: Icon(
@@ -162,6 +163,7 @@ class DashboardState extends State<Dashboard> {
                         'Tasks for you today',
                         style: TextStyle(
                           color: Colors.black,
+                          fontSize: 14.0,
                         ),
                       )
                     : Container(height: 0.0),
@@ -174,6 +176,7 @@ class DashboardState extends State<Dashboard> {
                         'Notices today',
                         style: TextStyle(
                           color: Colors.black,
+                          fontSize: 14.0,
                         ),
                       )
                     : Container(height: 0.0),
@@ -256,74 +259,82 @@ class DashboardState extends State<Dashboard> {
   // Get Tasks data for today
   Widget getTasks() {
     var date = DateFormat("yyyy-MM-dd");
+
     return StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
-            .collection(globals.flat)
-            .document(flatId)
-            .collection(globals.tasks)
-            .where("completed", isEqualTo: false)
+            .collection(globals.user)
+            .where('flat_id', isEqualTo: flatId)
             .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> taskSnapshot) {
-          if (!taskSnapshot.hasData) return LoadingContainerVertical(3);
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot1) {
+          if (!snapshot1.hasData) return LoadingContainerVertical(7);
+          return StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance
+                  .collection(globals.flat)
+                  .document(flatId)
+                  .collection(globals.tasks)
+                  .where("completed", isEqualTo: false)
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> taskSnapshot) {
+                if (!taskSnapshot.hasData) return LoadingContainerVertical(3);
 
-          taskSnapshot.data.documents.sort(
-              (DocumentSnapshot a, DocumentSnapshot b) => int.parse(b
-                  .data['nextDueDate']
-                  .compareTo(a.data['nextDueDate'])
-                  .toString()));
+                taskSnapshot.data.documents.sort(
+                        (DocumentSnapshot a, DocumentSnapshot b) => int.parse(b
+                        .data['nextDueDate']
+                        .compareTo(a.data['nextDueDate'])
+                        .toString()));
 
-          taskSnapshot.data.documents.removeWhere((data) =>
-              date.format((data['nextDueDate'] as Timestamp).toDate()) !=
-              date.format(DateTime.now().toLocal()));
+                taskSnapshot.data.documents.removeWhere((data) =>
+                date.format((data['nextDueDate'] as Timestamp).toDate()) !=
+                    date.format(DateTime.now().toLocal()));
 
-          taskSnapshot.data.documents.removeWhere((s) =>
-              !s.data['assignee'].toString().contains(currentUserId.trim()));
+                taskSnapshot.data.documents.removeWhere((s) =>
+                !s.data['assignee'].toString().contains(currentUserId.trim()));
 
-          /// TASK LIST VIEW
-          var tooltipKey = new List();
-          for (int i = 0; i < taskSnapshot.data.documents.length; i++) {
-            tooltipKey.add(GlobalKey());
-          }
+                /// TASK LIST VIEW
+                var tooltipKey = new List();
+                for (int i = 0; i < taskSnapshot.data.documents.length; i++) {
+                  tooltipKey.add(GlobalKey());
+                }
 
-          return new ListView.builder(
-            itemCount: taskSnapshot.data.documents.length,
-            scrollDirection: Axis.vertical,
-            key: UniqueKey(),
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: (BuildContext context, int position) {
-              var datetime = (taskSnapshot.data.documents[position]
-                      ["nextDueDate"] as Timestamp)
-                  .toDate();
+                return new ListView.builder(
+                  itemCount: taskSnapshot.data.documents.length,
+                  scrollDirection: Axis.vertical,
+                  key: UniqueKey(),
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int position) {
+                    var datetime = (taskSnapshot.data.documents[position]
+                    ["nextDueDate"] as Timestamp)
+                        .toDate();
 
-              if (taskSnapshot.data.documents.length > 0) {
-                tasksExist = true;
-              } else {
-                tasksExist = false;
-              }
+                    if (taskSnapshot.data.documents.length > 0) {
+                      tasksExist = true;
+                    } else {
+                      tasksExist = false;
+                    }
 
-              return Padding(
-                  padding: const EdgeInsets.only(right: 8.0, left: 8.0),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.85,
-                    child: Card(
-                      color: Colors.white,
-                      elevation: 2.0,
-                      child: ListTile(
-                        title: CommonWidgets.textBox(
-                            taskSnapshot.data.documents[position]["title"],
-                            15.0,
-                            color: Colors.black),
-                        subtitle: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 10.0),
-                            taskSnapshot.data.documents[position]["repeat"] == 1
-                                ? CommonWidgets.textBox(
-                                    'Always Available', 12.0,
-                                    color: Colors.black45)
-                                : Row(
+                    return Padding(
+                        padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          child: Card(
+                            color: Colors.white,
+                            elevation: 5.0,
+                            child: ListTile(
+                              title: CommonWidgets.textBox(
+                                  taskSnapshot.data.documents[position]["title"],
+                                  15.0,
+                                  color: Colors.black),
+                              subtitle: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 10.0),
+                                  taskSnapshot.data.documents[position]["repeat"] == 1
+                                      ? CommonWidgets.textBox(
+                                      'Always Available', 12.0,
+                                      color: Colors.black45)
+                                      : Row(
                                     children: <Widget>[
                                       CommonWidgets.textBox(
                                           _getDateTimeString(datetime), 11.0,
@@ -332,29 +343,32 @@ class DashboardState extends State<Dashboard> {
                                         width: 4.0,
                                       ),
                                       taskSnapshot.data.documents[position]
-                                                  ["repeat"] !=
-                                              -1
+                                      ["repeat"] !=
+                                          -1
                                           ? Icon(
-                                              Icons.replay,
-                                              size: 16,
-                                            )
+                                        Icons.replay,
+                                        size: 16,
+                                      )
                                           : Container(),
                                     ],
                                   )
-                          ],
-                        ),
-                        trailing: getUsersAssignedView(
-                            taskSnapshot.data.documents[position]["assignee"]),
-                        onTap: () {
-                          navigateToViewTask(
-                              taskId: taskSnapshot
-                                  .data.documents[position].documentID);
-                        },
-                      ),
-                    ),
-                  ));
-            },
-          );
+                                ],
+                              ),
+                              trailing: getUsersAssignedView(
+                                  taskSnapshot.data.documents[position]
+                                  ["assignee"],
+                                  snapshot1),
+                              onTap: () {
+                                navigateToViewTask(
+                                    taskId: taskSnapshot
+                                        .data.documents[position].documentID);
+                              },
+                            ),
+                          ),
+                        ));
+                  },
+                );
+              });
         });
   }
 
@@ -371,57 +385,85 @@ class DashboardState extends State<Dashboard> {
     return datetimeString;
   }
 
-  /// TODO: Change taskList code to store names along with user id in array. Then change this hardcoded values to show those.
+  Widget getUsersAssignedView(users, AsyncSnapshot<QuerySnapshot> snapshot1) {
+    return new Container(
+      margin: EdgeInsets.only(right: 5.0),
+      child: Stack(
+        alignment: Alignment.centerRight,
+        overflow: Overflow.visible,
+        children:
+        _getPositionedOverlappingUsers(users, snapshot1.data.documents),
+      ),
+    );
+  }
 
-  Widget getUsersAssignedView(users) {
-    //get user color id
-    List userList = users.toString().trim().split(';');
+  List<Widget> _getPositionedOverlappingUsers(
+      users, List<DocumentSnapshot> flatUsers) {
+    List<String> userList;
+
+    userList = users.toString().trim().split(',').toList();
+
     var overflowAddition = 0.0;
     if (userList.length > 3) overflowAddition = 8.0;
-    var color = currentUserId.toString().trim().hashCode;
 
-    return new Stack(
-      alignment: Alignment.centerRight,
-      overflow: Overflow.visible,
-      children: <Widget>[
-        overflowAddition > 0
-            ? Text('+', style: TextStyle(fontSize: 16.0))
-            : Container(
-                height: 0.0,
-                width: 0.0,
-              ),
-        new Positioned(
-          right: overflowAddition,
-          child: CircleAvatar(
-            maxRadius: 16.0,
-            backgroundColor: Colors.orange,
-            child: Padding(
-              child: Text('A'),
-              padding: EdgeInsets.only(left: 5.0),
-            ),
-          ),
+    List<Widget> overlappingUsers = new List();
+    overflowAddition > 0
+        ? overlappingUsers.add(Text('+', style: TextStyle(fontSize: 16.0)))
+        : overlappingUsers.add(Container(
+      height: 0.0,
+      width: 0.0,
+    ));
+
+    for (var j in userList) {
+      debugPrint("elems == " + j);
+    }
+
+    userList.sort();
+    int length = userList.length > 3 ? 3 : userList.length;
+    debugPrint("length == " + userList.length.toString());
+
+    int availableUsers = 0;
+    for (int i = 0; i < length; i++) {
+      debugPrint("i == " + i.toString());
+      String initial = getInitial(userList[i], flatUsers);
+      if (initial == '') {
+        continue;
+      }
+      availableUsers++;
+      var color = userList[i].toString().trim().hashCode;
+      overlappingUsers.add(new Positioned(
+        right: (i * 20.0) + overflowAddition,
+        child: new CircleAvatar(
+          maxRadius: 14.0,
+          backgroundColor: Colors.primaries[color % Colors.primaries.length]
+          [300],
+          child: Text(initial),
         ),
-        new Positioned(
-          right: 15.0 + overflowAddition,
-          child: new CircleAvatar(
-            maxRadius: 16.0,
-            backgroundColor: Colors.primaries[color % Colors.primaries.length],
-            child: Padding(
-              child: Text('B'),
-              padding: EdgeInsets.only(left: 5.0),
-            ),
-          ),
+      ));
+    }
+    if (userList.contains(globals.landlordIdValue)) {
+      var colorL = globals.landlordIdValue.toString().trim().hashCode;
+
+      overlappingUsers.add(new Positioned(
+        right: (availableUsers * 20) + overflowAddition,
+        child: new CircleAvatar(
+          maxRadius: 14.0,
+          backgroundColor: Colors.primaries[colorL % Colors.primaries.length]
+          [300],
+          child: Text(globals.landlordNameValue[0]),
         ),
-        new Positioned(
-          right: 30.0 + overflowAddition,
-          child: new CircleAvatar(
-            maxRadius: 16.0,
-            backgroundColor: Colors.blue,
-            child: Text('C'),
-          ),
-        ),
-      ],
-    );
+      ));
+    }
+    return overlappingUsers;
+  }
+
+  String getInitial(documentId, flatUsers) {
+    for (int i = 0; i < flatUsers.length; i++) {
+      if (flatUsers[i].documentID == documentId) {
+        return flatUsers[i].data['name'][0];
+      }
+    }
+    return '';
   }
 
   void navigateToViewTask({taskId}) {
@@ -493,7 +535,7 @@ class DashboardState extends State<Dashboard> {
         width: MediaQuery.of(context).size.width * 0.85,
         child: Card(
           color: Colors.white,
-          elevation: 1.0,
+          elevation: 3.0,
           child: ListTile(
             title: Column(
               mainAxisAlignment: MainAxisAlignment.start,

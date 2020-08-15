@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -53,6 +54,16 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
+        cupertinoOverrideTheme: CupertinoThemeData.raw(
+          Brightness.light,
+          Colors.black,
+          Colors.white,
+          CupertinoTextThemeData(
+            primaryColor: Colors.white,
+          ),
+          Colors.white,
+          Colors.white,
+        ),
         primaryColor: Colors.white,
         accentColor: Colors.indigo[900],
         fontFamily: 'Montserrat',
@@ -234,8 +245,8 @@ class MyApp extends StatelessWidget {
   // 1 : User is new - SignUp()
   // 2 : CreateOrJoin() page with request status
   // 3 : Home()
-  void _navigate(context, flag, {flatId,
-      requestDenied = 2, List<String> incomingRequests}) {
+  void _navigate(context, flag,
+      {flatId, requestDenied = 2, List<String> incomingRequests}) {
     debugPrint("Flag for navigation is " + flag.toString());
     Navigator.pushReplacement(
       _navigatorContext,

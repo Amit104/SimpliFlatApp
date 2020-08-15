@@ -53,7 +53,7 @@ class NoticeBoard extends State<Notice> {
       appBar: AppBar(
         title: Text("Notices"),
         centerTitle: true,
-        elevation: 0.0,
+        elevation: 2.0,
       ),
       body: Builder(
         builder: (BuildContext scaffoldC) {
@@ -90,13 +90,13 @@ class NoticeBoard extends State<Notice> {
                             child: Container(
                               child: new Text(getDateValue(value),
                                   style: new TextStyle(
-                                      color: Colors.red[900],
+                                      color: Colors.indigo[900],
                                       fontSize: 14.0,
                                       fontFamily: 'Robato')),
                               decoration: new BoxDecoration(
                                   borderRadius: new BorderRadius.all(
                                       new Radius.circular(6.0)),
-                                  color: Colors.red[100]),
+                                  color: Colors.indigo[100]),
                               padding:
                                   new EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 6.0),
                             ),
@@ -141,9 +141,19 @@ class NoticeBoard extends State<Notice> {
                             decoration: InputDecoration(
                               hintText: "Add Note...",
                               hintStyle: TextStyle(color: Colors.black87),
+                              focusedBorder: new OutlineInputBorder(
+                                borderRadius: new BorderRadius.circular(20.0),
+                                borderSide: new BorderSide(
+                                    color: Colors.black,
+                                    style: BorderStyle.solid
+                                ),
+                              ),
                               border: new OutlineInputBorder(
-                                borderRadius: new BorderRadius.circular(25.0),
-                                borderSide: new BorderSide(),
+                                borderRadius: new BorderRadius.circular(20.0),
+                                borderSide: new BorderSide(
+                                  color: Colors.black,
+                                  style: BorderStyle.solid
+                                ),
                               ),
                               errorStyle: TextStyle(
                                   color: Colors.red,
@@ -160,14 +170,15 @@ class NoticeBoard extends State<Notice> {
                       ),
                       ClipOval(
                         child: Material(
-                          color: Colors.red[900], // button color
+                          color: Colors.indigo, // button color
                           child: InkWell(
-                            splashColor: Colors.red, // inkwell color
+                            splashColor: Colors.indigo, // inkwell color
                             child: SizedBox(
                                 width: 56,
                                 height: 56,
                                 child: Icon(
                                   Icons.add,
+                                  color: Colors.white,
                                 )),
                             onTap: () async {
                               if (_formKey1.currentState.validate()) {
@@ -256,7 +267,7 @@ class NoticeBoard extends State<Notice> {
                   notice.documentID) //_notSynced.contains(notice.documentID)
               ? Colors.grey[100]
               : Colors.white,
-          elevation: 1.0,
+          elevation: 3.0,
           child: Slidable(
             key: GlobalKey(),
             actionPane: SlidableDrawerActionPane(),

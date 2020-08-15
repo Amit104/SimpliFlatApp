@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:simpliflat/main.dart';
 import 'package:simpliflat/screens/signup/create_flat.dart';
@@ -183,23 +184,27 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
           scaffoldContext = scaffoldC;
           return RefreshIndicator(
             onRefresh: _handleRefresh,
-            child: ListView(
+            child: Column(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    height: 90.0,
-                    width: deviceSize.width * 0.95,
-                    child: Card(
-                        color: ccard,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: (ccard == Colors.white)
-                              ? Text(lastRequestStatus,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontFamily: 'Montserrat', color: ctext))
-                              : ListTile(
+                SizedBox(
+                  height: 4.1 * MediaQuery.of(context).size.height / 5,
+                  child: ListView(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: 90.0,
+                          width: deviceSize.width * 0.95,
+                          child: Card(
+                              color: ccard,
+                              child: Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: (ccard == Colors.white)
+                                    ? Text(lastRequestStatus,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontFamily: 'Montserrat', color: ctext))
+                                    : ListTile(
                                   leading: Icon(
                                     Icons.warning,
                                     color: ctext,
@@ -212,171 +217,217 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                                     ),
                                   ),
                                 ),
-                        )),
+                              )),
+                        ),
+                      ),
+                      Container(margin: EdgeInsets.all(10.0)),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(),
+                            flex: 2,
+                          ),
+                          InkWell(
+                            onTap: () {},
+                            child: SizedBox(
+                                height: 225,
+                                width: deviceSize.width * 0.42,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    navigateToCreate(context, 0);
+                                  },
+                                  child: new Card(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5.0)),
+                                      color: Colors.black87,
+                                      elevation: 2.0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          // Box decoration takes a gradient
+                                          gradient: LinearGradient(
+                                            // Where the linear gradient begins and ends
+                                            begin: Alignment.topRight,
+                                            end: Alignment.bottomLeft,
+                                            // Add one stop for each color. Stops should increase from 0 to 1
+                                            stops: [0.1, 0.5, 0.7, 0.9],
+                                            colors: [
+                                              // Colors are easy thanks to Flutter's Colors class.
+                                              Colors.indigo[800],
+                                              Colors.indigo[700],
+                                              Colors.indigo[600],
+                                              Colors.indigo[400],
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(5.0),
+                                        ),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              textInCard("Create a", FontWeight.w700,
+                                                  21.0, 28.0, 40.0),
+                                              textInCard("Flat", FontWeight.w700,
+                                                  21.0, 28.0, 5.0),
+                                              textInCard("Create a new", null, 12.0,
+                                                  28.0, 20.0),
+                                              textInCard("flat and invite", null,
+                                                  12.0, 28.0, 7.0),
+                                              textInCard("your flatmates.", null,
+                                                  12.0, 28.0, 7.0),
+                                            ]),
+                                      )),
+                                )),
+                          ),
+                          Expanded(
+                            child: Container(),
+                            flex: 3,
+                          ),
+                          InkWell(
+                            splashColor: Colors.white,
+                            onTap: () {},
+                            child: SizedBox(
+                                height: 225,
+                                width: deviceSize.width * 0.42,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    navigateToCreate(context, 1).then((flag) {
+                                      setState(() {
+                                        if (flag == 0) {
+                                          lastRequestStatus =
+                                          "Your last request is pending. wait or join new flat.";
+                                          ccard = Colors.purple[100];
+                                          ctext = Colors.purple[700];
+                                        }
+                                      });
+                                    });
+                                  },
+                                  child: new Card(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5.0)),
+                                      color: Colors.black87,
+                                      elevation: 2.0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          // Box decoration takes a gradient
+                                          gradient: LinearGradient(
+                                            // Where the linear gradient begins and ends
+                                            begin: Alignment.topRight,
+                                            end: Alignment.bottomLeft,
+                                            // Add one stop for each color. Stops should increase from 0 to 1
+                                            stops: [0.1, 0.5, 0.7, 0.9],
+                                            colors: [
+                                              // Colors are easy thanks to Flutter's Colors class.
+                                              Colors.indigo[800],
+                                              Colors.indigo[700],
+                                              Colors.indigo[600],
+                                              Colors.indigo[400],
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(5.0),
+                                        ),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              textInCard("Join a", FontWeight.w700,
+                                                  21.0, 28.0, 40.0),
+                                              textInCard("Flat", FontWeight.w700,
+                                                  21.0, 28.0, 5.0),
+                                              textInCard("Search for your", null,
+                                                  12.0, 28.0, 20.0),
+                                              textInCard("flat and send", null, 12.0,
+                                                  28.0, 7.0),
+                                              textInCard("a request.", null, 12.0,
+                                                  28.0, 7.0),
+                                            ]),
+                                      )),
+                                )),
+                          ),
+                          Expanded(
+                            child: Container(),
+                            flex: 2,
+                          ),
+                        ],
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(15.0),
+                      ),
+                      Row(
+                        children:
+                        (incomingRequests == null || incomingRequests.length == 0)
+                            ? <Widget>[Container(margin: EdgeInsets.all(5.0))]
+                            : <Widget>[
+                          Expanded(child: Container()),
+                          Text("Incoming Requests",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontFamily: 'Montserrat',
+                                  color: Colors.black)),
+                          Expanded(flex: 15, child: Container()),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 15.0),
+                        child: Container(
+                          height: (incomingRequests == null ||
+                              incomingRequests.length == 0)
+                              ? 5.0
+                              : MediaQuery.of(context).size.height / 2,
+                          child: (incomingRequests == null ||
+                              incomingRequests.length == 0)
+                              ? null
+                              : new ListView.builder(
+                              itemCount: incomingRequests.length,
+                              itemBuilder: (BuildContext context, int index) =>
+                                  buildIncomingRequests(context, index)),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Container(margin: EdgeInsets.all(10.0)),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Container(),
-                      flex: 2,
+                RaisedButton(
+                  shape: new RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(15.0),
+                    side: BorderSide(
+                      width: 0.5,
+                      color: Colors.indigo[900],
                     ),
-                    InkWell(
-                      onTap: () {},
-                      child: SizedBox(
-                          height: 225,
-                          width: deviceSize.width * 0.42,
-                          child: GestureDetector(
-                            onTap: () {
-                              navigateToCreate(context, 0);
-                            },
-                            child: new Card(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5.0)),
-                                color: Colors.black87,
-                                elevation: 2.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    // Box decoration takes a gradient
-                                    gradient: LinearGradient(
-                                      // Where the linear gradient begins and ends
-                                      begin: Alignment.topRight,
-                                      end: Alignment.bottomLeft,
-                                      // Add one stop for each color. Stops should increase from 0 to 1
-                                      stops: [0.1, 0.5, 0.7, 0.9],
-                                      colors: [
-                                        // Colors are easy thanks to Flutter's Colors class.
-                                        Colors.indigo[800],
-                                        Colors.indigo[700],
-                                        Colors.indigo[600],
-                                        Colors.indigo[400],
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        textInCard("Create a", FontWeight.w700,
-                                            21.0, 28.0, 40.0),
-                                        textInCard("Flat", FontWeight.w700,
-                                            21.0, 28.0, 5.0),
-                                        textInCard("Create a new", null, 12.0,
-                                            28.0, 20.0),
-                                        textInCard("flat and invite", null,
-                                            12.0, 28.0, 7.0),
-                                        textInCard("your flatmates.", null,
-                                            12.0, 28.0, 7.0),
-                                      ]),
-                                )),
-                          )),
-                    ),
-                    Expanded(
-                      child: Container(),
-                      flex: 3,
-                    ),
-                    InkWell(
-                      splashColor: Colors.white,
-                      onTap: () {},
-                      child: SizedBox(
-                          height: 225,
-                          width: deviceSize.width * 0.42,
-                          child: GestureDetector(
-                            onTap: () {
-                              navigateToCreate(context, 1).then((flag) {
-                                setState(() {
-                                  if (flag == 0) {
-                                    lastRequestStatus =
-                                        "Your last request is pending. wait or join new flat.";
-                                    ccard = Colors.purple[100];
-                                    ctext = Colors.purple[700];
-                                  }
-                                });
-                              });
-                            },
-                            child: new Card(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5.0)),
-                                color: Colors.black87,
-                                elevation: 2.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    // Box decoration takes a gradient
-                                    gradient: LinearGradient(
-                                      // Where the linear gradient begins and ends
-                                      begin: Alignment.topRight,
-                                      end: Alignment.bottomLeft,
-                                      // Add one stop for each color. Stops should increase from 0 to 1
-                                      stops: [0.1, 0.5, 0.7, 0.9],
-                                      colors: [
-                                        // Colors are easy thanks to Flutter's Colors class.
-                                        Colors.indigo[800],
-                                        Colors.indigo[700],
-                                        Colors.indigo[600],
-                                        Colors.indigo[400],
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(5.0),
-                                  ),
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        textInCard("Join a", FontWeight.w700,
-                                            21.0, 28.0, 40.0),
-                                        textInCard("Flat", FontWeight.w700,
-                                            21.0, 28.0, 5.0),
-                                        textInCard("Search for your", null,
-                                            12.0, 28.0, 20.0),
-                                        textInCard("flat and send", null, 12.0,
-                                            28.0, 7.0),
-                                        textInCard("a request.", null, 12.0,
-                                            28.0, 7.0),
-                                      ]),
-                                )),
-                          )),
-                    ),
-                    Expanded(
-                      child: Container(),
-                      flex: 2,
-                    ),
-                  ],
-                ),
-                Container(
-                  margin: EdgeInsets.all(15.0),
-                ),
-                Row(
-                  children:
-                      (incomingRequests == null || incomingRequests.length == 0)
-                          ? <Widget>[Container(margin: EdgeInsets.all(5.0))]
-                          : <Widget>[
-                              Expanded(child: Container()),
-                              Text("Incoming Requests",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontFamily: 'Montserrat',
-                                      color: Colors.black)),
-                              Expanded(flex: 15, child: Container()),
-                            ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 15.0),
-                  child: Container(
-                    height: (incomingRequests == null ||
-                            incomingRequests.length == 0)
-                        ? 5.0
-                        : MediaQuery.of(context).size.height / 2,
-                    child: (incomingRequests == null ||
-                            incomingRequests.length == 0)
-                        ? null
-                        : new ListView.builder(
-                            itemCount: incomingRequests.length,
-                            itemBuilder: (BuildContext context, int index) =>
-                                buildIncomingRequests(context, index)),
                   ),
+                  color: Colors.white,
+                  textColor: Colors.indigo[900],
+                  onPressed: () {
+                    showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return new AlertDialog(
+                          title: new Text('Sign out'),
+                          content: new Text(
+                              'Are you sure you want to sign out?'),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text('Cancel'),
+                              onPressed: () =>
+                                  Navigator.of(context).pop(false),
+                            ),
+                            new FlatButton(
+                                child: new Text('Yes'),
+                                onPressed: () async {
+                                  Navigator.of(context).pop(true);
+                                  await FirebaseAuth.instance.signOut();
+                                  final prefs = await SharedPreferences.getInstance();
+                                  await prefs.clear();
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (BuildContext context) => MyApp()),
+                                          (Route<dynamic> route) => false);
+                                }),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Text('Sign out'),
                 ),
               ],
             ),

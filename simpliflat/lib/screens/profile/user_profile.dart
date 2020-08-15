@@ -102,7 +102,7 @@ class _UserProfile extends State<UserProfile> {
               Strings.profileAppBar,
               style: TextStyle(color: Colors.indigo[900]),
             ),
-            elevation: 0.0,
+            elevation: 2.0,
             centerTitle: true,
             leading: IconButton(
               icon: Icon(
@@ -357,9 +357,19 @@ class _UserProfile extends State<UserProfile> {
                           ],
                         ),
                         Container(
-                          padding: EdgeInsets.only(top: 5.0),
-                          height: 118.0,
-                          color: Colors.white,
+                          padding: EdgeInsets.only(top: 2.0),
+                          height: 100.0,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.0),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.25),
+                                  blurRadius: 1,
+                                  offset: Offset(0, 4), // changes position of shadow
+                                ),
+                              ],
+                              border: Border.all(width: 1.0, color: Colors.grey[300])),
                           child: (existingUsers == null ||
                                   existingUsers.length == 0)
                               ? LoadingContainerHorizontal(
@@ -1177,7 +1187,7 @@ class _UserProfile extends State<UserProfile> {
             contactHeight = 50.0;
             return emptyCard();
           }
-          contactHeight = 80.0 * contactSnapshot.data.documents.length;
+          contactHeight = 90.0 * contactSnapshot.data.documents.length;
 
           return ListView.builder(
               itemCount: contactSnapshot.data.documents.length,
@@ -1189,406 +1199,409 @@ class _UserProfile extends State<UserProfile> {
                     .toString()[0]
                     .toUpperCase());
 
-                return Padding(
-                  padding:
-                      const EdgeInsets.only(top: 2.0, right: 8.0, left: 8.0),
-                  child: SizedBox(
-                    height: 70.0,
-                    width: MediaQuery.of(context).size.width,
-                    child: Card(
-                        elevation: 0.0,
-                        child: Slidable(
-                          key: new Key(position.toString()),
-                          enabled: true,
-                          dismissal: SlidableDismissal(
-                            child: SlidableDrawerDismissal(),
-                            closeOnCanceled: true,
-                            onWillDismiss: (actionType) {
-                              return showDialog<bool>(
-                                context: context,
-                                builder: (context) {
-                                  return new AlertDialog(
-                                    title: new Text('Delete'),
-                                    content: new Text('Item will be deleted'),
-                                    actions: <Widget>[
-                                      new FlatButton(
-                                        child: new Text('Cancel'),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(false),
-                                      ),
-                                      new FlatButton(
-                                        child: new Text('Ok'),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(true),
-                                      ),
-                                    ],
+                return Container(
+
+                  child: Padding(
+                    padding:
+                    const EdgeInsets.only(top: 2.0, right: 8.0, left: 8.0),
+                    child: SizedBox(
+                      height: 80.0,
+                      width: MediaQuery.of(context).size.width,
+                      child: Card(
+                          elevation: 5.0,
+                          child: Slidable(
+                            key: new Key(position.toString()),
+                            enabled: true,
+                            dismissal: SlidableDismissal(
+                              child: SlidableDrawerDismissal(),
+                              closeOnCanceled: true,
+                              onWillDismiss: (actionType) {
+                                return showDialog<bool>(
+                                  context: context,
+                                  builder: (context) {
+                                    return new AlertDialog(
+                                      title: new Text('Delete'),
+                                      content: new Text('Item will be deleted'),
+                                      actions: <Widget>[
+                                        new FlatButton(
+                                          child: new Text('Cancel'),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                        ),
+                                        new FlatButton(
+                                          child: new Text('Ok'),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              onDismissed: (actionType) {
+                                Firestore.instance
+                                    .collection(globals.flat)
+                                    .document(_flatId)
+                                    .collection(globals.flatContacts)
+                                    .document(contactSnapshot
+                                    .data.documents[position].documentID)
+                                    .delete();
+                              },
+                            ),
+                            actionPane: SlidableDrawerActionPane(),
+                            actionExtentRatio: 0.25,
+                            actions: <Widget>[
+                              new IconSlideAction(
+                                caption: 'Delete',
+                                color: Colors.red,
+                                icon: Icons.delete,
+                                onTap: () async {
+                                  var state = Slidable.of(context);
+                                  var dismiss = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) {
+                                      return new AlertDialog(
+                                        title: new Text('Delete'),
+                                        content: new Text('Item will be deleted'),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text('Cancel'),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(false),
+                                          ),
+                                          new FlatButton(
+                                            child: new Text('Ok'),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   );
+
+                                  if (dismiss) {
+                                    Firestore.instance
+                                        .collection(globals.flat)
+                                        .document(_flatId)
+                                        .collection(globals.flatContacts)
+                                        .document(contactSnapshot
+                                        .data.documents[position].documentID)
+                                        .delete();
+                                    state.dismiss();
+                                  }
                                 },
-                              );
-                            },
-                            onDismissed: (actionType) {
-                              Firestore.instance
-                                  .collection(globals.flat)
-                                  .document(_flatId)
-                                  .collection(globals.flatContacts)
-                                  .document(contactSnapshot
-                                      .data.documents[position].documentID)
-                                  .delete();
-                            },
-                          ),
-                          actionPane: SlidableDrawerActionPane(),
-                          actionExtentRatio: 0.25,
-                          actions: <Widget>[
-                            new IconSlideAction(
-                              caption: 'Delete',
-                              color: Colors.red,
-                              icon: Icons.delete,
-                              onTap: () async {
-                                var state = Slidable.of(context);
-                                var dismiss = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    return new AlertDialog(
-                                      title: new Text('Delete'),
-                                      content: new Text('Item will be deleted'),
-                                      actions: <Widget>[
-                                        new FlatButton(
-                                          child: new Text('Cancel'),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(false),
-                                        ),
-                                        new FlatButton(
-                                          child: new Text('Ok'),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(true),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
+                              ),
+                            ],
+                            secondaryActions: <Widget>[
+                              new IconSlideAction(
+                                caption: 'Delete',
+                                color: Colors.red,
+                                icon: Icons.delete,
+                                onTap: () async {
+                                  var state = Slidable.of(context);
+                                  var dismiss = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) {
+                                      return new AlertDialog(
+                                        title: new Text('Delete'),
+                                        content: new Text('Item will be deleted'),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text('Cancel'),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(false),
+                                          ),
+                                          new FlatButton(
+                                            child: new Text('Ok'),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
-                                if (dismiss) {
-                                  Firestore.instance
-                                      .collection(globals.flat)
-                                      .document(_flatId)
-                                      .collection(globals.flatContacts)
-                                      .document(contactSnapshot
-                                          .data.documents[position].documentID)
-                                      .delete();
-                                  state.dismiss();
-                                }
-                              },
-                            ),
-                          ],
-                          secondaryActions: <Widget>[
-                            new IconSlideAction(
-                              caption: 'Delete',
-                              color: Colors.red,
-                              icon: Icons.delete,
-                              onTap: () async {
-                                var state = Slidable.of(context);
-                                var dismiss = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    return new AlertDialog(
-                                      title: new Text('Delete'),
-                                      content: new Text('Item will be deleted'),
-                                      actions: <Widget>[
-                                        new FlatButton(
-                                          child: new Text('Cancel'),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(false),
-                                        ),
-                                        new FlatButton(
-                                          child: new Text('Ok'),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(true),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-
-                                if (dismiss) {
-                                  Firestore.instance
-                                      .collection(globals.flat)
-                                      .document(_flatId)
-                                      .collection(globals.flatContacts)
-                                      .document(contactSnapshot
-                                          .data.documents[position].documentID)
-                                      .delete();
-                                  state.dismiss();
-                                }
-                              },
-                            ),
-                          ],
-                          child: ListTile(
-                            leading: GestureDetector(
-                              child: CircleAvatar(
+                                  if (dismiss) {
+                                    Firestore.instance
+                                        .collection(globals.flat)
+                                        .document(_flatId)
+                                        .collection(globals.flatContacts)
+                                        .document(contactSnapshot
+                                        .data.documents[position].documentID)
+                                        .delete();
+                                    state.dismiss();
+                                  }
+                                },
+                              ),
+                            ],
+                            child: ListTile(
+                              leading: GestureDetector(
                                 child: CircleAvatar(
-                                  backgroundColor: Utility.userIdColor(
-                                      contactSnapshot
-                                          .data.documents[position]["name"]
-                                          .toString()),
-                                  child: Text(
-                                    contactChar,
-                                    style: TextStyle(
-                                      fontSize: 22.0,
-                                      fontFamily: 'Roboto',
-                                      color: Colors.white,
+                                  child: CircleAvatar(
+                                    backgroundColor: Utility.userIdColor(
+                                        contactSnapshot
+                                            .data.documents[position]["name"]
+                                            .toString()),
+                                    child: Text(
+                                      contactChar,
+                                      style: TextStyle(
+                                        fontSize: 22.0,
+                                        fontFamily: 'Roboto',
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
+                                onTap: () {
+                                  setState(() {
+                                    contactName.text = contactSnapshot
+                                        .data.documents[position]["name"]
+                                        .toString();
+                                    phone.text = contactSnapshot
+                                        .data.documents[position]["phone"]
+                                        .toString()
+                                        .trim();
+                                  });
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) => new Form(
+                                          key: _formKey1,
+                                          child: AlertDialog(
+                                            shape: new RoundedRectangleBorder(
+                                              borderRadius:
+                                              new BorderRadius.circular(10.0),
+                                              side: BorderSide(
+                                                width: 1.0,
+                                                color: Colors.indigo[900],
+                                              ),
+                                            ),
+                                            title: new Text("Edit contact",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontFamily: 'Montserrat',
+                                                    fontSize: 16.0)),
+                                            content: Container(
+                                                width: double.maxFinite,
+                                                height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                    2.5,
+                                                child: ListView(
+                                                  children: <Widget>[
+                                                    TextFormField(
+                                                      autofocus: true,
+                                                      keyboardType:
+                                                      TextInputType.text,
+                                                      style: textStyle,
+                                                      controller: contactName,
+                                                      validator: (String value) {
+                                                        if (value.isEmpty)
+                                                          return "Please enter Name";
+                                                        if (value.length > 20)
+                                                          return "Name too long!!";
+                                                        return null;
+                                                      },
+                                                      decoration: InputDecoration(
+                                                          labelText:
+                                                          "Contact Name",
+                                                          labelStyle: TextStyle(
+                                                              color: Colors.black,
+                                                              fontSize: 13.0,
+                                                              fontFamily:
+                                                              'Montserrat',
+                                                              fontWeight:
+                                                              FontWeight
+                                                                  .w700),
+                                                          hintText: "Maid",
+                                                          hintStyle: TextStyle(
+                                                              color: Colors.grey),
+                                                          errorStyle: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 12.0,
+                                                              fontFamily:
+                                                              'Montserrat',
+                                                              fontWeight:
+                                                              FontWeight
+                                                                  .w700),
+                                                          border:
+                                                          InputBorder.none),
+                                                    ),
+                                                    Padding(
+                                                        padding: EdgeInsets.only(
+                                                            top: 10.0,
+                                                            bottom: 10.0),
+                                                        child: TextFormField(
+                                                          keyboardType:
+                                                          TextInputType
+                                                              .number,
+                                                          style: textStyle,
+                                                          controller: phone,
+                                                          validator:
+                                                              (String value) {
+                                                            if (value.isEmpty)
+                                                              return "Please enter Phone Number";
+                                                            return null;
+                                                          },
+                                                          decoration: InputDecoration(
+                                                              labelText:
+                                                              "Phone Number",
+                                                              labelStyle: TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 13.0,
+                                                                  fontFamily:
+                                                                  'Montserrat',
+                                                                  fontWeight:
+                                                                  FontWeight
+                                                                      .w700),
+                                                              hintText:
+                                                              "9005489765",
+                                                              hintStyle: TextStyle(
+                                                                  color: Colors
+                                                                      .grey),
+                                                              errorStyle: TextStyle(
+                                                                  color:
+                                                                  Colors.red,
+                                                                  fontSize: 12.0,
+                                                                  fontFamily:
+                                                                  'Montserrat',
+                                                                  fontWeight:
+                                                                  FontWeight
+                                                                      .w700),
+                                                              border: InputBorder
+                                                                  .none),
+                                                        )),
+                                                    Padding(
+                                                        padding: EdgeInsets.only(
+                                                            top: _minimumPadding,
+                                                            bottom:
+                                                            _minimumPadding),
+                                                        child: Row(
+                                                            mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                            children: <Widget>[
+                                                              OutlineButton(
+                                                                  shape:
+                                                                  new RoundedRectangleBorder(
+                                                                      borderRadius: new BorderRadius.circular(
+                                                                          10.0),
+                                                                      side:
+                                                                      BorderSide(
+                                                                        width:
+                                                                        1.0,
+                                                                        color:
+                                                                        Colors.indigo[900],
+                                                                      )),
+                                                                  padding:
+                                                                  const EdgeInsets
+                                                                      .all(
+                                                                      8.0),
+                                                                  textColor: Colors
+                                                                      .blue,
+                                                                  child: Text(
+                                                                      'Save',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .black,
+                                                                          fontSize:
+                                                                          14.0,
+                                                                          fontFamily:
+                                                                          'Montserrat',
+                                                                          fontWeight:
+                                                                          FontWeight.w700)),
+                                                                  onPressed: () {
+                                                                    if (_formKey1
+                                                                        .currentState
+                                                                        .validate()) {
+                                                                      setState(
+                                                                              () {});
+                                                                      _addOrUpdateFlatContact(
+                                                                          _navigatorContext,
+                                                                          2,
+                                                                          phoneExisting: contactSnapshot
+                                                                              .data
+                                                                              .documents[position]["phone"]); //2 is update
+                                                                      Navigator.of(
+                                                                          context,
+                                                                          rootNavigator:
+                                                                          true)
+                                                                          .pop();
+                                                                    }
+                                                                  }),
+                                                              OutlineButton(
+                                                                  shape:
+                                                                  new RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                    new BorderRadius
+                                                                        .circular(
+                                                                        10.0),
+                                                                    side:
+                                                                    BorderSide(
+                                                                      width: 1.0,
+                                                                      color: Colors
+                                                                          .indigo[
+                                                                      900],
+                                                                    ),
+                                                                  ),
+                                                                  padding:
+                                                                  const EdgeInsets.all(
+                                                                      8.0),
+                                                                  textColor:
+                                                                  Colors.blue,
+                                                                  child: Text(
+                                                                      'Cancel',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .red,
+                                                                          fontSize:
+                                                                          14.0,
+                                                                          fontFamily:
+                                                                          'Montserrat',
+                                                                          fontWeight:
+                                                                          FontWeight.w700)),
+                                                                  onPressed: () {
+                                                                    Navigator.of(
+                                                                        context,
+                                                                        rootNavigator:
+                                                                        true)
+                                                                        .pop();
+                                                                  })
+                                                            ]))
+                                                  ],
+                                                )),
+                                          )));
+                                },
                               ),
-                              onTap: () {
-                                setState(() {
-                                  contactName.text = contactSnapshot
-                                      .data.documents[position]["name"]
-                                      .toString();
-                                  phone.text = contactSnapshot
+                              title: CommonWidgets.textBox(
+                                  contactSnapshot.data.documents[position]["name"]
+                                      .toString(),
+                                  15.0,
+                                  color: Colors.black),
+                              subtitle: CommonWidgets.textBox(
+                                  contactSnapshot
+                                      .data.documents[position]["phone"]
+                                      .toString(),
+                                  12.0,
+                                  color: Colors.black),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  Icons.call,
+                                  color: Colors.black54,
+                                ),
+                                onPressed: () {
+                                  var ph = contactSnapshot
                                       .data.documents[position]["phone"]
                                       .toString()
                                       .trim();
-                                });
-                                showDialog(
-                                    context: context,
-                                    builder: (_) => new Form(
-                                        key: _formKey1,
-                                        child: AlertDialog(
-                                          shape: new RoundedRectangleBorder(
-                                            borderRadius:
-                                                new BorderRadius.circular(10.0),
-                                            side: BorderSide(
-                                              width: 1.0,
-                                              color: Colors.indigo[900],
-                                            ),
-                                          ),
-                                          title: new Text("Edit contact",
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontFamily: 'Montserrat',
-                                                  fontSize: 16.0)),
-                                          content: Container(
-                                              width: double.maxFinite,
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  2.5,
-                                              child: ListView(
-                                                children: <Widget>[
-                                                  TextFormField(
-                                                    autofocus: true,
-                                                    keyboardType:
-                                                        TextInputType.text,
-                                                    style: textStyle,
-                                                    controller: contactName,
-                                                    validator: (String value) {
-                                                      if (value.isEmpty)
-                                                        return "Please enter Name";
-                                                      if (value.length > 20)
-                                                        return "Name too long!!";
-                                                      return null;
-                                                    },
-                                                    decoration: InputDecoration(
-                                                        labelText:
-                                                            "Contact Name",
-                                                        labelStyle: TextStyle(
-                                                            color: Colors.black,
-                                                            fontSize: 13.0,
-                                                            fontFamily:
-                                                                'Montserrat',
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                        hintText: "Maid",
-                                                        hintStyle: TextStyle(
-                                                            color: Colors.grey),
-                                                        errorStyle: TextStyle(
-                                                            color: Colors.red,
-                                                            fontSize: 12.0,
-                                                            fontFamily:
-                                                                'Montserrat',
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                        border:
-                                                            InputBorder.none),
-                                                  ),
-                                                  Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: 10.0,
-                                                          bottom: 10.0),
-                                                      child: TextFormField(
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        style: textStyle,
-                                                        controller: phone,
-                                                        validator:
-                                                            (String value) {
-                                                          if (value.isEmpty)
-                                                            return "Please enter Phone Number";
-                                                          return null;
-                                                        },
-                                                        decoration: InputDecoration(
-                                                            labelText:
-                                                                "Phone Number",
-                                                            labelStyle: TextStyle(
-                                                                color: Colors
-                                                                    .black,
-                                                                fontSize: 13.0,
-                                                                fontFamily:
-                                                                    'Montserrat',
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700),
-                                                            hintText:
-                                                                "9005489765",
-                                                            hintStyle: TextStyle(
-                                                                color: Colors
-                                                                    .grey),
-                                                            errorStyle: TextStyle(
-                                                                color:
-                                                                    Colors.red,
-                                                                fontSize: 12.0,
-                                                                fontFamily:
-                                                                    'Montserrat',
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700),
-                                                            border: InputBorder
-                                                                .none),
-                                                      )),
-                                                  Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: _minimumPadding,
-                                                          bottom:
-                                                              _minimumPadding),
-                                                      child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: <Widget>[
-                                                            OutlineButton(
-                                                                shape:
-                                                                    new RoundedRectangleBorder(
-                                                                        borderRadius: new BorderRadius.circular(
-                                                                            10.0),
-                                                                        side:
-                                                                            BorderSide(
-                                                                          width:
-                                                                              1.0,
-                                                                          color:
-                                                                              Colors.indigo[900],
-                                                                        )),
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                textColor: Colors
-                                                                    .blue,
-                                                                child: Text(
-                                                                    'Save',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontSize:
-                                                                            14.0,
-                                                                        fontFamily:
-                                                                            'Montserrat',
-                                                                        fontWeight:
-                                                                            FontWeight.w700)),
-                                                                onPressed: () {
-                                                                  if (_formKey1
-                                                                      .currentState
-                                                                      .validate()) {
-                                                                    setState(
-                                                                        () {});
-                                                                    _addOrUpdateFlatContact(
-                                                                        _navigatorContext,
-                                                                        2,
-                                                                        phoneExisting: contactSnapshot
-                                                                            .data
-                                                                            .documents[position]["phone"]); //2 is update
-                                                                    Navigator.of(
-                                                                            context,
-                                                                            rootNavigator:
-                                                                                true)
-                                                                        .pop();
-                                                                  }
-                                                                }),
-                                                            OutlineButton(
-                                                                shape:
-                                                                    new RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      new BorderRadius
-                                                                              .circular(
-                                                                          10.0),
-                                                                  side:
-                                                                      BorderSide(
-                                                                    width: 1.0,
-                                                                    color: Colors
-                                                                            .indigo[
-                                                                        900],
-                                                                  ),
-                                                                ),
-                                                                padding:
-                                                                    const EdgeInsets.all(
-                                                                        8.0),
-                                                                textColor:
-                                                                    Colors.blue,
-                                                                child: Text(
-                                                                    'Cancel',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .red,
-                                                                        fontSize:
-                                                                            14.0,
-                                                                        fontFamily:
-                                                                            'Montserrat',
-                                                                        fontWeight:
-                                                                            FontWeight.w700)),
-                                                                onPressed: () {
-                                                                  Navigator.of(
-                                                                          context,
-                                                                          rootNavigator:
-                                                                              true)
-                                                                      .pop();
-                                                                })
-                                                          ]))
-                                                ],
-                                              )),
-                                        )));
-                              },
-                            ),
-                            title: CommonWidgets.textBox(
-                                contactSnapshot.data.documents[position]["name"]
-                                    .toString(),
-                                15.0,
-                                color: Colors.black),
-                            subtitle: CommonWidgets.textBox(
-                                contactSnapshot
-                                    .data.documents[position]["phone"]
-                                    .toString(),
-                                12.0,
-                                color: Colors.black),
-                            trailing: IconButton(
-                              icon: Icon(
-                                Icons.call,
-                                color: Colors.black54,
+                                  debugPrint(ph);
+                                  _launchURL("tel:" + ph);
+                                },
                               ),
-                              onPressed: () {
-                                var ph = contactSnapshot
-                                    .data.documents[position]["phone"]
-                                    .toString()
-                                    .trim();
-                                debugPrint(ph);
-                                _launchURL("tel:" + ph);
-                              },
+                              onTap: () {},
                             ),
-                            onTap: () {},
-                          ),
-                        )),
+                          )),
+                    ),
                   ),
                 );
               });
@@ -1648,24 +1661,35 @@ class _UserProfile extends State<UserProfile> {
                 padding: const EdgeInsets.only(top: 15.0),
                 child: Column(
                   children: <Widget>[
-                    CircleAvatar(
-                      backgroundColor: Utility.userIdColor(
-                          this.existingUsers[position].userId),
-                      child: Align(
-                        child: Text(
-                          userName == ""
-                              ? "S"
-                              : this
-                                  .existingUsers[position]
-                                  .name[0]
-                                  .toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 30.0,
-                            fontFamily: 'Satisfy',
-                            color: Colors.white,
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.25),
+                            blurRadius: 4,
+                            offset: Offset(0, 4), // changes position of shadow
                           ),
+                        ],),
+                      child: CircleAvatar(
+                        backgroundColor: Utility.userIdColor(
+                            this.existingUsers[position].userId),
+                        child: Align(
+                          child: Text(
+                            userName == ""
+                                ? "S"
+                                : this
+                                .existingUsers[position]
+                                .name[0]
+                                .toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 30.0,
+                              fontFamily: 'Satisfy',
+                              color: Colors.white,
+                            ),
+                          ),
+                          alignment: Alignment.center,
                         ),
-                        alignment: Alignment.center,
                       ),
                     ),
                     Padding(

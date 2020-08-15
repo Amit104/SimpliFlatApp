@@ -75,8 +75,8 @@ class _ViewTask extends State<ViewTask> {
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: Text('Task Details'),
-            elevation: 0.0,
-            backgroundColor: Colors.grey[300],
+            elevation: 2.0,
+            backgroundColor: Colors.white,
             centerTitle: true,
           ),
           //floatingActionButton: Padding(padding: EdgeInsets.only(bottom:50.0), child:FloatingActionButton(onPressed: () {_navigateToTaskHistory(taskId, _flatId);},child: Icon(Icons.history), tooltip: 'History',)),
@@ -104,14 +104,14 @@ class _ViewTask extends State<ViewTask> {
                               children: <Widget>[
                                 Expanded(
                                   child: Opacity(
-                                    opacity: 0.6,
+                                    opacity: 1.0,
                                     child: Container(
                                       padding: const EdgeInsets.only(
                                           top: 1.0, right: 1.0, left: 0.0),
                                       child: RaisedButton(
                                         padding: EdgeInsets.symmetric(
                                             vertical: 15.0),
-                                        color: Colors.grey[200],
+                                        color: Colors.green[200],
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(0.0),
@@ -133,7 +133,7 @@ class _ViewTask extends State<ViewTask> {
                                 ),
                                 Expanded(
                                   child: Opacity(
-                                    opacity: 0.6,
+                                    opacity: 1.0,
                                     child: Container(
                                       padding: const EdgeInsets.only(
                                           top: 1.0, right: 1.0, left: 0.0),
@@ -144,7 +144,7 @@ class _ViewTask extends State<ViewTask> {
                                           borderRadius:
                                               BorderRadius.circular(0.0),
                                         ),
-                                        color: Colors.grey[200],
+                                        color: Colors.red[200],
                                         child: Text(
                                           "Delete",
                                           style: TextStyle(
@@ -206,6 +206,7 @@ class _ViewTask extends State<ViewTask> {
                   fontSize: 13.0,
                   fontFamily: 'Montserrat',
                 )),
+            elevation: 3.0,
             backgroundColor: Colors.deepPurple[100],
           ),
           SizedBox(width: 5.0),
@@ -216,6 +217,7 @@ class _ViewTask extends State<ViewTask> {
                   fontSize: 13.0,
                   fontFamily: 'Montserrat',
                 )),
+            elevation: 3.0,
             backgroundColor: Colors.indigo[100],
           ),
           duration != '-' ? SizedBox(width: 5.0) : Container(),
@@ -227,6 +229,7 @@ class _ViewTask extends State<ViewTask> {
                         fontSize: 13.0,
                         fontFamily: 'Montserrat',
                       )),
+                  elevation: 3.0,
                   backgroundColor: Colors.lightGreen[100],
                 )
               : Container()
@@ -242,6 +245,13 @@ class _ViewTask extends State<ViewTask> {
       decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(5.0),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.25),
+              blurRadius: 4,
+              offset: Offset(0, 4), // changes position of shadow
+            ),
+          ],
           border: Border.all(width: 1.0, color: Colors.grey[300])),
       child: ListTile(
         dense: true,
@@ -309,6 +319,14 @@ class _ViewTask extends State<ViewTask> {
             padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.25),
+                    blurRadius: 4,
+                    offset: Offset(0, 4), // changes position of shadow
+                  ),
+                ],
+                color: Colors.white,
                 border: Border.all(width: 1.0, color: Colors.grey[300])),
             child: ListTile(
               dense: true,
@@ -558,6 +576,15 @@ class _ViewTask extends State<ViewTask> {
             child: Container(
               height: 52.0,
               width: MediaQuery.of(_navigatorContext).size.width * 0.95,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color.fromRGBO(0, 0, 0, 0.25),
+                      blurRadius: 4,
+                      offset: Offset(0, 4), // changes position of shadow
+                    ),
+                  ],),
               padding: const EdgeInsets.only(top: 1.0, right: 1.0, left: 10.0),
               child: RaisedButton(
                 padding: EdgeInsets.symmetric(vertical: 15.0),
@@ -688,6 +715,14 @@ class _ViewTask extends State<ViewTask> {
         padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.0),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.25),
+                blurRadius: 4,
+                offset: Offset(0, 4), // changes position of shadow
+              ),
+            ],
             border: Border.all(width: 1.0, color: Colors.grey[300])),
         child: subtitle != 5
             ? ListTile(
@@ -847,6 +882,7 @@ class _ViewTask extends State<ViewTask> {
         margin: EdgeInsets.only(right: 5.0),
         child: Chip(
           labelPadding: EdgeInsets.all(0.0),
+          elevation: 1.0,
           label: Text(' ' + globals.landlordNameValue + ' '),
           backgroundColor: Colors.grey[200],
         ),
@@ -858,6 +894,7 @@ class _ViewTask extends State<ViewTask> {
           margin: EdgeInsets.only(right: 5.0),
           child: Chip(
             labelPadding: EdgeInsets.all(0.0),
+            elevation: 1.0,
             label: Text(' ' + documents[i]['name'] + '  '),
             backgroundColor: Colors.grey[200],
           ),

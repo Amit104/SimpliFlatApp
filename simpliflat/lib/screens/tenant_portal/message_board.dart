@@ -84,13 +84,13 @@ class _MessageBoard extends State<MessageBoard> {
                           child: Container(
                             child: new Text(getDateValue(value),
                                 style: new TextStyle(
-                                    color: Colors.red[900],
+                                    color: Colors.indigo[900],
                                     fontSize: 14.0,
                                     fontFamily: 'Robato')),
                             decoration: new BoxDecoration(
                                 borderRadius: new BorderRadius.all(
                                     new Radius.circular(6.0)),
-                                color: Colors.red[100]),
+                                color: Colors.indigo[100]),
                             padding:
                                 new EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 6.0),
                           ),
@@ -134,8 +134,14 @@ class _MessageBoard extends State<MessageBoard> {
                             decoration: InputDecoration(
                               hintText: "Add Message...",
                               hintStyle: TextStyle(color: Colors.black87),
+                              focusedBorder: new OutlineInputBorder(
+                                borderRadius: new BorderRadius.circular(20.0),
+                                borderSide: new BorderSide(
+                                  color: Colors.black,
+                                ),
+                              ),
                               border: new OutlineInputBorder(
-                                borderRadius: new BorderRadius.circular(25.0),
+                                borderRadius: new BorderRadius.circular(20.0),
                                 borderSide: new BorderSide(),
                               ),
                               errorStyle: TextStyle(
@@ -153,7 +159,7 @@ class _MessageBoard extends State<MessageBoard> {
                       ),
                       ClipOval(
                         child: Material(
-                          color: Colors.red[900], // button color
+                          color: Colors.indigo, // button color
                           child: InkWell(
                             splashColor: Colors.indigo, // inkwell color
                             child: SizedBox(
@@ -161,6 +167,7 @@ class _MessageBoard extends State<MessageBoard> {
                                 height: 56,
                                 child: Icon(
                                   Icons.add,
+                                  color: Colors.white,
                                 )),
                             onTap: () async {
                               if (_formKey1.currentState.validate()) {

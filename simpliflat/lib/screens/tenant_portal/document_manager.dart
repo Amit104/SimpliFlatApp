@@ -56,15 +56,15 @@ class _DocumentManager extends State<DocumentManager> {
       appBar: AppBar(
         title: Text("Document Manager"),
         centerTitle: true,
-        elevation: 0.0,
+        elevation: 2.0,
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: () {
           _openFileExplorer();
         },
         tooltip: 'New Document',
-        backgroundColor: Colors.red[900],
-        child: new Icon(Icons.add_circle),
+        backgroundColor: Colors.indigo,
+        child: new Icon(Icons.add, color: Colors.white,),
       ),
       body: Builder(
         builder: (BuildContext scaffoldC) {

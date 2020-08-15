@@ -80,7 +80,7 @@ class ListItemsState extends State<ListItems> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(listReference['title'].toString().trim()),
-          elevation: 0.0,
+          elevation: 2.0,
           centerTitle: true,
           /*actions: <Widget>[
             IconButton(
@@ -100,6 +100,7 @@ class ListItemsState extends State<ListItems> {
           padding: const EdgeInsets.only(bottom: 10.0),
           child: FloatingActionButton(
             onPressed: _addItem,
+            backgroundColor: Colors.indigo,
             child: Icon(Icons.add),
           ),
         ),
@@ -224,53 +225,32 @@ class ListItemsState extends State<ListItems> {
       padding: const EdgeInsets.only(right: 1.0, left: 1.0),
       child: SizedBox(
         width: MediaQuery.of(_navigatorContext).size.width,
-        child: Card(
-          color: Colors.white,
-          elevation: 1.0,
-          child: Slidable(
-            key: UniqueKey(),
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            dismissal: SlidableDismissal(
-              child: SlidableDrawerDismissal(),
-              closeOnCanceled: true,
-              dismissThresholds: <SlideActionType, double>{
-                SlideActionType.primary: 1.0
-              },
-              onWillDismiss: (actionType) {
-                return showDialog<bool>(
-                  context: context,
-                  builder: (context) {
-                    return new AlertDialog(
-                      title: new Text('Delete'),
-                      content: new Text(
-                          'Are you sure you want to delete this item?'),
-                      actions: <Widget>[
-                        new FlatButton(
-                          child: new Text('Cancel'),
-                          onPressed: () => Navigator.of(context).pop(false),
-                        ),
-                        new FlatButton(
-                          child: new Text('Ok'),
-                          onPressed: () => Navigator.of(context).pop(true),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              onDismissed: (actionType) {
-                _deleteListItem(_navigatorContext, index);
-              },
-            ),
-            secondaryActions: <Widget>[
-              new IconSlideAction(
-                caption: 'Delete',
-                color: Colors.red,
-                icon: Icons.delete,
-                onTap: () async {
-                  var state = Slidable.of(context);
-                  var dismiss = await showDialog<bool>(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                blurRadius: 4,
+                offset: Offset(0, 4), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Card(
+            color: Colors.white,
+            elevation: 1.0,
+            child: Slidable(
+              key: UniqueKey(),
+              actionPane: SlidableDrawerActionPane(),
+              actionExtentRatio: 0.25,
+              dismissal: SlidableDismissal(
+                child: SlidableDrawerDismissal(),
+                closeOnCanceled: true,
+                dismissThresholds: <SlideActionType, double>{
+                  SlideActionType.primary: 1.0
+                },
+                onWillDismiss: (actionType) {
+                  return showDialog<bool>(
                     context: context,
                     builder: (context) {
                       return new AlertDialog(
@@ -290,41 +270,75 @@ class ListItemsState extends State<ListItems> {
                       );
                     },
                   );
-                  if (dismiss) {
-                    _deleteListItem(_navigatorContext, index);
-                    state.dismiss();
-                  }
+                },
+                onDismissed: (actionType) {
+                  _deleteListItem(_navigatorContext, index);
                 },
               ),
-            ],
-            child: ListTile(
-              title: Text(
-                listitem['item'].toString().trim(),
-                style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: 'Montserrat',
-                    color:
-                        listitem['completed'] ? Colors.black54 : Colors.black,
-                    decoration: listitem['completed']
-                        ? TextDecoration.lineThrough
-                        : null),
+              secondaryActions: <Widget>[
+                new IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.red,
+                  icon: Icons.delete,
+                  onTap: () async {
+                    var state = Slidable.of(context);
+                    var dismiss = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return new AlertDialog(
+                          title: new Text('Delete'),
+                          content: new Text(
+                              'Are you sure you want to delete this item?'),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text('Cancel'),
+                              onPressed: () => Navigator.of(context).pop(false),
+                            ),
+                            new FlatButton(
+                              child: new Text('Ok'),
+                              onPressed: () => Navigator.of(context).pop(true),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    if (dismiss) {
+                      _deleteListItem(_navigatorContext, index);
+                      state.dismiss();
+                    }
+                  },
+                ),
+              ],
+              child: ListTile(
+                title: Text(
+                  listitem['item'].toString().trim(),
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'Montserrat',
+                      fontStyle: FontStyle.normal,
+                      color:
+                      listitem['completed'] ? Colors.black54 : Colors.black,
+                      decoration: listitem['completed']
+                          ? TextDecoration.lineThrough
+                          : null),
+                ),
+                leading: const Icon(Icons.drag_handle),
+                trailing: GestureDetector(
+                  child: listitem['completed']
+                      ? Icon(
+                    Icons.check_circle,
+                    color: Colors.indigo,
+                  )
+                      : Icon(Icons.check_circle_outline),
+                  onTap: () {
+                    listitem['completed'] = !listitem['completed'];
+                    var newIndex = listitem['completed'] ? _items.length : 0;
+                    var oldIndex = index;
+                    reorderList(oldIndex, newIndex);
+                  },
+                ),
+                onTap: () {},
               ),
-              leading: const Icon(Icons.drag_handle),
-              trailing: GestureDetector(
-                child: listitem['completed']
-                    ? Icon(
-                        Icons.check_circle,
-                        color: Colors.indigo,
-                      )
-                    : Icon(Icons.check_circle_outline),
-                onTap: () {
-                  listitem['completed'] = !listitem['completed'];
-                  var newIndex = listitem['completed'] ? _items.length : 0;
-                  var oldIndex = index;
-                  reorderList(oldIndex, newIndex);
-                },
-              ),
-              onTap: () {},
             ),
           ),
         ),

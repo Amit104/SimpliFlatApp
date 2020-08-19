@@ -27,6 +27,10 @@ String requests = "joinflat";
 String requestsLandlord = "joinflat_landlord";
 String landlord = "landlord";
 String about = "about";
+String building = "building";
+String block = "block";
+String ownerFlat = "ownerFlat";
+
 
 String messageBoard = "messageboard";
 String documentManager = "documentmanager";

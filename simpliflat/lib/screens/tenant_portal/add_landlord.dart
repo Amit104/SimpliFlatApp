@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 
 import '../../main.dart';
+import 'landlord_onboarding/SearchBuilding.dart';
 
 class AddLandlord extends StatefulWidget {
   final flatId;
@@ -105,141 +106,9 @@ class _AddLandlord extends State<AddLandlord> {
               width: deviceSize.width * 0.88,
               child: GestureDetector(
                 onTap: () {
-                  setState(() {
-                    contactName.text = '';
-                    phone.text = '';
-                  });
-                  showDialog(
-                      context: context,
-                      builder: (_) => new Form(
-                          key: _formKey1,
-                          child: AlertDialog(
-                              shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(10.0),
-                                side: BorderSide(
-                                  width: 1.0,
-                                  color: Colors.indigo[900],
-                                ),
-                              ),
-                              title: new Text("Add Landlord",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'Montserrat',
-                                      fontSize: 16.0)),
-                              content: Container(
-                                width: double.maxFinite,
-                                height: MediaQuery.of(context).size.height / 3,
-                                child: Column(
-                                  children: <Widget>[
-                                    Padding(
-                                        padding: EdgeInsets.only(
-                                            top: _minimumPadding,
-                                            bottom: _minimumPadding),
-                                        child: TextFormField(
-                                          autofocus: true,
-                                          keyboardType: TextInputType.number,
-                                          style: textStyle,
-                                          controller: addUserForm,
-                                          validator: (String value) {
-                                            if (value.isEmpty)
-                                              return "Please enter Phone number ";
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                              labelText: "Phone Number",
-                                              labelStyle: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 16.0,
-                                                  fontFamily: 'Montserrat',
-                                                  fontWeight: FontWeight.w700),
-                                              hintText: "9005489765",
-                                              hintStyle:
-                                                  TextStyle(color: Colors.grey),
-                                              errorStyle: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 12.0,
-                                                  fontFamily: 'Montserrat',
-                                                  fontWeight: FontWeight.w700),
-                                              border: InputBorder.none),
-                                        )),
-                                    Padding(
-                                        padding: EdgeInsets.only(
-                                            top: _minimumPadding,
-                                            bottom: _minimumPadding),
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: <Widget>[
-                                              OutlineButton(
-                                                  shape:
-                                                      new RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        new BorderRadius
-                                                            .circular(10.0),
-                                                    side: BorderSide(
-                                                      width: 1.0,
-                                                      color: Colors.indigo[900],
-                                                    ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  textColor: Colors.black,
-                                                  child: Text('Add',
-                                                      style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 14.0,
-                                                          fontFamily:
-                                                              'Montserrat',
-                                                          fontWeight:
-                                                              FontWeight.w700)),
-                                                  onPressed: () {
-                                                    if (_formKey1.currentState
-                                                        .validate()) {
-                                                      setState(() {
-                                                        debugPrint(
-                                                            "STARTING API CALL");
-                                                      });
-                                                      _inviteLandlordAPI(
-                                                          _navigatorContext,
-                                                          addUserForm.text);
-                                                      addUserForm.clear();
-                                                      Navigator.of(context,
-                                                              rootNavigator:
-                                                                  true)
-                                                          .pop();
-                                                    }
-                                                  }),
-                                              OutlineButton(
-                                                  shape:
-                                                      new RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        new BorderRadius
-                                                            .circular(10.0),
-                                                    side: BorderSide(
-                                                      width: 1.0,
-                                                      color: Colors.indigo[900],
-                                                    ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  textColor: Colors.black,
-                                                  child: Text('Cancel',
-                                                      style: TextStyle(
-                                                          color: Colors.red,
-                                                          fontSize: 14.0,
-                                                          fontFamily:
-                                                              'Montserrat',
-                                                          fontWeight:
-                                                              FontWeight.w700)),
-                                                  onPressed: () {
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
-                                                  })
-                                            ]))
-                                  ],
-                                ),
-                              ))));
+
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) => SearchBuilding(flatId)));
                 },
                 child: new Card(
                     shape: RoundedRectangleBorder(
@@ -258,10 +127,10 @@ class _AddLandlord extends State<AddLandlord> {
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
                             // Colors are easy thanks to Flutter's Colors class.
-                            Colors.red[900],
-                            Colors.red[800],
-                            Colors.red[700],
-                            Colors.red[600],
+                            Colors.indigo[900],
+                            Colors.indigo[800],
+                            Colors.indigo[700],
+                            Colors.indigo[600],
                           ],
                         ),
                         borderRadius: BorderRadius.circular(5.0),
@@ -271,7 +140,7 @@ class _AddLandlord extends State<AddLandlord> {
                           children: <Widget>[
                             textInCard("Add a landlord", FontWeight.w700, 24.0,
                                 28.0, 40.0),
-                            textInCard("Search for your landlord", null, 14.0,
+                            textInCard("Search for your flat", null, 14.0,
                                 28.0, 20.0),
                             textInCard(
                                 "and send a request.", null, 14.0, 28.0, 7.0),

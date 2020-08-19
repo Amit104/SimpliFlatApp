@@ -180,7 +180,6 @@ class _ProfileOptions extends State<ProfileOptions> {
                             ),
                             onTap: () {}),
                       ),
-                      getFlatDetailsWidget(),
                       Padding(
                         padding: EdgeInsets.only(left: 5.0, right: 5.0),
                         child: RaisedButton(
@@ -267,6 +266,7 @@ class _ProfileOptions extends State<ProfileOptions> {
   }
 
   bool firstCall = false;
+
   Future<Map> getFlatData() async {
     if (!firstCall) {
       apartmentName = await Utility.getApartmentName();
@@ -281,123 +281,6 @@ class _ProfileOptions extends State<ProfileOptions> {
       'apartmentNumber': apartmentNumber,
       'zipCode': zipCode
     };
-  }
-
-  Widget getFlatDetailsWidget() {
-    TextStyle textStyle = Theme.of(context).textTheme.title;
-    return Card(
-      color: Colors.white,
-      child: Column(
-        children: <Widget>[
-          Container(
-              color: Colors.blue[100],
-              child: ListTile(
-                title: Text('Flat Details'),
-                trailing: Icon(Icons.pin_drop),
-              )),
-          FutureBuilder(
-            future: getFlatData(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return LoadingContainerVertical(1);
-              }
-              Map data = snapshot.data;
-
-              return Column(
-                children: [
-                  ListTile(
-                    title: data['apartmentName'] == null ||
-                            data['apartmentName'] == ''
-                        ? Text(
-                            'Building/Flat Name',
-                            style: TextStyle(color: Colors.grey[400]),
-                          )
-                        : Text(data['apartmentName']),
-                    trailing: GestureDetector(
-                        child: Text(
-                          "EDIT",
-                          style: TextStyle(
-                              color: Colors.indigo[900],
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'Montserrat',
-                              fontSize: 14.0),
-                        ),
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (_) => _getEditPrompt(
-                                  textStyle,
-                                  "Building/Flat Name",
-                                  _changeApartmentName,
-                                  null,
-                                  TextInputType.text,
-                                  apartmentName));
-                        }),
-                  ),
-                  ListTile(
-                    title: data['apartmentNumber'] == null ||
-                            data['apartmentNumber'] == ''
-                        ? Text(
-                            'Flat Number',
-                            style: TextStyle(color: Colors.grey[400]),
-                          )
-                        : Text(data['apartmentNumber']),
-                    trailing: GestureDetector(
-                        child: Text(
-                          "EDIT",
-                          style: TextStyle(
-                              color: Colors.indigo[900],
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'Montserrat',
-                              fontSize: 14.0),
-                        ),
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (_) => _getEditPrompt(
-                                  textStyle,
-                                  "Apartment Number",
-                                  _changeApartmentNumber,
-                                  null,
-                                  TextInputType.text,
-                                  apartmentNumber));
-                        }),
-                  ),
-                  ListTile(
-                    title: data['zipCode'] == null || data['zipCode'] == ''
-                        ? Text(
-                            'Zipcode',
-                            style: TextStyle(color: Colors.grey[400]),
-                          )
-                        : Text(data['zipCode']),
-                    trailing: GestureDetector(
-                        child: Text(
-                          "EDIT",
-                          style: TextStyle(
-                              color: Colors.indigo[900],
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'Montserrat',
-                              fontSize: 14.0),
-                        ),
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (_) => _getEditPrompt(
-                                  textStyle,
-                                  "Zipcode",
-                                  _changeZipcode,
-                                  null,
-                                  TextInputType.text,
-                                  zipCode));
-                        }),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   _moveToLastScreen(BuildContext _navigatorContext) {
@@ -605,72 +488,6 @@ class _ProfileOptions extends State<ProfileOptions> {
       return "Cannot be the same name";
     }
     return null;
-  }
-
-  _changeApartmentName(textField) async {
-    String name = textField.text;
-    setState(() {
-      apartmentName = name;
-    });
-    var data = {"apartment_name": name};
-    Firestore.instance
-        .collection("flat")
-        .document(flatId)
-        .updateData(data)
-        .then((updated) {
-      apartmentName = name;
-
-      Utility.addToSharedPref(apartmentName: name);
-    });
-    textField.clear();
-    Navigator.of(context, rootNavigator: true).pop();
-    setState(() {
-      debugPrint("Apartment name changed");
-    });
-  }
-
-  _changeApartmentNumber(textField) async {
-    String number = textField.text;
-    setState(() {
-      apartmentNumber = number;
-    });
-    var data = {"apartment_number": number};
-    Firestore.instance
-        .collection("flat")
-        .document(flatId)
-        .updateData(data)
-        .then((updated) {
-      apartmentNumber = number;
-
-      Utility.addToSharedPref(apartmentNumber: number);
-    });
-    textField.clear();
-    Navigator.of(context, rootNavigator: true).pop();
-    setState(() {
-      debugPrint("Apartment number changed");
-    });
-  }
-
-  _changeZipcode(textField) async {
-    String zcode = textField.text;
-    setState(() {
-      zipCode = zcode;
-    });
-    var data = {"zipcode": zcode};
-    Firestore.instance
-        .collection("flat")
-        .document(flatId)
-        .updateData(data)
-        .then((updated) {
-      zipCode = zcode;
-
-      Utility.addToSharedPref(zipcode: zcode);
-    });
-    textField.clear();
-    Navigator.of(context, rootNavigator: true).pop();
-    setState(() {
-      debugPrint("zipcode changed");
-    });
   }
 
   _changeUserName(textField) async {

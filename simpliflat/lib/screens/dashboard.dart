@@ -221,26 +221,8 @@ class DashboardState extends State<Dashboard> {
             onPressed: () async {
               var landlordId = await Utility.getLandlordId();
               if (landlordId == null || landlordId == "") {
-                String zipcode = await Utility.getZipcode();
-                String apartmentName = await Utility.getApartmentName();
-                String apartmentNumber = await Utility.getApartmentNumber();
-
-                if ((zipcode == null || zipcode.isEmpty) ||
-                    (apartmentName == null || apartmentName.isEmpty) ||
-                    (apartmentNumber == null || apartmentNumber.isEmpty)) {
-                  return showDialog(
-                      barrierDismissible: true,
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          content: Text(
-                              'Set Apartment name, number and zipcode on profile page to access tenant portal'),
-                        );
-                      });
-                } else {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => AddLandlord(flatId)));
-                }
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => AddLandlord(flatId)));
               } else {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (BuildContext context) => TenantPortal(flatId)));

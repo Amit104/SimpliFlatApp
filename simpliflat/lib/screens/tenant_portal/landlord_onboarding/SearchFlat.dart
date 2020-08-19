@@ -126,7 +126,7 @@ class _SearchFlat extends State<SearchFlat> {
                             child: new Text('Yes'),
                             onPressed: () {
                               Navigator.of(context).pop(true);
-                              _inviteLandlordAPI(_navigatorContext);
+                              _inviteLandlordAPI(_navigatorContext, list);
                             }),
                       ],
                     );
@@ -140,187 +140,130 @@ class _SearchFlat extends State<SearchFlat> {
     );
   }
 
-  void _inviteLandlordAPI(scaffoldContext) async {
+  void _inviteLandlordAPI(scaffoldContext, ownerFlatData) async {
     var flatName = await Utility.getFlatName();
+    var userPhone = await Utility.getUserPhone();
+    var userName = await Utility.getUserName();
     var uID = await Utility.getUserId();
-    debugPrint("UserId is " + uID.toString());
-    List landlordFlatList = new List();
-    /*Firestore.instance
-        .collection(globals.landlord)
-        .where("phone", isEqualTo: phone)
+
+    //check if we have a request from this landlord
+    Firestore.instance
+        .collection(globals.requestsLandlord)
+        .where("building_id", isEqualTo: buildingData.documentID)
+        .where("block_id", isEqualTo: blockId)
+        .where("owner_flat_id", isEqualTo: ownerFlatData.documentID)
+        .where("tenant_flat_id", isEqualTo: flatId)
+        .where("request_from_tenant", isEqualTo: 0)
+        .where("status", isEqualTo: 0)
         .limit(1)
         .getDocuments()
-        .then((landlordUser) {
-      if (landlordUser.documents != null &&
-          landlordUser.documents.length != 0) {
-        if (landlordUser.documents[0]['flat_id'] != null) {
-          landlordFlatList = landlordUser.documents[0]['flat_id'];
-        }
-        var landlordUserId = landlordUser.documents[0].documentID;
-        debugPrint("landlordUser  = " + landlordUserId);
-        //check if we have a request from this landlord
+        .then((incomingReq) {
+      var now = new DateTime.now();
+      if (incomingReq.documents != null &&
+          incomingReq.documents.length != 0) {
+        debugPrint("LANDLORD REQUEST TO FLAT EXISTS!");
+        if(mounted)
+          _setErrorState(scaffoldContext, "A request from this flat already exists!");
+        ///TODO: accept current request
+      } else {
+        debugPrint("LANDLORD REQUEST TO FLAT DOES NOT EXIST!");
+        Map<String, dynamic> newReq = {
+          'building_id' : buildingData.documentID,
+          'block_id' : blockId,
+          'owner_flat_id' : ownerFlatData.documentID,
+          'tenant_flat_id': flatId,
+          'request_from_tenant': 1,
+          'status': 0,
+          'created_at': now,
+          'updated_at': now,
+          'created_by' : { "user_id" : uID, 'name' : userName, 'phone' : userPhone },
+          'tenant_flat_name' : flatName,
+          'building_details' : {'building_name' : buildingData['buildingName'],'building_zipcode' : buildingData['zipcode'],'building_address' : buildingData['buildingAddress']} ,
+        };
+        Map<String, dynamic> updatedReq = {
+          'building_id' : buildingData.documentID,
+          'block_id' : blockId,
+          'owner_flat_id' : ownerFlatData.documentID,
+          'tenant_flat_id': flatId,
+          'request_from_tenant': 1,
+          'status': 0,
+          'updated_at': now,
+          'created_by' : { "user_id" : uID, 'name' : userName, 'phone' : userPhone },
+          'tenant_flat_name' : flatName,
+          'building_details' : {'building_name' : buildingData['buildingName'],'building_zipcode' : buildingData['zipcode'],'building_address' : buildingData['buildingAddress']} ,
+        };
         Firestore.instance
             .collection(globals.requestsLandlord)
-            .where("user_id", isEqualTo: landlordUserId)
-            .where("flat_id", isEqualTo: flatId)
-            .where("request_from_flat", isEqualTo: 0)
-            .where("status", isEqualTo: 0)
-            .limit(1)
+            .where("tenant_flat_id", isEqualTo: flatId)
+            .where("request_from_tenant", isEqualTo: 1)
             .getDocuments()
-            .then((incomingReq) {
-          var now = new DateTime.now();
-          if (incomingReq.documents != null &&
-              incomingReq.documents.length != 0) {
-            List<DocumentReference> toRejectList = new List();
-            DocumentReference toAccept;
-            debugPrint("LANDLORD REQUEST TO FLAT EXISTS!");
-
-            // accept current request
-            Firestore.instance
-                .collection(globals.requestsLandlord)
-                .where("user_id", isEqualTo: landlordUserId)
-                .where("flat_id", isEqualTo: flatId)
-                .where("request_from_flat", isEqualTo: 0)
-                .getDocuments()
-                .then((toAcceptData) {
-              if (toAcceptData.documents != null &&
-                  toAcceptData.documents.length != 0) {
-                toAccept = Firestore.instance
-                    .collection(globals.requestsLandlord)
-                    .document(toAcceptData.documents[0].documentID);
-              }
-              //perform actual batch operations
-              var batch = Firestore.instance.batch();
-              var timeNow = DateTime.now();
-              for (int i = 0; i < toRejectList.length; i++) {
-                batch.updateData(
-                    toRejectList[i], {'status': -1, 'updated_at': timeNow});
-              }
-              batch.updateData(toAccept, {'status': 1, 'updated_at': timeNow});
-
-              //update user
-              landlordFlatList.add(flatId.toString().trim());
-              var landlordUserRef = Firestore.instance
-                  .collection(globals.landlord)
-                  .document(landlordUserId);
-              batch.updateData(landlordUserRef, {'flat_id': landlordFlatList});
-
-              //update flat landlord
-              var flatRef = Firestore.instance
-                  .collection(globals.flat)
-                  .document(flatId);
-              batch.updateData(flatRef, {'landlord_id': landlordUserId});
-
-              batch.commit().then((res) {
-                debugPrint("ADDED LANDLORD");
-                Utility.addToSharedPref(landlordId: landlordUserId);
-                setState(() {
-                  _backHome();
-                  debugPrint("CALL SUCCCESS");
-                });
-              }, onError: (e) {
-                _setErrorState(scaffoldContext, "CALL ERROR");
-              }).catchError((e) {
-                _setErrorState(scaffoldContext, "SERVER ERROR");
-              });
-            }, onError: (e) {
-              _setErrorState(scaffoldContext, "CALL ERROR");
-            }).catchError((e) {
-              _setErrorState(scaffoldContext, "SERVER ERROR");
-            });
-          } else {
-            debugPrint("LANDLORD REQUEST TO FLAT DOES NOT EXIST!");
-            Map<String, dynamic> newReq = {
-              'user_id': landlordUserId,
-              'flat_id': flatId,
-              'request_from_flat': 1,
-              'status': 0,
-              'created_at': now,
-              'updated_at': now
-            };
-            Map<String, dynamic> updatedReq = {
-              'user_id': landlordUserId,
-              'flat_id': flatId,
-              'request_from_flat': 1,
-              'status': 0,
-              'updated_at': now
-            };
-            Firestore.instance
-                .collection(globals.requestsLandlord)
-                .where("flat_id", isEqualTo: flatId)
-                .where("request_from_flat", isEqualTo: 1)
-                .getDocuments()
-                .then((oldRequests) {
-              var batch = Firestore.instance.batch();
-              if (oldRequests != null && oldRequests.documents.length != 0) {
-                for (var doc in oldRequests.documents) {
-                  batch.updateData(doc.reference, {'status': -1});
-                }
-              }
-
-              Firestore.instance
-                  .collection(globals.requestsLandlord)
-                  .where("user_id", isEqualTo: landlordUserId)
-                  .where("request_from_flat", isEqualTo: 1)
-                  .limit(1)
-                  .getDocuments()
-                  .then((checker) {
-                debugPrint("CHECKING REQUEST EXISTS OR NOT");
-                if (checker.documents == null ||
-                    checker.documents.length == 0) {
-                  debugPrint("CREATING REQUEST");
-
-                  var reqRef = Firestore.instance
-                      .collection(globals.requestsLandlord)
-                      .document();
-                  batch.setData(reqRef, newReq);
-
-                  batch.commit().then((res) async {
-                    debugPrint("Request Created");
-                    _setErrorState(scaffoldContext, "Request created!",
-                        textToSend: "Request created!");
-                  }, onError: (e) {
-                    _setErrorState(scaffoldContext, "CALL ERROR");
-                  }).catchError((e) {
-                    _setErrorState(scaffoldContext, "SERVER ERROR");
-                  });
-                } else {
-                  debugPrint("UPDATING REQUEST");
-                  var reqRef = Firestore.instance
-                      .collection(globals.requestsLandlord)
-                      .document(checker.documents[0].documentID);
-                  batch.updateData(reqRef, updatedReq);
-                  batch.commit().then((res) async {
-                    debugPrint("Request Updated");
-                    _setErrorState(scaffoldContext, "Request created!",
-                        textToSend: "Request created!");
-                  }, onError: (e) {
-                    _setErrorState(scaffoldContext, "CALL ERROR");
-                  }).catchError((e) {
-                    _setErrorState(scaffoldContext, "SERVER ERROR");
-                  });
-                }
-              }, onError: (e) {
-                _setErrorState(scaffoldContext, "CALL ERROR");
-              }).catchError((e) {
-                _setErrorState(scaffoldContext, "SERVER ERROR");
-              });
-            });
+            .then((oldRequests) {
+          var batch = Firestore.instance.batch();
+          if (oldRequests != null && oldRequests.documents.length != 0) {
+            for (var doc in oldRequests.documents) {
+              batch.updateData(doc.reference, {'status': -1});
+            }
           }
-        }, onError: (e) {
-          _setErrorState(scaffoldContext, "CALL ERROR");
-        }).catchError((e) {
-          _setErrorState(scaffoldContext, "SERVER ERROR");
+
+          Firestore.instance
+              .collection(globals.requestsLandlord)
+              .where("building_id", isEqualTo: buildingData.documentID)
+              .where("block_id", isEqualTo: blockId)
+              .where("owner_flat_id", isEqualTo: ownerFlatData.documentID)
+              .where("tenant_flat_id", isEqualTo: flatId)
+              .where("request_from_tenant", isEqualTo: 1)
+              .limit(1)
+              .getDocuments()
+              .then((checker) {
+            debugPrint("CHECKING REQUEST EXISTS OR NOT");
+            if (checker.documents == null ||
+                checker.documents.length == 0) {
+              debugPrint("CREATING REQUEST");
+
+              var reqRef = Firestore.instance
+                  .collection(globals.requestsLandlord)
+                  .document();
+              batch.setData(reqRef, newReq);
+
+              batch.commit().then((res) async {
+                debugPrint("Request Created");
+                _setErrorState(scaffoldContext, "Request created!",
+                    textToSend: "Request created!");
+                _backHome();
+              }, onError: (e) {
+                _setErrorState(scaffoldContext, "CALL ERROR");
+              }).catchError((e) {
+                _setErrorState(scaffoldContext, "SERVER ERROR");
+              });
+            } else {
+              debugPrint("UPDATING REQUEST");
+              var reqRef = Firestore.instance
+                  .collection(globals.requestsLandlord)
+                  .document(checker.documents[0].documentID);
+              batch.updateData(reqRef, updatedReq);
+              batch.commit().then((res) async {
+                debugPrint("Request Updated");
+                _setErrorState(scaffoldContext, "Request created!",
+                    textToSend: "Request created!");
+                _backHome();
+              }, onError: (e) {
+                _setErrorState(scaffoldContext, "CALL ERROR");
+              }).catchError((e) {
+                _setErrorState(scaffoldContext, "SERVER ERROR");
+              });
+            }
+          }, onError: (e) {
+            _setErrorState(scaffoldContext, "CALL ERROR");
+          }).catchError((e) {
+            _setErrorState(scaffoldContext, "SERVER ERROR");
+          });
         });
-      } else {
-        _setErrorState(scaffoldContext, "Landlord User does not exist",
-            textToSend: "Landlord User does not exist");
       }
     }, onError: (e) {
       _setErrorState(scaffoldContext, "CALL ERROR");
     }).catchError((e) {
       _setErrorState(scaffoldContext, "SERVER ERROR");
-    });*/
+    });
   }
 
   void _backHome() async {

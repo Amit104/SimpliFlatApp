@@ -247,6 +247,7 @@ class _AddLandlord extends State<AddLandlord> {
     });
   }
 
+  /// TODO - Remove this code
   void _inviteLandlordAPI(scaffoldContext, phoneNumber) async {
     var flatName = await Utility.getFlatName();
     var uID = await Utility.getUserId();

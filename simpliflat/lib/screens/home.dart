@@ -12,9 +12,8 @@ import 'package:simpliflat/screens/models/DatabaseHelper.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dashboard.dart';
+import 'package:simpliflat/screens/Res/strings.dart';
 import 'lists/shopping_list.dart';
-import 'package:simpliflat/screens/Calendar/googlecalendar.dart';
-import 'tenant_portal/tenant_portal.dart';
 
 class Home extends StatefulWidget {
   final flatId;
@@ -131,18 +130,18 @@ class _Home extends State<Home> {
           bottomNavigationBar: new BottomNavigationBar(
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                  icon: Icon(Icons.dashboard), title: Text('Dashboard')),
+                  icon: Icon(Icons.dashboard), title: Text('Dashboard', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,),)),
               BottomNavigationBarItem(
-                  icon: Icon(IconsCustom.tasks_1), title: Text('Tasks')),
+                  icon: Icon(IconsCustom.tasks_1), title: Text('Tasks', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.list), title: Text('Lists')),
+                  icon: Icon(Icons.list), title: Text('Lists', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.home), title: Text('My Flat')),
+                  icon: Icon(Icons.home), title: Text('My Flat', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
             ],
             currentIndex: _selectedIndex,
             unselectedItemColor: Colors.black87,
             backgroundColor: Colors.white,
-            fixedColor: Colors.indigo,
+            fixedColor: Color(0xff2079FF),
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed,
           ),
@@ -157,8 +156,11 @@ class _Home extends State<Home> {
               navigateToNotice(_flatId, offlineDocuments);
             },
             tooltip: 'Noticeboard',
-            backgroundColor: Colors.indigo,
-            child: new Icon(Icons.arrow_drop_up),
+            backgroundColor: Color(0xff2079FF),
+            // shape: RoundedRectangleBorder(
+            //   borderRadius: BorderRadius.circular(8),
+            // ),
+            child: new Icon(IconsCustom.bullhorn),
           ),
         ));
   }

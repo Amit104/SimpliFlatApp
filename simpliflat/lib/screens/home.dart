@@ -151,9 +151,9 @@ class _Home extends State<Home> {
             },
             tooltip: 'Noticeboard',
             backgroundColor: Color(0xff2079FF),
-            // shape: RoundedRectangleBorder(
-            //   borderRadius: BorderRadius.circular(8),
-            // ),
+            shape: RoundedRectangleBorder(
+               borderRadius: BorderRadius.circular(8),
+            ),
             child: new Icon(IconsCustom.announcement),
           ),
         ));

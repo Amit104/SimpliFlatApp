@@ -251,313 +251,320 @@ class NoticeBoard extends State<Notice> {
 
     var color = notice['user_id'].toString().trim().hashCode;
 
-    return Card(
-      color: isNoteSynced(notice['updated_at'])
-          ? Colors.grey[100]
-          : Colors.white,
-      elevation: 0.0,
-      child: ClipPath(
-        clipper: ShapeBorderClipper(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),
-          ),
-        ),
-        child: Container(
-          padding: EdgeInsets.only(top: 0.0, bottom: 0.0),
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                  color:
-                  (Colors.primaries[color % Colors.primaries.length]),
-                  width: 5.0),
-              bottom: BorderSide(
-                color: Color(0xff373D4C),
-                width: 0.5,
+    return Padding(
+      padding: const EdgeInsets.only(right: 0.0, left: 0.0),
+      child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Card(
+            margin: EdgeInsets.only(top: 0.0, bottom: 0.0),
+            color: isNoteSynced(notice['updated_at'])
+                ? Colors.grey[100]
+                : Colors.white,
+            elevation: 0.0,
+            child: ClipPath(
+              clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0),
+                ),
               ),
-              top: BorderSide(
-                color: Color(0xff373D4C),
-                width: 0.5,
-              ),
-            ),
-          ),
-          child: Slidable(
-            key: GlobalKey(),
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            enabled: currentUserId.toString().trim() ==
-                notice['user_id'].toString().trim(),
-            dismissal: SlidableDismissal(
-              child: SlidableDrawerDismissal(),
-              closeOnCanceled: true,
-              dismissThresholds: <SlideActionType, double>{
-                SlideActionType.primary: 1.0
-              },
-              onWillDismiss: (actionType) {
-                return showDialog<bool>(
-                  context: context,
-                  builder: (context) {
-                    return new AlertDialog(
-                      title: new Text('Delete'),
-                      content: new Text(
-                          'Are you sure you want to delete this notice?'),
-                      actions: <Widget>[
-                        new FlatButton(
-                          child: new Text('Cancel'),
-                          onPressed: () => Navigator.of(context).pop(false),
-                        ),
-                        new FlatButton(
-                          child: new Text('Ok'),
-                          onPressed: () => Navigator.of(context).pop(true),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              onDismissed: (actionType) {
-                _deleteNote(context, notice.reference);
-              },
-            ),
-            secondaryActions: <Widget>[
-              new IconSlideAction(
-                caption: 'Delete',
-                color: Colors.red,
-                icon: Icons.delete,
-                onTap: () async {
-                  var state = Slidable.of(context);
-                  var dismiss = await showDialog<bool>(
-                    context: context,
-                    builder: (context) {
-                      return new AlertDialog(
-                        title: new Text('Delete'),
-                        content: new Text(
-                            'Are you sure you want to delete this notice?'),
-                        actions: <Widget>[
-                          new FlatButton(
-                            child: new Text('Cancel'),
-                            onPressed: () =>
-                                Navigator.of(context).pop(false),
-                          ),
-                          new FlatButton(
-                            child: new Text('Ok'),
-                            onPressed: () =>
-                                Navigator.of(context).pop(true),
-                          ),
-                        ],
+              child: Container(
+                padding: EdgeInsets.only(top: 0.0, bottom: 0.0),
+                decoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(
+                        color:
+                        (Colors.primaries[color % Colors.primaries.length]),
+                        width: 5.0),
+                    bottom: BorderSide(
+                      color: Color(0xff373D4C),
+                      width: 0.5,
+                    ),
+                    top: BorderSide(
+                      color: Color(0xff373D4C),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: Slidable(
+                  key: GlobalKey(),
+                  actionPane: SlidableDrawerActionPane(),
+                  actionExtentRatio: 0.25,
+                  enabled: currentUserId.toString().trim() ==
+                      notice['user_id'].toString().trim(),
+                  dismissal: SlidableDismissal(
+                    child: SlidableDrawerDismissal(),
+                    closeOnCanceled: true,
+                    dismissThresholds: <SlideActionType, double>{
+                      SlideActionType.primary: 1.0
+                    },
+                    onWillDismiss: (actionType) {
+                      return showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return new AlertDialog(
+                            title: new Text('Delete'),
+                            content: new Text(
+                                'Are you sure you want to delete this notice?'),
+                            actions: <Widget>[
+                              new FlatButton(
+                                child: new Text('Cancel'),
+                                onPressed: () => Navigator.of(context).pop(false),
+                              ),
+                              new FlatButton(
+                                child: new Text('Ok'),
+                                onPressed: () => Navigator.of(context).pop(true),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
-                  );
+                    onDismissed: (actionType) {
+                      _deleteNote(context, notice.reference);
+                    },
+                  ),
+                  secondaryActions: <Widget>[
+                    new IconSlideAction(
+                      caption: 'Delete',
+                      color: Colors.red,
+                      icon: Icons.delete,
+                      onTap: () async {
+                        var state = Slidable.of(context);
+                        var dismiss = await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return new AlertDialog(
+                              title: new Text('Delete'),
+                              content: new Text(
+                                  'Are you sure you want to delete this notice?'),
+                              actions: <Widget>[
+                                new FlatButton(
+                                  child: new Text('Cancel'),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                ),
+                                new FlatButton(
+                                  child: new Text('Ok'),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                ),
+                              ],
+                            );
+                          },
+                        );
 
-                  if (dismiss) {
-                    _deleteNote(context, notice.reference);
-                    state.dismiss();
-                  }
-                },
-              ),
-            ],
-            child: ListTile(
-              title: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    child: Text(
-                      userName,
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w700,
-                        color: Colors
-                            .primaries[color % Colors.primaries.length],
-                      ),
+                        if (dismiss) {
+                          _deleteNote(context, notice.reference);
+                          state.dismiss();
+                        }
+                      },
                     ),
-                    padding: EdgeInsets.only(bottom: 5.0),
-                  ),
-                  Text(
-                    notice['note'].toString().trim(),
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(
-                      fontSize: 15.0,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                child: Text(datetimeString,
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      fontSize: 11.0,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black45,
-                    )),
-                padding: EdgeInsets.only(top: 6.0),
-              ),
-              onTap: () {
-                setState(() {
-                  if (currentUserId == notice['user_id'].toString().trim())
-                    note.text = notice['note'].toString().trim();
-                });
-                var dialogTitle =
-                currentUserId == notice['user_id'].toString().trim()
-                    ? "Edit Note"
-                    : "Notice";
-                showDialog(
-                  context: context,
-                  builder: (_) => new Form(
-                    key: _formKey2,
-                    child: AlertDialog(
-                      shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(10.0),
-                        side: BorderSide(
-                          width: 1.0,
-                          color: Colors.indigo[900],
+                  ],
+                  child: ListTile(
+                    title: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          child: Text(
+                            userName,
+                            style: TextStyle(
+                              fontSize: 12.0,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w700,
+                              color: Colors
+                                  .primaries[color % Colors.primaries.length],
+                            ),
+                          ),
+                          padding: EdgeInsets.only(bottom: 5.0),
                         ),
-                      ),
-                      title: new Text(dialogTitle,
+                        Text(
+                          notice['note'].toString().trim(),
+                          overflow: TextOverflow.visible,
                           style: TextStyle(
-                              color: Colors.indigo[900],
-                              fontFamily: 'Montserrat',
-                              fontSize: 18.0)),
-                      content: Container(
-                        width: double.maxFinite,
-                        height: MediaQuery.of(context).size.height / 3,
-                        child: currentUserId !=
-                            notice['user_id'].toString().trim()
-                            ? Text(notice['note'].toString().trim())
-                            : Column(
-                          children: <Widget>[
-                            Padding(
-                                padding: EdgeInsets.only(
-                                    top: _minimumPadding,
-                                    bottom: _minimumPadding),
-                                child: TextFormField(
-                                  keyboardType:
-                                  TextInputType.multiline,
-                                  maxLines: 6,
-                                  minLines: 1,
-                                  style: textStyle,
-                                  controller: note,
-                                  validator: (String value) {
-                                    if (value.isEmpty)
-                                      return "Cannot add empty note!";
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: "Note",
-                                    hintText:
-                                    "Eg. Maid is not coming today",
-                                    hintStyle:
-                                    TextStyle(color: Colors.grey),
-                                    labelStyle: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16.0,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w700),
-                                    errorStyle: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 12.0,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                )),
-                            Padding(
-                                padding: EdgeInsets.only(
-                                    top: _minimumPadding,
-                                    bottom: _minimumPadding),
-                                child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment
-                                        .spaceBetween,
-                                    children: <Widget>[
-                                      OutlineButton(
-                                          shape:
-                                          new RoundedRectangleBorder(
-                                            borderRadius:
-                                            new BorderRadius
-                                                .circular(10.0),
-                                            side: BorderSide(
-                                              width: 1.0,
-                                              color:
-                                              Colors.indigo[900],
-                                            ),
-                                          ),
-                                          padding:
-                                          const EdgeInsets.all(
-                                              8.0),
-                                          textColor: Colors.black,
-                                          child: Text('Save',
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 14.0,
-                                                  fontFamily:
-                                                  'Montserrat',
-                                                  fontWeight:
-                                                  FontWeight
-                                                      .w700)),
-                                          onPressed: () {
-                                            debugPrint("UPDATE");
-                                            if (_formKey2.currentState
-                                                .validate()) {
-                                              debugPrint("NOTEID IS" +
-                                                  notice.documentID
-                                                      .toString());
-                                              _addOrUpdateNote(
-                                                  context, 2,
-                                                  noteReference:
-                                                  notice
-                                                      .reference);
-                                              Navigator.of(context,
-                                                  rootNavigator:
-                                                  true)
-                                                  .pop();
-                                            }
-                                          }),
-                                      OutlineButton(
-                                          shape:
-                                          new RoundedRectangleBorder(
-                                            borderRadius:
-                                            new BorderRadius
-                                                .circular(10.0),
-                                            side: BorderSide(
-                                              width: 1.0,
-                                              color:
-                                              Colors.indigo[900],
-                                            ),
-                                          ),
-                                          padding:
-                                          const EdgeInsets.all(
-                                              8.0),
-                                          textColor: Colors.black,
-                                          child: Text('Cancel',
-                                              style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14.0,
-                                                  fontFamily:
-                                                  'Montserrat',
-                                                  fontWeight:
-                                                  FontWeight
-                                                      .w700)),
-                                          onPressed: () {
-                                            Navigator.of(context,
-                                                rootNavigator:
-                                                true)
-                                                .pop();
-                                          })
-                                    ]))
-                          ],
+                            fontSize: 15.0,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
+                    subtitle: Padding(
+                      child: Text(datetimeString,
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 11.0,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black45,
+                          )),
+                      padding: EdgeInsets.only(top: 6.0),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (currentUserId == notice['user_id'].toString().trim())
+                          note.text = notice['note'].toString().trim();
+                      });
+                      var dialogTitle =
+                      currentUserId == notice['user_id'].toString().trim()
+                          ? "Edit Note"
+                          : "Notice";
+                      showDialog(
+                        context: context,
+                        builder: (_) => new Form(
+                          key: _formKey2,
+                          child: AlertDialog(
+                            shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              side: BorderSide(
+                                width: 1.0,
+                                color: Colors.indigo[900],
+                              ),
+                            ),
+                            title: new Text(dialogTitle,
+                                style: TextStyle(
+                                    color: Colors.indigo[900],
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 18.0)),
+                            content: Container(
+                              width: double.maxFinite,
+                              height: MediaQuery.of(context).size.height / 3,
+                              child: currentUserId !=
+                                  notice['user_id'].toString().trim()
+                                  ? Text(notice['note'].toString().trim())
+                                  : Column(
+                                children: <Widget>[
+                                  Padding(
+                                      padding: EdgeInsets.only(
+                                          top: _minimumPadding,
+                                          bottom: _minimumPadding),
+                                      child: TextFormField(
+                                        keyboardType:
+                                        TextInputType.multiline,
+                                        maxLines: 6,
+                                        minLines: 1,
+                                        style: textStyle,
+                                        controller: note,
+                                        validator: (String value) {
+                                          if (value.isEmpty)
+                                            return "Cannot add empty note!";
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          labelText: "Note",
+                                          hintText:
+                                          "Eg. Maid is not coming today",
+                                          hintStyle:
+                                          TextStyle(color: Colors.grey),
+                                          labelStyle: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 16.0,
+                                              fontFamily: 'Montserrat',
+                                              fontWeight: FontWeight.w700),
+                                          errorStyle: TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 12.0,
+                                              fontFamily: 'Montserrat',
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                      )),
+                                  Padding(
+                                      padding: EdgeInsets.only(
+                                          top: _minimumPadding,
+                                          bottom: _minimumPadding),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment
+                                              .spaceBetween,
+                                          children: <Widget>[
+                                            OutlineButton(
+                                                shape:
+                                                new RoundedRectangleBorder(
+                                                  borderRadius:
+                                                  new BorderRadius
+                                                      .circular(10.0),
+                                                  side: BorderSide(
+                                                    width: 1.0,
+                                                    color:
+                                                    Colors.indigo[900],
+                                                  ),
+                                                ),
+                                                padding:
+                                                const EdgeInsets.all(
+                                                    8.0),
+                                                textColor: Colors.black,
+                                                child: Text('Save',
+                                                    style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14.0,
+                                                        fontFamily:
+                                                        'Montserrat',
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .w700)),
+                                                onPressed: () {
+                                                  debugPrint("UPDATE");
+                                                  if (_formKey2.currentState
+                                                      .validate()) {
+                                                    debugPrint("NOTEID IS" +
+                                                        notice.documentID
+                                                            .toString());
+                                                    _addOrUpdateNote(
+                                                        context, 2,
+                                                        noteReference:
+                                                        notice
+                                                            .reference);
+                                                    Navigator.of(context,
+                                                        rootNavigator:
+                                                        true)
+                                                        .pop();
+                                                  }
+                                                }),
+                                            OutlineButton(
+                                                shape:
+                                                new RoundedRectangleBorder(
+                                                  borderRadius:
+                                                  new BorderRadius
+                                                      .circular(10.0),
+                                                  side: BorderSide(
+                                                    width: 1.0,
+                                                    color:
+                                                    Colors.indigo[900],
+                                                  ),
+                                                ),
+                                                padding:
+                                                const EdgeInsets.all(
+                                                    8.0),
+                                                textColor: Colors.black,
+                                                child: Text('Cancel',
+                                                    style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 14.0,
+                                                        fontFamily:
+                                                        'Montserrat',
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .w700)),
+                                                onPressed: () {
+                                                  Navigator.of(context,
+                                                      rootNavigator:
+                                                      true)
+                                                      .pop();
+                                                })
+                                          ]))
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
-        ),
       ),
     );
   }

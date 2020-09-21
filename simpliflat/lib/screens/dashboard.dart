@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:simpliflat/icons/icons_custom_icons.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:simpliflat/screens/tasks/task_list.dart';
 import 'package:simpliflat/screens/tasks/view_task.dart';
@@ -81,17 +82,18 @@ class DashboardState extends State<Dashboard> {
         return null;
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(
             "SimpliFlat",
-            style: TextStyle(color: Colors.indigo[900]),
+            style: TextStyle(color: Color(0xff373D4C), fontFamily: 'Roboto',fontWeight: FontWeight.w700,),
           ),
-          elevation: 2.0,
+          elevation: 0.0,
           centerTitle: true,
           leading: IconButton(
             icon: Icon(
               Icons.settings,
-              color: Colors.indigo,
+              color: Color(0xff373D4C),
             ),
             onPressed: () {
               Utility.navigateToProfileOptions(context);
@@ -103,10 +105,6 @@ class DashboardState extends State<Dashboard> {
           return new SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                SizedBox(
-                  height: 10.0,
-                ),
-                dateUI(),
                 SizedBox(
                   height: 30.0,
                 ),
@@ -157,30 +155,13 @@ class DashboardState extends State<Dashboard> {
                           ? 0.0
                           : 25.0,
                 ),
-
-                tasksExist
-                    ? Text(
-                        'Tasks for you today',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                        ),
-                      )
-                    : Container(height: 0.0),
                 getTasks(),
                 SizedBox(
-                  height: 20.0,
+                  height: 1.0,
                 ),
-                noticesExist
-                    ? Text(
-                        'Notices today',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                        ),
-                      )
-                    : Container(height: 0.0),
                 getNotices(),
+
+                getEmptyImage(),
               ],
             ),
           );
@@ -194,10 +175,10 @@ class DashboardState extends State<Dashboard> {
       children: <Widget>[
         Expanded(
           child:
-              getNavigationButton("Tenant Portal", Icons.home, Colors.red[900]),
+              getNavigationButton("TENANT PORTAL", IconsCustom.home, Color(0xff6C67D3)),
         ),
         Expanded(
-          child: getNavigationButton("Payments", Icons.payment, Colors.green),
+          child: getNavigationButton("PAYMENTS", Icons.credit_card, Color(0xff47D76E)),
         ),
       ],
     );
@@ -207,36 +188,55 @@ class DashboardState extends State<Dashboard> {
     return Container(
       margin: EdgeInsets.only(left: 18.0, right: 18.0),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5.0),
-          color: Colors.white,
-          border: Border.all(width: 1.0, color: Colors.grey[300])),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          IconButton(
-            icon: Icon(
-              buttonIcon,
-              color: color,
-            ),
-            onPressed: () async {
-              var landlordId = await Utility.getLandlordId();
-              if (landlordId == null || landlordId == "") {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => AddLandlord(flatId)));
-              } else {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => TenantPortal(flatId)));
-              }
-            },
+          borderRadius: BorderRadius.circular(10.0),
+          color: color,
+      ),
+      child: InkWell(
+        splashColor: color,
+        onTap: () async {
+          var landlordId = await Utility.getLandlordId();
+          if (landlordId == null || landlordId == "") {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => AddLandlord(flatId)));
+          } else {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => TenantPortal(flatId)));
+          }
+        },
+        child: Padding(
+          padding: EdgeInsets.only(left: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                height: 20.0,
+              ),
+              Icon(
+                buttonIcon,
+                size: 35.0,
+                color: Colors.white,
+              ),
+              Container(
+                height: 5.0,
+              ),
+              Text(buttonText.split(' ')[0], style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700, fontSize: 25.0, color: Colors.white,)),
+              Text(buttonText.split(' ').length > 1 ?buttonText.split(' ')[1] : "", style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.normal, fontSize: 25.0, color: Colors.white,)),
+              Container(
+                height: 30.0,
+              ),
+            ],
           ),
-          Text(buttonText),
-          Container(
-            height: 10.0,
-          ),
-        ],
+        ),
       ),
     );
   }
+
+  Map<String, Map<String, dynamic>> icons = {
+    'Reminder': {'icon': Icons.calendar_today, 'color': Color(0xff6C67D3)},
+    'Payment': {'icon': Icons.payment, 'color': Color(0xff47D76E)},
+    'Complaint': {'icon': Icons.error, 'color': Color(0xffFFC217)}
+  };
 
   // Get Tasks data for today
   Widget getTasks() {
@@ -278,77 +278,150 @@ class DashboardState extends State<Dashboard> {
                   tooltipKey.add(GlobalKey());
                 }
 
-                return new ListView.builder(
-                  itemCount: taskSnapshot.data.documents.length,
-                  scrollDirection: Axis.vertical,
-                  key: UniqueKey(),
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int position) {
-                    var datetime = (taskSnapshot.data.documents[position]
-                    ["nextDueDate"] as Timestamp)
-                        .toDate();
+                return Container(
+                  color: Color(0xff2079FF),
+                  child: ExpansionTile(
+                    title: Text("TASKS FOR YOU TODAY", style: TextStyle(color: Colors.white, fontFamily: 'Roboto',fontWeight: FontWeight.w700, fontSize: 16.0,),),
+                    initiallyExpanded: true,
+                    backgroundColor: Color(0xff2079FF),
+                    children: [
+                      ListView.builder(
+                        itemCount: taskSnapshot.data.documents.length,
+                        scrollDirection: Axis.vertical,
+                        key: UniqueKey(),
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int position) {
+                          var datetime = (taskSnapshot.data.documents[position]
+                          ["nextDueDate"] as Timestamp)
+                              .toDate();
 
-                    if (taskSnapshot.data.documents.length > 0) {
-                      tasksExist = true;
-                    } else {
-                      tasksExist = false;
-                    }
+                          if (taskSnapshot.data.documents.length > 0) {
+                            tasksExist = true;
+                          } else {
+                            tasksExist = false;
+                          }
 
-                    return Padding(
-                        padding: const EdgeInsets.only(right: 8.0, left: 8.0),
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.85,
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 5.0,
-                            child: ListTile(
-                              title: CommonWidgets.textBox(
-                                  taskSnapshot.data.documents[position]["title"],
-                                  15.0,
-                                  color: Colors.black),
-                              subtitle: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 10.0),
-                                  taskSnapshot.data.documents[position]["repeat"] == 1
-                                      ? CommonWidgets.textBox(
-                                      'Always Available', 12.0,
-                                      color: Colors.black45)
-                                      : Row(
-                                    children: <Widget>[
-                                      CommonWidgets.textBox(
-                                          _getDateTimeString(datetime), 11.0,
-                                          color: Colors.black45),
-                                      Container(
-                                        width: 4.0,
+                          return Padding(
+                              padding: const EdgeInsets.only(right: 0.0, left: 0.0),
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Card(
+                                  margin: EdgeInsets.only(top: 0.0, bottom: 0.0),
+                                  elevation: 0.0,
+                                  child: ClipPath(
+                                    clipper: ShapeBorderClipper(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(0),
+
                                       ),
-                                      taskSnapshot.data.documents[position]
-                                      ["repeat"] !=
-                                          -1
-                                          ? Icon(
-                                        Icons.replay,
-                                        size: 16,
-                                      )
-                                          : Container(),
-                                    ],
-                                  )
-                                ],
-                              ),
-                              trailing: getUsersAssignedView(
-                                  taskSnapshot.data.documents[position]
-                                  ["assignee"],
-                                  snapshot1),
-                              onTap: () {
-                                navigateToViewTask(
-                                    taskId: taskSnapshot
-                                        .data.documents[position].documentID);
-                              },
-                            ),
-                          ),
-                        ));
-                  },
+                                    ),
+                                    child: Container(
+                                      padding:
+                                      EdgeInsets.only(top: 0.0, bottom: 0.0),
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          left: BorderSide(
+                                            // color: getPriorityColor(
+                                            //     datetime, isCompleted),
+                                              color: (icons[taskSnapshot
+                                                  .data.documents[position]
+                                              ["type"]]['color']),
+                                              width: 5.0),
+                                          bottom: BorderSide(
+                                            color: Color(0xff000000),
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      child: ListTile(
+                                        dense: true,
+                                        title: CommonWidgets.textBox(
+                                            taskSnapshot.data.documents[position]
+                                            ["title"],
+                                            15.0,
+                                            fontFamily: 'Roboto',fontWeight: FontWeight.w700,
+                                            color: Colors.black),
+                                        subtitle: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 6.0),
+                                            taskSnapshot.data.documents[position]
+                                            ["repeat"] ==
+                                                1
+                                                ? CommonWidgets.textBox(
+                                              'Always Available', 12.0,
+                                              color: Colors.black45, fontFamily: 'Roboto',fontWeight: FontWeight.w700,)
+                                                : Row(
+                                              children: <Widget>[
+                                                CommonWidgets.textBox(
+                                                  _getDateTimeString(
+                                                      datetime),
+                                                  11.0,
+                                                  color: Colors.black45, fontFamily: 'Roboto',fontWeight: FontWeight.w700,),
+                                                Container(
+                                                  width: 4.0,
+                                                ),
+                                                taskSnapshot.data.documents[
+                                                position]
+                                                ["repeat"] !=
+                                                    -1
+                                                    ? Icon(
+                                                  Icons.replay,
+                                                  size: 16,
+                                                )
+                                                    : Container(),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                        trailing: getUsersAssignedView(
+                                            taskSnapshot.data.documents[position]
+                                            ["assignee"],
+                                            snapshot1),
+                                        leading: Container(
+                                          child: Tooltip(
+                                            key: tooltipKey[position],
+                                            decoration:
+                                            BoxDecoration(color: Colors.indigo),
+                                            message: taskSnapshot
+                                                .data.documents[position]["type"],
+                                            child: IconButton(
+                                              icon: Icon(
+                                                (icons[taskSnapshot
+                                                    .data.documents[position]
+                                                ["type"]]['icon']),
+                                                color: (icons[taskSnapshot
+                                                    .data.documents[position]
+                                                ["type"]]['color']),
+                                              ),
+                                              onPressed: () {
+                                                dynamic tooltip =
+                                                    tooltipKey[position]
+                                                        .currentState;
+                                                tooltip.ensureTooltipVisible();
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          debugPrint("Task added");
+                                          navigateToViewTask(
+                                              taskId: taskSnapshot.data
+                                                  .documents[position].documentID);
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ));
+                        },
+                      )
+                    ],
+                  ),
                 );
               });
         });
@@ -361,7 +434,7 @@ class DashboardState extends State<Dashboard> {
         numToMonth[nextDueDate.month.toInt()] +
         " " +
         nextDueDate.year.toString() +
-        " - " +
+        " | " +
         f.format(nextDueDate);
 
     return datetimeString;
@@ -481,15 +554,25 @@ class DashboardState extends State<Dashboard> {
         } else {
           noticesExist = false;
         }
-        return ListView.builder(
-            itemCount: notesSnapshot.data.documents.length,
-            key: UniqueKey(),
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: (BuildContext context, int position) {
-              return _buildNoticeListItem(
-                  notesSnapshot.data.documents[position], position);
-            });
+        return Container(
+          color: Color(0xff2079FF),
+          child: ExpansionTile(
+            title: Text("NOTICES TODAY", style: TextStyle(color: Colors.white, fontFamily: 'Roboto',fontWeight: FontWeight.w700, fontSize: 16.0,),),
+            initiallyExpanded: true,
+            backgroundColor: Color(0xff2079FF),
+            children: [
+              ListView.builder(
+                  itemCount: notesSnapshot.data.documents.length,
+                  key: UniqueKey(),
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int position) {
+                    return _buildNoticeListItem(
+                        notesSnapshot.data.documents[position], position);
+                  })
+            ],
+          ),
+        );;
       },
     );
   }
@@ -512,49 +595,85 @@ class DashboardState extends State<Dashboard> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.85,
-        child: Card(
-          color: Colors.white,
-          elevation: 3.0,
-          child: ListTile(
-            title: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  child: Text(userName,
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        fontFamily: 'Montserrat',
-                        color:
-                            Colors.primaries[color % Colors.primaries.length],
-                      )),
-                  padding: EdgeInsets.only(bottom: 5.0),
+        padding: const EdgeInsets.only(right: 0.0, left: 0.0),
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Card(
+            margin: EdgeInsets.only(top: 0.0, bottom: 0.0),
+            elevation: 0.0,
+            child: ClipPath(
+              clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0),
+
                 ),
-                Text(noticeTitle,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontFamily: 'Montserrat',
-                      color: Colors.black,
-                    )),
-              ],
-            ),
-            subtitle: Padding(
-              child: Text(datetimeString,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    fontFamily: 'Montserrat',
-                    color: Colors.black45,
-                  )),
-              padding: EdgeInsets.only(top: 6.0),
+              ),
+              child: Container(
+                padding:
+                EdgeInsets.only(top: 0.0, bottom: 0.0),
+                decoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(
+                        color:
+                        (Colors.primaries[color % Colors.primaries.length]),
+                        width: 5.0),
+                    bottom: BorderSide(
+                      color: Color(0xff000000),
+                      width: 0.5,
+                    ),
+                    top: BorderSide(
+                      color: Color(0xff373D4C),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: ListTile(
+                  title: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        child: Text(
+                          userName,
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w700,
+                            color: Colors
+                                .primaries[color % Colors.primaries.length],
+                          ),
+                        ),
+                        padding: EdgeInsets.only(bottom: 5.0),
+                      ),
+                      Text(
+                        notice['note'].toString().trim(),
+                        overflow: TextOverflow.visible,
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  subtitle: Padding(
+                    child: Text(datetimeString,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: 11.0,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black45,
+                        )),
+                    padding: EdgeInsets.only(top: 6.0),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
+
   }
 
   Widget dateUI() {
@@ -954,5 +1073,26 @@ class DashboardState extends State<Dashboard> {
     setState(() {
       _isButtonDisabled = false;
     });
+  }
+
+  getEmptyImage() {
+    if(!noticesExist && !tasksExist) {
+      return Center(
+        child: Column(
+          children: [
+            Image.asset('assets/images/dashboard-bg.PNG', fit: BoxFit.fill,),
+            Container(height: 10.0,),
+            Text(
+              "You are all caught up for today!",
+              style: TextStyle(
+                fontSize: 18.0,
+                fontFamily: 'Roboto',fontWeight: FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return Container();
   }
 }

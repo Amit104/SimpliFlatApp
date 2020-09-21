@@ -239,6 +239,7 @@ class TaskListState extends State<TaskList> {
         return null;
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(
             "Tasks",
@@ -422,17 +423,6 @@ class TaskListState extends State<TaskList> {
                         : (taskSnapshot.data.documents[position]["nextDueDate"]
                                 as Timestamp)
                             .toDate();
-
-                    final f = new DateFormat.jm();
-                    var datetimeString = datetime.day.toString() +
-                        " " +
-                        numToMonth[datetime.month.toInt()] +
-                        " " +
-                        datetime.year.toString() +
-                        " | " +
-                        f.format(datetime);
-
-                    //+ datetime.hour.toString() + ":" + datetime.minute.toString();
 
                     return Column(
                         //color: Colors.white,

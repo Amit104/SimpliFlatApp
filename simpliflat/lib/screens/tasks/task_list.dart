@@ -242,7 +242,7 @@ class TaskListState extends State<TaskList> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(
-            "Tasks",
+            "TASKS",
             style: TextStyle(color: Color(0xff373D4C), fontFamily: 'Roboto',fontWeight: FontWeight.w700,),
           ),
           elevation: 0.0,
@@ -251,11 +251,11 @@ class TaskListState extends State<TaskList> {
             icon: isTenantPortal
                 ? Icon(
                     Icons.arrow_back,
-                    color: Colors.black,
+                    color: Color(0xff373D4C),
                   )
                 : Icon(
                     Icons.settings,
-                    color: Colors.black,
+                    color: Color(0xff373D4C),
                   ),
             onPressed: () {
               if (!isTenantPortal)
@@ -615,7 +615,7 @@ class TaskListState extends State<TaskList> {
                                                 ["type"]]['color']),
                                             width: 5.0),
                                       bottom: BorderSide(
-                                        color: Color(0xff000000),
+                                        color: Color(0xffA6A8AB),
                                         width: 0.5,
                                       ),
                                     ),

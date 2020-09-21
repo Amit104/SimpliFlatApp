@@ -133,7 +133,7 @@ class _Home extends State<Home> {
                   icon: Icon(IconsCustom.group_people,), title: Text('My Flat', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
             ],
             currentIndex: _selectedIndex,
-            unselectedItemColor: Colors.black87,
+            unselectedItemColor: Color(0xff373D4C),
             backgroundColor: Colors.white,
             fixedColor: Color(0xff2079FF),
             onTap: _onItemTapped,

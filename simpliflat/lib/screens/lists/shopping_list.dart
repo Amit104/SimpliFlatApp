@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:simpliflat/icons/icons_custom_icons.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:simpliflat/screens/widgets/common.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -71,23 +72,23 @@ class ShoppingListsState extends State<ShoppingLists> {
     TextStyle textStyle = Theme.of(_navigatorContext).textTheme.subhead;
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0, bottom: 5.0,),
+      padding: const EdgeInsets.only(right: 14.0, left: 14.0, bottom: 5.0,),
       child: SizedBox(
-        width: MediaQuery.of(_navigatorContext).size.width * 0.85,
+        width: MediaQuery.of(_navigatorContext).size.width * 0.80,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.4),
-                blurRadius: 1,
-                offset: Offset(0, 4), // changes position of shadow
-              ),
-            ],
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: Color(0xffBFDAFF).withOpacity(0.4),
+            //     blurRadius: 1,
+            //     offset: Offset(0, 1), // changes position of shadow
+            //   ),
+            // ],
           ),
           child: Card(
-            color: Colors.white,
-            elevation: 0.0,
+            color: Color(0xffBFDAFF),
+            elevation: 2.0,
             child: Slidable(
               key: new Key(index.toString()),
               actionPane: SlidableDrawerActionPane(),
@@ -161,20 +162,20 @@ class ShoppingListsState extends State<ShoppingLists> {
               ],
               child: ListTile(
                 leading: Icon(
-                  Icons.arrow_right,
-                  color: Colors.green,
+                  Icons.arrow_forward_ios,
+                  color: Color(0xff2079FF),
                 ),
                 title: Text(list['title'].toString().trim(),
                     style: TextStyle(
-                      fontSize: 16.0,
-                      fontFamily: 'Montserrat',
+                      fontSize: 18.0,
+                      fontFamily: 'Roboto',fontWeight: FontWeight.w700,
                       fontStyle: FontStyle.normal,
                       color: Colors.black,
                     )),
                 trailing: GestureDetector(
                   child: Icon(
-                    Icons.edit,
-                    color: Colors.black,
+                    IconsCustom.edit,
+                    color: Color(0xff2079FF),
                   ),
                   onTap: () {
                     setState(() {
@@ -195,7 +196,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                           title: new Text("Edit List Title",
                               style: TextStyle(
                                   color: Colors.black,
-                                  fontFamily: 'Montserrat',
+                                  fontFamily: 'Roboto',fontWeight: FontWeight.w700,
                                   fontSize: 16.0)),
                           content: Container(
                             width: double.maxFinite,
@@ -225,12 +226,12 @@ class ShoppingListsState extends State<ShoppingLists> {
                                           labelStyle: TextStyle(
                                               color: Colors.black45,
                                               fontSize: 16.0,
-                                              fontFamily: 'Montserrat',
+                                              fontFamily: 'Roboto',
                                               fontWeight: FontWeight.w700),
                                           errorStyle: TextStyle(
                                               color: Colors.red,
                                               fontSize: 12.0,
-                                              fontFamily: 'Montserrat',
+                                              fontFamily: 'Roboto',
                                               fontWeight: FontWeight.w700),
                                           border: InputBorder.none),
                                     )),
@@ -258,7 +259,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                                                   style: TextStyle(
                                                       color: Colors.black,
                                                       fontSize: 14.0,
-                                                      fontFamily: 'Montserrat',
+                                                      fontFamily: 'Roboto',
                                                       fontWeight:
                                                       FontWeight.w700)),
                                               onPressed: () {
@@ -291,7 +292,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                                                   style: TextStyle(
                                                       color: Colors.red,
                                                       fontSize: 14.0,
-                                                      fontFamily: 'Montserrat',
+                                                      fontFamily: 'Roboto',
                                                       fontWeight:
                                                       FontWeight.w700)),
                                               onPressed: () {
@@ -419,17 +420,18 @@ class ShoppingListsState extends State<ShoppingLists> {
         return null;
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(
-            "Lists",
-            style: TextStyle(color: Colors.indigo),
+            "LISTS",
+            style: TextStyle(color: Color(0xff373D4C), fontFamily: 'Roboto',fontWeight: FontWeight.w700,),
           ),
-          elevation: 2.0,
+          elevation: 0.0,
           centerTitle: true,
           leading: IconButton(
             icon: Icon(
               Icons.settings,
-              color: Colors.indigo,
+              color: Color(0xff373D4C),
             ),
             onPressed: () {
               Utility.navigateToProfileOptions(context);
@@ -438,7 +440,7 @@ class ShoppingListsState extends State<ShoppingLists> {
           actions: <Widget>[
             IconButton(
                 icon: Icon(Icons.add_circle),
-                color: Colors.indigo,
+                color: Color(0xff373D4C),
                 onPressed: () {
                   addList(_navigatorContext);
                 })
@@ -485,7 +487,7 @@ class ShoppingListsState extends State<ShoppingLists> {
           title: new Text("Add List",
               style: TextStyle(
                   color: Colors.black,
-                  fontFamily: 'Montserrat',
+                  fontFamily: 'Roboto',fontWeight: FontWeight.w700,
                   fontSize: 16.0)),
           content: Container(
             width: double.maxFinite,
@@ -512,12 +514,12 @@ class ShoppingListsState extends State<ShoppingLists> {
                           labelStyle: TextStyle(
                               color: Colors.black54,
                               fontSize: 16.0,
-                              fontFamily: 'Montserrat',
+                              fontFamily: 'Roboto',
                               fontWeight: FontWeight.w700),
                           errorStyle: TextStyle(
                               color: Colors.red,
                               fontSize: 12.0,
-                              fontFamily: 'Montserrat',
+                              fontFamily: 'Roboto',
                               fontWeight: FontWeight.w700),
                           border: InputBorder.none),
                     )),
@@ -541,7 +543,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14.0,
-                                      fontFamily: 'Montserrat',
+                                      fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w700)),
                               onPressed: () {
                                 debugPrint("ADD");
@@ -565,7 +567,7 @@ class ShoppingListsState extends State<ShoppingLists> {
                                   style: TextStyle(
                                       color: Colors.red,
                                       fontSize: 14.0,
-                                      fontFamily: 'Montserrat',
+                                      fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w700)),
                               onPressed: () {
                                 Navigator.of(context, rootNavigator: true)

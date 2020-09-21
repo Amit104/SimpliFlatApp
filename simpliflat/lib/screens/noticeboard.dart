@@ -276,11 +276,11 @@ class NoticeBoard extends State<Notice> {
                         (Colors.primaries[color % Colors.primaries.length]),
                         width: 5.0),
                     bottom: BorderSide(
-                      color: Color(0xff373D4C),
+                      color: Color(0xffA6A8AB),
                       width: 0.5,
                     ),
                     top: BorderSide(
-                      color: Color(0xff373D4C),
+                      color: Color(0xffA6A8AB),
                       width: 0.5,
                     ),
                   ),

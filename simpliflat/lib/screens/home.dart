@@ -132,11 +132,11 @@ class _Home extends State<Home> {
               BottomNavigationBarItem(
                   icon: Icon(Icons.dashboard), title: Text('Dashboard', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,),)),
               BottomNavigationBarItem(
-                  icon: Icon(IconsCustom.tasks_1), title: Text('Tasks', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
+                  icon: Icon(IconsCustom.date), title: Text('Tasks', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.list), title: Text('Lists', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
+                  icon: Icon(IconsCustom.list), title: Text('Lists', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.home), title: Text('My Flat', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
+                  icon: Icon(IconsCustom.group_people,), title: Text('My Flat', style: TextStyle(fontFamily: 'Roboto',fontWeight: FontWeight.w700,))),
             ],
             currentIndex: _selectedIndex,
             unselectedItemColor: Colors.black87,
@@ -160,7 +160,7 @@ class _Home extends State<Home> {
             // shape: RoundedRectangleBorder(
             //   borderRadius: BorderRadius.circular(8),
             // ),
-            child: new Icon(IconsCustom.bullhorn),
+            child: new Icon(IconsCustom.announcement),
           ),
         ));
   }

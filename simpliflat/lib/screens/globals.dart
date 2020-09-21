@@ -13,6 +13,7 @@ String notificationToken = "notificationToken";
 String flatName = "flatName";
 String landlordId = "landlordId";
 String landlordName = "landlordName";
+String noticeboardLastUpdated = "noticeboardLastUpdated";
 
 //collection names
 

@@ -1,18 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:simpliflat/icons/icons_custom_icons.dart';
-import 'package:simpliflat/screens/profile/profile.dart';
 import 'package:simpliflat/screens/profile/user_profile.dart';
 import 'package:simpliflat/screens/tasks/task_list.dart';
 import 'package:simpliflat/screens/utility.dart';
 import 'package:simpliflat/screens/noticeboard.dart';
-import 'package:simpliflat/screens/models/DatabaseHelper.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dashboard.dart';
-import 'package:simpliflat/screens/Res/strings.dart';
 import 'lists/shopping_list.dart';
 
 class Home extends StatefulWidget {
@@ -48,11 +44,11 @@ class _Home extends State<Home> {
     if (message['data']['screen'] == globals.noticeBoard) {
       var _flatId = await Utility.getFlatId();
       var _userId = await Utility.getUserId();
-      List<Map<String, dynamic>> offlineDocuments = await _query();
+      var _noticeboardLastUpdated = await Utility.getNoticeboardLastUpdated();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) {
-          return Notice(_flatId, _userId, offlineDocuments);
+          return Notice(_flatId, _userId, _noticeboardLastUpdated);
         }),
       );
     }
@@ -108,8 +104,6 @@ class _Home extends State<Home> {
     });
   }
 
-  final dbHelper = DatabaseHelper.instance;
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -150,10 +144,10 @@ class _Home extends State<Home> {
           floatingActionButton: new FloatingActionButton(
             onPressed: () async {
               var _flatId = flatId;
+              var _noticeboardLastUpdated = await Utility.getNoticeboardLastUpdated();
               if (flatId == null || flatId == "")
                 _flatId = await Utility.getFlatId();
-              List<Map<String, dynamic>> offlineDocuments = await _query();
-              navigateToNotice(_flatId, offlineDocuments);
+              navigateToNotice(_flatId, _noticeboardLastUpdated);
             },
             tooltip: 'Noticeboard',
             backgroundColor: Color(0xff2079FF),
@@ -165,16 +159,10 @@ class _Home extends State<Home> {
         ));
   }
 
-  // get offline notices
-  Future<List<Map<String, dynamic>>> _query() async {
-    final allRows = await dbHelper.queryRows(globals.noticeBoard);
-    return allRows;
-  }
-
   void navigateToNotice(
-      var flatId, List<Map<String, dynamic>> offlineDocuments) async {
+      var flatId, var _noticeboardLastUpdated) async {
     var _userId = await Utility.getUserId();
-    Navigator.push(context, _createRoute(flatId, _userId, offlineDocuments));
+    Navigator.push(context, _createRoute(flatId, _userId, _noticeboardLastUpdated));
   }
 
   //animated transition to noticeboard

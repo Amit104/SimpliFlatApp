@@ -242,7 +242,7 @@ class TaskListState extends State<TaskList> {
         appBar: AppBar(
           title: Text(
             "Tasks",
-            style: TextStyle(color: Colors.black, fontFamily: 'Roboto',fontWeight: FontWeight.w700,),
+            style: TextStyle(color: Color(0xff373D4C), fontFamily: 'Roboto',fontWeight: FontWeight.w700,),
           ),
           elevation: 0.0,
           centerTitle: true,
@@ -631,6 +631,7 @@ class TaskListState extends State<TaskList> {
                                     ),
                                   ),
                                   child: ListTile(
+                                    dense: true,
                                     title: CommonWidgets.textBox(
                                         taskSnapshot.data.documents[position]
                                             ["title"],

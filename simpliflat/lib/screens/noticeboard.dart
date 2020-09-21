@@ -50,7 +50,7 @@ class NoticeBoard extends State<Notice> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Notices",
+          "NOTICES",
           style: TextStyle(
             color: Color(0xff373D4C),
             fontFamily: 'Roboto',

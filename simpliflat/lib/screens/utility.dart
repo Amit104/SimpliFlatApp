@@ -43,7 +43,8 @@ class Utility {
       landlordName: 'null',
       apartmentName: 'null',
       apartmentNumber: 'null',
-      zipcode: 'null'}) async {
+      zipcode: 'null',
+      noticeboardLastUpdated:'null'}) async {
     final prefs = await SharedPreferences.getInstance();
     if (userName != 'null')
       await prefs.setString(globals.userName, userName.toString());
@@ -67,83 +68,77 @@ class Utility {
     if (apartmentNumber != 'null')
       await prefs.setString(globals.apartmentNumber, apartmentNumber);
     if (zipcode != 'null') await prefs.setString(globals.zipcode, zipcode);
+    if (noticeboardLastUpdated != 'null')
+      await prefs.setString(globals.noticeboardLastUpdated, noticeboardLastUpdated);
   }
 
   static Future<String> getUserName() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.userName);
   }
 
   static Future<String> getUserPhone() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.userPhone);
   }
 
   static Future<String> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.userId);
   }
 
   static Future<String> getFlatId() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.flatId);
   }
 
   static Future<String> getFlatDisplayId() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.displayId);
   }
 
   static Future<String> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.notificationToken);
   }
 
   static Future<String> getFlatName() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.flatName);
   }
 
   static Future<String> getLandlordId() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.landlordId);
   }
 
   static Future<String> getLandlordName() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.landlordName);
   }
 
   static Future<String> getApartmentName() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.apartmentName);
   }
 
   static Future<String> getApartmentNumber() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.apartmentNumber);
   }
 
   static Future<String> getZipcode() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     return await prefs.get(globals.zipcode);
+  }
+
+  static Future<String> getNoticeboardLastUpdated() async {
+    final prefs = await SharedPreferences.getInstance();
+    return await prefs.get(globals.noticeboardLastUpdated);
   }
 
   static removeLandlordId() async {
     final prefs = await SharedPreferences.getInstance();
-    // Try reading data from the counter key. If it does not exist, return 0.
     await prefs.remove(globals.landlordId);
     await prefs.remove(globals.landlordName);
   }

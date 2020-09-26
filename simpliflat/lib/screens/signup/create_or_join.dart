@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:simpliflat/icons/icons_custom_icons.dart';
 import 'package:simpliflat/main.dart';
 import 'package:simpliflat/screens/signup/create_flat.dart';
 import 'package:flutter/services.dart';
@@ -174,12 +175,21 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
   @override
   Widget build(BuildContext context) {
     var deviceSize = MediaQuery.of(context).size;
-    if(flatId==null) _checkFlatAccept();
+    if (flatId == null) _checkFlatAccept();
     return Scaffold(
         appBar: AppBar(
-          title: Text("Find a Flat"),
+          title: Text(
+            "FIND A FLAT",
+            style: TextStyle(
+              color: Color(0xff373D4C),
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           elevation: 0.0,
+          centerTitle: true,
         ),
+        backgroundColor: Colors.white,
         body: Builder(builder: (BuildContext scaffoldC) {
           scaffoldContext = scaffoldC;
           return RefreshIndicator(
@@ -193,7 +203,6 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SizedBox(
-                          height: 90.0,
                           width: deviceSize.width * 0.95,
                           child: Card(
                               color: ccard,
@@ -201,22 +210,26 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                                 padding: const EdgeInsets.all(15.0),
                                 child: (ccard == Colors.white)
                                     ? Text(lastRequestStatus,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontFamily: 'Montserrat', color: ctext))
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontFamily: 'Roboto',
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w700,
+                                            color: ctext))
                                     : ListTile(
-                                  leading: Icon(
-                                    Icons.warning,
-                                    color: ctext,
-                                  ),
-                                  title: Text(
-                                    lastRequestStatus,
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      color: ctext,
-                                    ),
-                                  ),
-                                ),
+                                        leading: Icon(
+                                          Icons.warning,
+                                          color: ctext,
+                                        ),
+                                        title: Text(
+                                          lastRequestStatus,
+                                          style: TextStyle(
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w700,
+                                            color: ctext,
+                                          ),
+                                        ),
+                                      ),
                               )),
                         ),
                       ),
@@ -238,42 +251,47 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                                   },
                                   child: new Card(
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(5.0)),
+                                          borderRadius:
+                                              BorderRadius.circular(5.0)),
                                       color: Colors.black87,
                                       elevation: 2.0,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          // Box decoration takes a gradient
-                                          gradient: LinearGradient(
-                                            // Where the linear gradient begins and ends
-                                            begin: Alignment.topRight,
-                                            end: Alignment.bottomLeft,
-                                            // Add one stop for each color. Stops should increase from 0 to 1
-                                            stops: [0.1, 0.5, 0.7, 0.9],
-                                            colors: [
-                                              // Colors are easy thanks to Flutter's Colors class.
-                                              Colors.indigo[800],
-                                              Colors.indigo[700],
-                                              Colors.indigo[600],
-                                              Colors.indigo[400],
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(5.0),
-                                        ),
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                            color: Color(0xff6C67D3)),
                                         child: Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                             children: <Widget>[
-                                              textInCard("Create a", FontWeight.w700,
-                                                  21.0, 28.0, 40.0),
-                                              textInCard("Flat", FontWeight.w700,
-                                                  21.0, 28.0, 5.0),
-                                              textInCard("Create a new", null, 12.0,
-                                                  28.0, 20.0),
-                                              textInCard("flat and invite", null,
-                                                  12.0, 28.0, 7.0),
-                                              textInCard("your flatmates.", null,
-                                                  12.0, 28.0, 7.0),
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                    left: 28.0,
+                                                    top: 40.0,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.add_circle_outline,
+                                                    size: 30.0,
+                                                    color: Colors.white,
+                                                  )),
+                                              textInCard(
+                                                  "CREATE",
+                                                  FontWeight.w700,
+                                                  21.0,
+                                                  28.0,
+                                                  10.0),
+                                              textInCard(
+                                                  "A FLAT",
+                                                  FontWeight.normal,
+                                                  21.0,
+                                                  28.0,
+                                                  3.0),
+                                              textInCard("Create a new flat",
+                                                  null, 14.0, 28.0, 8.0),
+                                              textInCard("and invite your",
+                                                  null, 14.0, 28.0, 4.0),
+                                              textInCard("flatmates", null,
+                                                  14.0, 28.0, 4.0),
                                             ]),
                                       )),
                                 )),
@@ -294,7 +312,7 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                                       setState(() {
                                         if (flag == 0) {
                                           lastRequestStatus =
-                                          "Your last request is pending. wait or join new flat.";
+                                              "Your last request is pending. wait or join new flat.";
                                           ccard = Colors.purple[100];
                                           ctext = Colors.purple[700];
                                         }
@@ -303,42 +321,47 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                                   },
                                   child: new Card(
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(5.0)),
-                                      color: Colors.black87,
+                                          borderRadius:
+                                              BorderRadius.circular(5.0)),
+                                      color: Color(0xff2079FF),
                                       elevation: 2.0,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          // Box decoration takes a gradient
-                                          gradient: LinearGradient(
-                                            // Where the linear gradient begins and ends
-                                            begin: Alignment.topRight,
-                                            end: Alignment.bottomLeft,
-                                            // Add one stop for each color. Stops should increase from 0 to 1
-                                            stops: [0.1, 0.5, 0.7, 0.9],
-                                            colors: [
-                                              // Colors are easy thanks to Flutter's Colors class.
-                                              Colors.indigo[800],
-                                              Colors.indigo[700],
-                                              Colors.indigo[600],
-                                              Colors.indigo[400],
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(5.0),
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
                                         ),
                                         child: Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                             children: <Widget>[
-                                              textInCard("Join a", FontWeight.w700,
-                                                  21.0, 28.0, 40.0),
-                                              textInCard("Flat", FontWeight.w700,
-                                                  21.0, 28.0, 5.0),
-                                              textInCard("Search for your", null,
-                                                  12.0, 28.0, 20.0),
-                                              textInCard("flat and send", null, 12.0,
-                                                  28.0, 7.0),
-                                              textInCard("a request.", null, 12.0,
-                                                  28.0, 7.0),
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                    left: 28.0,
+                                                    top: 40.0,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.play_circle_outline,
+                                                    size: 30.0,
+                                                    color: Colors.white,
+                                                  )),
+                                              textInCard(
+                                                  "JOIN",
+                                                  FontWeight.w700,
+                                                  21.0,
+                                                  28.0,
+                                                  10.0),
+                                              textInCard(
+                                                  "A FLAT",
+                                                  FontWeight.normal,
+                                                  21.0,
+                                                  28.0,
+                                                  3.0),
+                                              textInCard("Search for your",
+                                                  null, 14.0, 28.0, 8.0),
+                                              textInCard("flat and send a",
+                                                  null, 14.0, 28.0, 4.0),
+                                              textInCard("request", null, 14.0,
+                                                  28.0, 4.0),
                                             ]),
                                       )),
                                 )),
@@ -353,34 +376,36 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                         margin: EdgeInsets.all(15.0),
                       ),
                       Row(
-                        children:
-                        (incomingRequests == null || incomingRequests.length == 0)
+                        children: (incomingRequests == null ||
+                                incomingRequests.length == 0)
                             ? <Widget>[Container(margin: EdgeInsets.all(5.0))]
                             : <Widget>[
-                          Expanded(child: Container()),
-                          Text("Incoming Requests",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontFamily: 'Montserrat',
-                                  color: Colors.black)),
-                          Expanded(flex: 15, child: Container()),
-                        ],
+                                Expanded(child: Container()),
+                                Text("Requests",
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontFamily: 'Roboto',
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xff2079FF))),
+                                Expanded(flex: 15, child: Container()),
+                              ],
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 15.0),
                         child: Container(
                           height: (incomingRequests == null ||
-                              incomingRequests.length == 0)
+                                  incomingRequests.length == 0)
                               ? 5.0
                               : MediaQuery.of(context).size.height / 2,
                           child: (incomingRequests == null ||
-                              incomingRequests.length == 0)
+                                  incomingRequests.length == 0)
                               ? null
                               : new ListView.builder(
-                              itemCount: incomingRequests.length,
-                              itemBuilder: (BuildContext context, int index) =>
-                                  buildIncomingRequests(context, index)),
+                                  itemCount: incomingRequests.length,
+                                  itemBuilder: (BuildContext context,
+                                          int index) =>
+                                      buildIncomingRequests(context, index)),
                         ),
                       ),
                     ],
@@ -388,46 +413,53 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                 ),
                 RaisedButton(
                   shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(15.0),
+                    borderRadius: new BorderRadius.circular(25.0),
                     side: BorderSide(
-                      width: 0.5,
-                      color: Colors.indigo[900],
+                      width: 0.0,
                     ),
                   ),
-                  color: Colors.white,
-                  textColor: Colors.indigo[900],
+                  color: Color(0xff2079FF),
+                  textColor: Colors.white,
                   onPressed: () {
                     showDialog<bool>(
                       context: context,
                       builder: (context) {
                         return new AlertDialog(
                           title: new Text('Sign out'),
-                          content: new Text(
-                              'Are you sure you want to sign out?'),
+                          content:
+                              new Text('Are you sure you want to sign out?'),
                           actions: <Widget>[
                             new FlatButton(
                               child: new Text('Cancel'),
-                              onPressed: () =>
-                                  Navigator.of(context).pop(false),
+                              onPressed: () => Navigator.of(context).pop(false),
                             ),
                             new FlatButton(
                                 child: new Text('Yes'),
                                 onPressed: () async {
                                   Navigator.of(context).pop(true);
                                   await FirebaseAuth.instance.signOut();
-                                  final prefs = await SharedPreferences.getInstance();
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
                                   await prefs.clear();
                                   Navigator.pushAndRemoveUntil(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => MyApp()),
-                                          (Route<dynamic> route) => false);
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              MyApp()),
+                                      (Route<dynamic> route) => false);
                                 }),
                           ],
                         );
                       },
                     );
                   },
-                  child: Text('Sign out'),
+                  child: Text(
+                    'Sign out',
+                    style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -510,7 +542,8 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 15.0,
-                      fontFamily: 'Montserrat',
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -563,7 +596,7 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
         style: const TextStyle(
           color: Colors.black,
           fontSize: 10.0,
-          fontFamily: 'Montserrat',
+          fontFamily: 'Roboto',
           fontWeight: FontWeight.w700,
         ),
       );
@@ -585,7 +618,7 @@ class _CreateOrJoinBody extends State<CreateOrJoin> {
         style: TextStyle(
           fontSize: size,
           color: Colors.white,
-          fontFamily: 'Montserrat',
+          fontFamily: 'Roboto',
           fontWeight: weight,
         ),
       ),

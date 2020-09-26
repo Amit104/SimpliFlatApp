@@ -45,10 +45,27 @@ class _CreateUserFlat extends State<CreateFlat> {
           moveToLastScreen(context, -1);
         },
         child: Scaffold(
-            //resizeToAvoidBottomPadding: false,
+            backgroundColor: Colors.white,
             appBar: AppBar(
-              title: Text(buttonText),
+              title: Text(
+                buttonText.toString().toUpperCase(),
+                style: TextStyle(
+                  color: Color(0xff373D4C),
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               elevation: 0.0,
+              centerTitle: true,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Color(0xff373D4C),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
             body: Builder(builder: (BuildContext scaffoldContext) {
               return Form(
@@ -63,12 +80,11 @@ class _CreateUserFlat extends State<CreateFlat> {
                           child: Opacity(
                             opacity: 1,
                             child: SizedBox(
-                              height: max(deviceSize.height / 2, 350),
                               width: deviceSize.width * 0.85,
                               child: new Card(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0)),
-                                color: Colors.black87,
+                                color: Color(0xff2079FF),
                                 elevation: 2.0,
                                 child: Column(
                                   children: <Widget>[
@@ -89,7 +105,8 @@ class _CreateUserFlat extends State<CreateFlat> {
                                             "Enter Flat " + displayText,
                                             style: TextStyle(
                                                 color: Colors.white,
-                                                fontFamily: 'Montserrat',
+                                                fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.w700,
                                                 fontSize: 20.0),
                                           ),
                                         ),
@@ -100,9 +117,7 @@ class _CreateUserFlat extends State<CreateFlat> {
                                       ],
                                     ),
                                     Container(
-                                      margin: EdgeInsets.only(
-                                        top: 12.0,
-                                      ),
+                                      height: 12.0,
                                     ),
                                     Row(
                                       children: <Widget>[
@@ -121,7 +136,8 @@ class _CreateUserFlat extends State<CreateFlat> {
                                                 : "Get the flat ID from your friend's profile page.",
                                             style: TextStyle(
                                                 color: Colors.white70,
-                                                fontFamily: 'Montserrat',
+                                                fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.w700,
                                                 fontSize: 16.0),
                                             maxLines: null,
                                           ),
@@ -151,10 +167,12 @@ class _CreateUserFlat extends State<CreateFlat> {
                                             autofocus: true,
                                             keyboardType: TextInputType.text,
                                             style: TextStyle(
-                                                fontSize: 30.0,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700,
-                                                fontFamily: 'Montserrat'),
+                                              fontSize: 30.0,
+                                              color: Colors.white,
+                                              fontFamily: 'Roboto',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            cursorColor: Colors.white,
                                             controller: flatname,
                                             validator: (String value) {
                                               if (value.isEmpty)
@@ -181,7 +199,18 @@ class _CreateUserFlat extends State<CreateFlat> {
                                                 errorStyle: TextStyle(
                                                     color: Colors.red,
                                                     fontSize: 12.0),
-                                                border: InputBorder.none),
+                                                border:
+                                                    new UnderlineInputBorder(
+                                                  borderSide: new BorderSide(
+                                                      width: 0.5,
+                                                      color: Color(0xffBFDAFF)),
+                                                ),
+                                                focusedBorder:
+                                                    new UnderlineInputBorder(
+                                                  borderSide: new BorderSide(
+                                                      width: 0.5,
+                                                      color: Color(0xffBFDAFF)),
+                                                )),
                                           ),
                                         ),
                                         Expanded(
@@ -200,19 +229,18 @@ class _CreateUserFlat extends State<CreateFlat> {
                                           child: Container(),
                                         ),
                                         Expanded(
-                                          flex: 4,
+                                          flex: 8,
                                           child: ButtonTheme(
-                                              height: 60.0,
+                                              height: 50.0,
                                               minWidth: 150.0,
                                               child: RaisedButton(
                                                   shape:
                                                       new RoundedRectangleBorder(
                                                     borderRadius:
                                                         new BorderRadius
-                                                            .circular(10.0),
+                                                            .circular(25.0),
                                                     side: BorderSide(
-                                                      width: 1.0,
-                                                      color: Colors.black,
+                                                      width: 0.0,
                                                     ),
                                                   ),
                                                   color: Colors.white,
@@ -224,10 +252,14 @@ class _CreateUserFlat extends State<CreateFlat> {
                                                   })),
                                         ),
                                         Expanded(
-                                          flex: 4,
+                                          flex: 1,
                                           child: Container(),
                                         ),
+
                                       ],
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 40.0),
                                     ),
                                   ],
                                 ),
@@ -532,14 +564,25 @@ class _CreateUserFlat extends State<CreateFlat> {
 
   Widget setUpButtonChild() {
     if (_progressCircleState == 0) {
-      return new Text(
-        buttonText,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 16.0,
-          fontFamily: 'Montserrat',
-          fontWeight: FontWeight.w700,
-        ),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            buttonText,
+            style: const TextStyle(
+              color: Color(0xff2079FF),
+              fontSize: 16.0,
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          new Spacer(),
+          Icon(
+            Icons.arrow_forward_ios,
+            color: Color(0xff2079FF),
+          ),
+        ],
       );
     } else if (_progressCircleState == 1) {
       return CircularProgressIndicator(

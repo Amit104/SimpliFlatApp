@@ -51,7 +51,7 @@ class _TenantPortal extends State<TenantPortal> {
           bottomNavigationBar: new BottomNavigationBar(
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                  icon: Icon(IconsCustom.tasks_1), title: Text('Tasks')),
+                  icon: Icon(IconsCustom.date), title: Text('Tasks')),
               BottomNavigationBarItem(
                   icon: Icon(Icons.message), title: Text('Messages')),
               BottomNavigationBarItem(

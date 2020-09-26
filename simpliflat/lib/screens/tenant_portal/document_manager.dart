@@ -34,7 +34,7 @@ class _DocumentManager extends State<DocumentManager> {
 
   String _path;
   String _extension;
-  FileType _pickingType = FileType.ANY;
+  FileType _pickingType = FileType.any;
   bool _loadingPath = false;
 
   _DocumentManager(this._flatId);
@@ -305,23 +305,16 @@ class _DocumentManager extends State<DocumentManager> {
     var fileLength;
 
     try {
-      file = await FilePicker.getFile(type: _pickingType);
-      _fileName = file.path?.split("/")?.last;
-      var rng = new Random();
-      if (_fileName == null || _fileName == "") {
-        _fileName = _userName +
-            DateTime.now()
-                .toLocal()
-                .toString()
-                .replaceAll(":", "")
-                .replaceAll(" ", "")
-                .replaceAll(".", "")
-                .replaceAll("-", "") +
-            rng.nextInt(100).toString();
-      } else {
-        if (_fileName.contains(".")) {
-          _fileName = _fileName +
-              "_" +
+      var filePick = await FilePicker.platform.pickFiles();
+
+      if(filePick != null) {
+        file = File(filePick.files.single.path);
+        _fileName = file.path
+            ?.split("/")
+            ?.last;
+        var rng = new Random();
+        if (_fileName == null || _fileName == "") {
+          _fileName = _userName +
               DateTime.now()
                   .toLocal()
                   .toString()
@@ -331,22 +324,35 @@ class _DocumentManager extends State<DocumentManager> {
                   .replaceAll("-", "") +
               rng.nextInt(100).toString();
         } else {
-          _fileName = _fileName +
-              "_" +
-              DateTime.now()
-                  .toLocal()
-                  .toString()
-                  .replaceAll(":", "")
-                  .replaceAll(" ", "")
-                  .replaceAll(".", "")
-                  .replaceAll("-", "") +
-              rng.nextInt(100).toString();
+          if (_fileName.contains(".")) {
+            _fileName = _fileName +
+                "_" +
+                DateTime.now()
+                    .toLocal()
+                    .toString()
+                    .replaceAll(":", "")
+                    .replaceAll(" ", "")
+                    .replaceAll(".", "")
+                    .replaceAll("-", "") +
+                rng.nextInt(100).toString();
+          } else {
+            _fileName = _fileName +
+                "_" +
+                DateTime.now()
+                    .toLocal()
+                    .toString()
+                    .replaceAll(":", "")
+                    .replaceAll(" ", "")
+                    .replaceAll(".", "")
+                    .replaceAll("-", "") +
+                rng.nextInt(100).toString();
+          }
         }
+        debugPrint(_fileName + " is uploading");
+        debugPrint("File size is " + file.lengthSync().toString());
+        fileLength = file.lengthSync();
+        await uploadFile(file, _fileName, fileLength);
       }
-      debugPrint(_fileName + " is uploading");
-      debugPrint("File size is " + file.lengthSync().toString());
-      fileLength = file.lengthSync();
-      await uploadFile(file, _fileName, fileLength);
     } catch (e) {
       print("Unsupported operation" + e.toString());
     }

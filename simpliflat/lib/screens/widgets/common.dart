@@ -17,13 +17,14 @@ class CommonWidgets {
   }
 
   static Widget textBox(String text, double fontSize,
-      {String fontFamily = 'Montserrat', fontStyle = FontStyle.normal, color: Colors.indigo}) {
+      {String fontFamily = 'Montserrat', fontStyle = FontStyle.normal, fontWeight: FontWeight.normal, color: Colors.indigo}) {
     return Text(
       text,
       style: TextStyle(
           color: color,
           fontSize: fontSize,
           fontFamily: fontFamily,
+          fontWeight: fontWeight,
           fontStyle: fontStyle),
     );
   }
@@ -73,6 +74,41 @@ class CommonWidgets {
           ),
         ],
       ),
+    );
+  }
+
+  static getDotIndicator(double s1, double s2, double s3) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Color(0xffBFDAFF),
+            shape: BoxShape.circle,
+          ),
+          height: s1,
+          width: s1,
+        ),
+        Container(width: 10.0,),
+        Container(
+          decoration: BoxDecoration(
+            color: Color(0xffBFDAFF),
+            shape: BoxShape.circle,
+          ),
+          height: s2,
+          width: s2,
+        ),
+        Container(width: 10.0,),
+        Container(
+          decoration: BoxDecoration(
+            color: Color(0xffBFDAFF),
+            shape: BoxShape.circle,
+          ),
+          height: s3,
+          width: s3,
+        ),
+      ],
     );
   }
 

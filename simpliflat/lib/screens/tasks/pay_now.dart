@@ -144,14 +144,14 @@ class _PayNow extends State<PayNow> {
                     ],
                   ),
                 ),
-                if (_upiAddrError != null)
+                (_upiAddrError != null) ?
                   Container(
                     margin: EdgeInsets.only(top: 4, left: 12),
                     child: Text(
                       _upiAddrError,
                       style: TextStyle(color: Colors.red),
                     ),
-                  ),
+                  ):null,
                 Container(
                   margin: EdgeInsets.only(top: 32),
                   child: Row(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:simpliflat/screens/signup/signupBackground.dart';
 import 'package:simpliflat/screens/signup/signupOTP.dart';
-import 'dart:math';
+import 'package:simpliflat/screens/widgets/common.dart';
+
 
 class SignUpPhone extends StatefulWidget {
   @override
@@ -26,166 +26,217 @@ class _SignUpPhoneUser extends State<SignUpPhone> {
     var deviceSize = MediaQuery.of(context).size;
 
     return Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("SignUp"),
+          title: Text(
+            "SIGNUP",
+            style: TextStyle(
+              color: Color(0xff373D4C),
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           elevation: 0.0,
+          centerTitle: true,
         ),
         //resizeToAvoidBottomPadding: false,
-        body: Stack(children: <Widget>[
-          SignUpBackground(1),
-          Builder(builder: (BuildContext scaffoldContext) {
-            _scaffoldContext = scaffoldContext;
-            return Form(
-                key: _formKey,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: 50.0, left: _minpad * 2, right: _minpad * 2),
-                  child: ListView(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(_minpad),
-                        child: Opacity(
-                          //
-                          opacity: 1,
-                          child: SizedBox(
-                              height: max(deviceSize.height / 2, 300),
-                              width: deviceSize.width * 0.85,
-                              child: new Card(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(10.0)),
-                                  color: Colors.white,
-                                  elevation: 2.0,
-                                  child: Column(children: <Widget>[
-                                    Container(
-                                      margin: EdgeInsets.only(
-                                        top: 50.0,
+        body: Builder(builder: (BuildContext scaffoldContext) {
+          _scaffoldContext = scaffoldContext;
+          return Form(
+              key: _formKey,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 60.0,
+                ),
+                child: ListView(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(0.0),
+                      child: Opacity(
+                        opacity: 1,
+                        child: SizedBox(
+                          width: deviceSize.width,
+                          child: new Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0)),
+                            color: Colors.white,
+                            elevation: 0.0,
+                            child: Column(
+                              children: <Widget>[
+                                Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
+                                    ),
+                                    Expanded(
+                                      flex: 7,
+                                      child: Text(
+                                        "Welcome to SimpliFlat!",
+                                        style: TextStyle(
+                                            color: Color(0xff2079FF),
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 26.0),
                                       ),
                                     ),
-                                    Row(
-                                      children: <Widget>[
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(),
-                                        ),
-                                        Expanded(
-                                          flex: 7,
-                                          child: Text(
-                                            "Let me verify your phone number",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 18.0),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  height: 5.0,
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
+                                    ),
+                                    Expanded(
+                                      flex: 7,
+                                      child: Text(
+                                        "Please insert your phone number to continue",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14.0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    top: 35.0,
+                                  ),
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Container(
+                                        child: Text(
+                                          "+91",
+                                          style: TextStyle(
+                                            fontSize: 30.0,
+                                            color: Colors.black,
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(),
-                                        ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        top: 35.0,
                                       ),
                                     ),
-                                    Row(
-                                      children: <Widget>[
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(),
-                                        ),
-                                        Expanded(
-                                          flex: 7,
-                                          child: Center(
-                                            child: TextFormField(
-                                              autofocus: true,
-                                              keyboardType:
-                                              TextInputType.number,
-                                              style: TextStyle(
-                                                  fontSize: 30.0,
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w700,
-                                                  fontFamily: 'Montserrat'),
-                                              controller: phone,
-                                              validator: (String value) {
-                                                if (value.isEmpty)
-                                                  return "Please enter Phone Number";
-                                                if (value.length != 10)
-                                                  return "Please enter Valid 10 digit number";
-                                                return null;
-                                              },
-                                              onFieldSubmitted: (v) {
-                                                _submitForm();
-                                              },
-                                              decoration: InputDecoration(
-                                                //labelText: "Phone Number",
-                                                  hintText: "9001236320",
-                                                  //labelStyle: TextStyle(
-                                                  //    color: Colors.black),
-                                                  hintStyle: TextStyle(
-                                                      color: Colors.grey),
-                                                  errorStyle: TextStyle(
-                                                      color: Colors.red,
-                                                      fontSize: 12.0,
-                                                      fontFamily: 'Montserrat'),
-                                                  border: InputBorder.none),
+                                    Expanded(
+                                      flex: 7,
+                                      child: Center(
+                                        child: TextFormField(
+                                          autofocus: true,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyle(
+                                            fontSize: 30.0,
+                                            color: Colors.black,
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          controller: phone,
+                                          validator: (String value) {
+                                            if (value.isEmpty)
+                                              return "Please enter Phone Number";
+                                            if (value.length != 10)
+                                              return "Please enter Valid 10 digit number";
+                                            return null;
+                                          },
+                                          onFieldSubmitted: (v) {
+                                            _submitForm();
+                                          },
+                                          decoration: InputDecoration(
+                                            //labelText: "Phone Number",
+                                            border: new UnderlineInputBorder(
+                                              borderSide: new BorderSide(
+                                                  color: Colors.black),
+                                            ),
+                                            focusedBorder:
+                                                new UnderlineInputBorder(
+                                              borderSide: new BorderSide(
+                                                  color: Colors.black),
+                                            ),
+                                            hintText: "9001236320",
+                                            hintStyle:
+                                                TextStyle(color: Colors.grey),
+                                            errorStyle: TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 12.0,
+                                              fontFamily: 'Roboto',
                                             ),
                                           ),
                                         ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 30.0),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
                                     ),
-                                    Row(
-                                      children: <Widget>[
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(),
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: ButtonTheme(
-                                              height: 40.0,
-                                              child: RaisedButton(
-                                                  shape:
-                                                  new RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    new BorderRadius
-                                                        .circular(10.0),
-                                                    side: BorderSide(
-                                                      width: 1.0,
-                                                      color: Colors.indigo[900],
-                                                    ),
-                                                  ),
-                                                  color: Colors.white,
-                                                  textColor: Theme.of(context)
-                                                      .primaryColorDark,
-                                                  child: setUpButtonChild(),
-                                                  onPressed: () {
-                                                    _submitForm();
-                                                  })),
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: Container(),
-                                        ),
-                                      ],
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 30.0),
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
                                     ),
-                                  ]))),
+                                    Expanded(
+                                      flex: 8,
+                                      child: ButtonTheme(
+                                          height: 50.0,
+                                          child: RaisedButton(
+                                              shape: new RoundedRectangleBorder(
+                                                borderRadius:
+                                                    new BorderRadius.circular(
+                                                        25.0),
+                                                side: BorderSide(
+                                                  width: 0.0,
+                                                ),
+                                              ),
+                                              color: Color(0xff2079FF),
+                                              textColor: Theme.of(context)
+                                                  .primaryColorDark,
+                                              child: setUpButtonChild(),
+                                              onPressed: () {
+                                                _submitForm();
+                                              })),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(),
+                                    ),
+                                  ],
+                                ),
+                                Container(height: 10.0),
+                                CommonWidgets.getDotIndicator(20,10,10),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ));
-          }),
-        ]));
+                    ),
+                  ],
+                ),
+              ));
+        }));
   }
 
   void _submitForm() {
@@ -211,20 +262,31 @@ class _SignUpPhoneUser extends State<SignUpPhone> {
 
   Widget setUpButtonChild() {
     if (_progressCircleState == 0) {
-      return new Text(
-        "Proceed",
-        style: const TextStyle(
-          color: Colors.indigo,
-          fontSize: 16.0,
-          fontFamily: 'Montserrat',
-          fontWeight: FontWeight.w700,
-        ),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "CONTINUE",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16.0,
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          new Spacer(),
+          Icon(
+            Icons.arrow_forward_ios,
+            color: Colors.white,
+          ),
+        ],
       );
     } else if (_progressCircleState == 1) {
       return Container(
-        margin: EdgeInsets.all(3.0),
+        margin: EdgeInsets.all(5.0),
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.indigo[900]),
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
         ),
       );
     } else {

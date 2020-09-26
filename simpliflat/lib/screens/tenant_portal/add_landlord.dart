@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:simpliflat/models/user_login_info.dart';
 import 'package:simpliflat/screens/globals.dart' as globals;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simpliflat/screens/home.dart';

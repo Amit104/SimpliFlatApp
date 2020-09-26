@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:simpliflat/icons/icons_custom_icons.dart';
 import 'package:simpliflat/main.dart';
+import 'package:simpliflat/models/user_login_info.dart';
 import 'package:simpliflat/screens/signup/create_flat.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
